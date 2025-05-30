@@ -1,103 +1,193 @@
-import Image from "next/image";
+// "use client";
+// // pages/index.tsx
 
-export default function Home() {
+// import { useEffect, useState } from "react";
+// import SearchBar from "@/components/SearchBar";
+
+// type Category = {
+//   id: number;
+//   name: string;
+// };
+
+// export default function Home() {
+//   const [categories, setCategories] = useState<Category[]>([]);
+//   const [searchTerm, setSearchTerm] = useState("");
+
+//   // useEffect(() => {
+//   //   const fetchCategories = async() => {
+//   //     try {
+//   //       const res = await fetch('/api/categories')
+//   //       if (!res.ok) throw new Error('Failed to fetch categories')
+//   //         const data = await res.json()
+//   //       setCategories(data)
+//   //     } catch(error) {
+//   //       console.error('Error:', error)
+//   //     }
+//   //   }
+//   //   fetchCategories()
+//   // }, [])
+//   return (
+//     <main className="min-h-screen flex flex-col">
+//       {/* Zoekbalk via component*/}
+//       <div className="pt-16 bg-yellow-200 border border-red-500">
+//         <SearchBar
+//           value={searchTerm}
+//           onChange={setSearchTerm}
+//           placeholder="Zoek naar producten..."
+//         />
+//       </div>
+
+//       {/* Categorieën */}
+//       <div className="grid grid-cols-2 gap-4 mb-6">
+//         {categories.map((cat) => (
+//           <button
+//             key={cat.id}
+//             className="bg-blue-100 p-4 rounded text-center hover:bg-blue-200"
+//           >
+//             {cat.name}
+//           </button>
+//         ))}
+//       </div>
+
+//       {/* Navigatie naar lijsten */}
+//       <div className="grid grid-cols-2 gap-4">
+//         <button className="bg-green-200 p-4 rounded">Boodschappenlijst</button>
+//         <button className="bg-red-200 p-4 rounded">Favorietenlijst</button>
+//       </div>
+//     </main>
+//   );
+// }
+
+// // const Home = () => {
+// //   const [data, setData] = useState(null);
+
+// //   useEffect(() => {
+// //     const fetchData = async () => {
+// //       const response = await fetch(
+// //         `${process.env.NEXT_PUBLIC_API_URL}/api/data`
+// //       );
+// //       const result = await response.json();
+// //       setData(result);
+// //     };
+
+// //     fetchData();
+// //   }, []);
+
+// //   return (
+// //     <div>
+// //       <h1>Data from Laravel API:</h1>
+// //       <pre>{JSON.stringify(data, null, 2)}</pre>
+// //     </div>
+// //   );
+// // };
+
+// // export default Home;
+
+// "use client";
+
+// import { useProducts } from "@/features/products/useProducts";
+// import { Product } from "@/types/productTypes";
+
+// export default function Home() {
+//   const { data: products, isLoading, error } = useProducts();
+
+//   if (isLoading) return <p>Laden...</p>;
+//   if (error) return <p>Fout bij ophalen van producten</p>;
+
+//   return (
+//     <main className="p-6">
+//       <h1 className="text-2xl font-bold mb-4">Producten</h1>
+//       {Array.isArray(products) && products.length > 0 ? (
+//         <ul className="space-y-2">
+//           {products.map((product: any) => (
+//             <li
+//               key={product.id}
+//               className="p-3 bg-gray-100 rounded-md shadow-sm"
+//             >
+//               {product.name}
+//             </li>
+//           ))}
+//         </ul>
+//       ) : (
+//         <p>Geen producten gevonden.</p>
+//       )}
+//     </main>
+//   );
+// }
+
+// import { ReactNode } from "react";
+
+// import { NavItem } from "@/app/layout";
+
+// export default function RootLayout({ children }: { children: ReactNode }) {
+//   return (
+//     <html lang="nl">
+//       <body className="flex flex-col min-h-screen">
+//         {/* Header met logo en zoekbalk */}
+//         <header className="m-4 p-2 rounded bg-gray-500 shadow-md flex justify-between items-center">
+//           <div className="text-xl font-bold">Logo</div>
+//           <input
+//             type="text"
+//             placeholder="Search for product..."
+//             className="border p-2 rounded-md w-full max-w-md ml-4"
+//           />
+//           <button className="cursor-pointer p-2">
+//             <Settings className="w-6 h-6" />
+//           </button>
+//         </header>
+
+//         {/* Main content */}
+//         <main className="">{children}</main>
+
+//         {/* Bottom navigation bar */}
+//         <footer className="bg-gray-500 p-4 flex justify-around border-t">
+//           <NavItem label="Home">
+//             <House />
+//           </NavItem>
+//           <NavItem label="Zoek">
+//             <Search />
+//           </NavItem>
+//           <NavItem label="Boodschappenlijst">
+//             <ShoppingCart />
+//           </NavItem>
+//           <NavItem label="Favorieten">
+//             <Heart />
+//           </NavItem>
+//           <NavItem label="Profiel">
+//             <User />
+//           </NavItem>
+//         </footer>
+//       </body>
+//     </html>
+//   );
+// }
+
+import Categories from "@/components/Categories";
+import Link from "next/link";
+
+export default function HomePage() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <section className="p-4 flex flex-col flex-grow">
+      <h1 className="text-2xl font-bold mb-4 text-center">Welkom</h1>
+      {/* Home content */}
+      <Categories />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      <div className="flex flex-grow justify-center items-center">
+        <div className="home flex flex-col gap-4 w-full">
+          <Link
+            href="/shoppinglist"
+            className="bg-blue-500 text-white px-4 py-2 rounded h-20 flex items-center justify-center w-full"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            Boodschappen
+          </Link>
+          <Link
+            href="/favourites"
+            className="bg-green-500 text-white px-4 py-2 rounded h-20 flex items-center justify-center"
           >
-            Read our docs
-          </a>
+            Favorieten
+          </Link>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+    </section>
   );
 }
