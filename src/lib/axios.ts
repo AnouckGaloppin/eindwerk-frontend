@@ -5,13 +5,13 @@ import axios from "axios";
 const api = axios.create({
   baseURL: "http://localhost:58359",
   withCredentials: true,
-  // headers: {
-  //   "Content-Type": "application/json",
-  //   Accept: "application/json",
-  //   // "X-XSRF-TOKEN": decodeURIComponent(
-  //   //   "eyJpdiI6InhuK3ZRWlVpU2RKbVh4d1Zya1l1Smc9PSIsInZhbHVlIjoiRVM5VWpRNEJieUNSTUx5ZW9KZW9nWmN1UUE2TlZZVDltMjdSaW45WEtXZlJDNW9HVXFoZjBPV3NYcXNHZ1hIOHRPRnMyRWtvT2Y5ME16Qi9aa3dLVnRGbU81U01qVkVDelVMSTE0eVlRdVN4ODU0bTVpa2UyZ09YZnZuVUV4dmgiLCJtYWMiOiJjMDYzZmJjOGUyZWUyZWNlMDM4ODY4NTBmYTRiMjVjNjIyMDFiOTNmMTdiNzE3OTU5YzZlZTQ1ZjE4ZjlkYTg5IiwidGFnIjoiIn0%3D"
-  //   // ),
-  // },
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    //   // "X-XSRF-TOKEN": decodeURIComponent(
+    //   //   "eyJpdiI6InhuK3ZRWlVpU2RKbVh4d1Zya1l1Smc9PSIsInZhbHVlIjoiRVM5VWpRNEJieUNSTUx5ZW9KZW9nWmN1UUE2TlZZVDltMjdSaW45WEtXZlJDNW9HVXFoZjBPV3NYcXNHZ1hIOHRPRnMyRWtvT2Y5ME16Qi9aa3dLVnRGbU81U01qVkVDelVMSTE0eVlRdVN4ODU0bTVpa2UyZ09YZnZuVUV4dmgiLCJtYWMiOiJjMDYzZmJjOGUyZWUyZWNlMDM4ODY4NTBmYTRiMjVjNjIyMDFiOTNmMTdiNzE3OTU5YzZlZTQ1ZjE4ZjlkYTg5IiwidGFnIjoiIn0%3D"
+    //   // ),
+  },
   withXSRFToken: true,
   xsrfCookieName: "XSRF-TOKEN",
   xsrfHeaderName: "X-XSRF-TOKEN",

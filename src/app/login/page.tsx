@@ -43,14 +43,30 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    console.log("Submitting !");
+    // console.log("Submitting !");
     try {
-      // console.log(
-      //   "Fetching CSRF token from:",
-      //   `${API_URL}/sanctum/csrf-cookie`
-      // );
+      console.log(
+        "Fetching CSRF token from:",
+        `${API_URL}/sanctum/csrf-cookie`
+      );
 
-      // axios.get(`${API_URL}/sanctum/csrf-cookie`).then(() => {
+      await api.get("/sanctum/csrf-cookie");
+      console.log("Cookies after CSRF:", document.cookie);
+      console.log("Submitting to:", `${API_URL}/api/login`);
+      const response = await api.post("/api/login", {
+        email,
+        password,
+      });
+      console.log("Login response:", response.data, "Status:", response.status);
+      if (response.status >= 200 && response.status < 300) {
+        router.push("/");
+      } else {
+        throw new Error(
+          response.data.message || `Login failed with status ${response.status}`
+        );
+      }
+
+      // await api.get(`${API_URL}/sanctum/csrf-cookie`).then(() => {
       //   // Now log in
       //   axios
       //     .post(`${API_URL}/login`, {
@@ -95,36 +111,38 @@ export default function LoginPage() {
       //   password,
       // });
 
-      console.log("Trying to post login request to:", `${API_URL}/login`);
-      // await api.get("/sanctum/csrf-cookie");
-      console.log(document.cookie);
-      const response = await api.post("/login", {
-        email,
-        password,
-      });
-      console.log("Login response status:", response.status);
-      console.log("Login response headers:", [...response.headers.entries()]);
-      // if (!response.ok) {
-      //   const data = await response.json();
+      // console.log("Trying to post login request to:", `${API_URL}/login`);
+      // // await api.get("/sanctum/csrf-cookie");
+      // console.log(document.cookie);
+      // const response = await api.post("/login", {
+      //   email,
+      //   password,
+      // });
+      // console.log("Login response status:", response.status);
+      // console.log("Login response headers:", [...response.headers.entries()]);
+      // // if (!response.ok) {
+      // //   const data = await response.json();
+      // //   throw new Error(
+      // //     data.message || `Login failed with status ${response.status}`
+      // //   );
+      // // }
+
+      // if (response.status >= 200 && response.status < 300) {
+      //   router.push("/");
+      // } else {
       //   throw new Error(
-      //     data.message || `Login failed with status ${response.status}`
+      //     response.data.message || `Login failed with status ${response.status}`
       //   );
       // }
-
-      if (response.status >= 200 && response.status < 300) {
-        router.push("/");
-      } else {
-        throw new Error(
-          response.data.message || `Login failed with status ${response.status}`
-        );
-      }
     } catch (err: any) {
       console.error("Error details:", {
         message: err.message,
-        name: err.name,
-        stack: err.stack,
-        cause: err.cause,
-        response: err.response?.data,
+        // name: err.name,
+        // stack: err.stack,
+        // cause: err.cause,
+        // response: err.response?.data,
+        status: err.response?.status,
+        data: err.response?.data,
       });
       setError(
         err.response?.data?.message ||
@@ -178,7 +196,7 @@ export default function LoginPage() {
         </button> */}
 
         <p className="mt-4 text-center text-sm text-gray-600">
-          Nog geen account?{" "}
+          Nog geen account?
           <Link href="/register" className="text-blue-500 hover:underline">
             Registreer
           </Link>
