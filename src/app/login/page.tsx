@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import api from "@/lib/api";
+import api from "@/lib/axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.ddev.site";
 console.log("API_URL:", API_URL);
@@ -14,28 +14,28 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const [testMessage, setTestMessage] = useState("");
+  // const [testMessage, setTestMessage] = useState("");
 
-  const handleTestBackend = async () => {
-    setError("");
-    setTestMessage("");
-    try {
-      console.log("Testing backend at:", `${API_URL}/test`);
-      const response = await api.get("/api/test");
-      console.log("Test response:", response.data);
-      setTestMessage(response.data.message || "Test successful");
-    } catch (err: any) {
-      console.error("Test error:", {
-        message: err.message,
-        response: err.response?.data,
-      });
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Failed to connect to backend"
-      );
-    }
-  };
+  // const handleTestBackend = async () => {
+  //   setError("");
+  //   setTestMessage("");
+  //   try {
+  //     console.log("Testing backend at:", `${API_URL}/test`);
+  //     const response = await api.get("/api/test");
+  //     console.log("Test response:", response.data);
+  //     setTestMessage(response.data.message || "Test successful");
+  //   } catch (err: any) {
+  //     console.error("Test error:", {
+  //       message: err.message,
+  //       response: err.response?.data,
+  //     });
+  //     setError(
+  //       err.response?.data?.message ||
+  //         err.message ||
+  //         "Failed to connect to backend"
+  //     );
+  //   }
+  // };
 
   // const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://backend.ddev.site";
   // console.log("API_URL:", API_URL);
@@ -169,13 +169,13 @@ export default function LoginPage() {
           Inloggen
         </button>
 
-        <button
+        {/* <button
           type="button"
           className="bg-blue-500 text-white w-full py-2 rounded hover:bg-blue-600"
           onClick={handleTestBackend}
         >
           Test Backend
-        </button>
+        </button> */}
 
         <p className="mt-4 text-center text-sm text-gray-600">
           Nog geen account?{" "}
