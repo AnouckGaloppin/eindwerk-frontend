@@ -1,6 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Providers from "./Providers";
+import Providers from "./providers";
 // app/layout.tsx (Next.js 13/14 layout file)
 // import Providers from "./providers";
 import { ReactNode } from "react";
