@@ -1,7 +1,12 @@
+"use client";
+
 import { NavItem } from "@/app/layout";
 import { Heart, House, Search, ShoppingCart, User } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
 const Footer = () => {
+  const { user } = useAuth();
+
   return (
     <footer className="bg-gray-500 p-4 flex justify-around border-t">
       <NavItem label="Home" href="/">
@@ -20,7 +25,10 @@ const Footer = () => {
         <Heart />
       </NavItem>
 
-      <NavItem label="Profiel" href="/dashboard">
+      <NavItem
+        label={user ? "Profiel" : "Login"}
+        href={user ? "/profile" : "/login"}
+      >
         <User />
       </NavItem>
     </footer>

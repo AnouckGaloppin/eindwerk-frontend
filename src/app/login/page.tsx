@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/axios";
+import { useAuth } from "@/lib/auth-context";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.ddev.site";
 console.log("API_URL:", API_URL);
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const { setUser } = useAuth();
 
   // const [testMessage, setTestMessage] = useState("");
 
@@ -59,6 +61,7 @@ export default function LoginPage() {
       });
       console.log("Login response:", response.data, "Status:", response.status);
       if (response.status >= 200 && response.status < 300) {
+        setUser(response.data.user);
         router.push("/");
       } else {
         throw new Error(

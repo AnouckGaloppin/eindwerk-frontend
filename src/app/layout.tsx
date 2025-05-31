@@ -1,19 +1,21 @@
-// app/layout.tsx (Next.js 13/14 layout file)
-import "./globals.css";
 import { Inter } from "next/font/google";
-import Providers from "./providers";
+import "./globals.css";
+import Providers from "./Providers";
+// app/layout.tsx (Next.js 13/14 layout file)
+// import Providers from "./providers";
 import { ReactNode } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-
+// import Header from "@/components/Header";
+// import Footer from "@/components/Footer";
+// import { AuthProvider } from "@/lib/auth-context";
+// import ClientProvider from "./ClientProvider";
 import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata = {
-  title: "Boodschappenlijst",
-  description: "Laravel + Next.js boodschappen app",
-};
+// export const metadata = {
+//   title: "Boodschappenlijst",
+//   description: "Laravel + Next.js boodschappen app",
+// };
 
 export function NavItem({
   label,
@@ -118,10 +120,11 @@ export default function RootLayout({
   return (
     <html lang="nl" className="h-full">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
+        {/* <AuthProvider> */}
         <div className="flex flex-col flex-grow">
           <Providers>
             {/* Header met logo en zoekbalk */}
-            <Header />
+            {/* <Header /> */}
             {/* <header className=" p-2 bg-gray-500 shadow-md flex justify-between items-center">
               <Link href="/" className="text-xl font-bold">
                 Logo
@@ -138,7 +141,7 @@ export default function RootLayout({
             {/* Main content */}
             <main className="flex-grow flex flex-col">{children}</main>
             {/* Bottom navigation bar */}
-            <Footer />
+            {/* <Footer /> */}
             {/* <footer className="bg-gray-500 p-4 flex justify-around border-t">
               <NavItem label="Home" href="/">
                 <House />
@@ -162,6 +165,7 @@ export default function RootLayout({
             </footer> */}
           </Providers>
         </div>
+        {/* </AuthProvider> */}
       </body>
     </html>
   );

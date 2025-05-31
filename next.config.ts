@@ -14,14 +14,17 @@
 
 // export default nextConfig;
 
-const fs = require("fs");
-const path = require("path");
+// module.exports = {
+// devServer: {
+//   https: {
+//     key: fs.readFileSync(path.join(__dirname, "localhost-key.pem")),
+//     cert: fs.readFileSync(path.join(__dirname, "localhost.pem")),
+//   },
+// },
+// };
 
-module.exports = {
-  devServer: {
-    https: {
-      key: fs.readFileSync(path.join(__dirname, "localhost-key.pem")),
-      cert: fs.readFileSync(path.join(__dirname, "localhost.pem")),
-    },
-  },
+const nextConfig = {
+  reactStrictMode: true,
 };
+
+export default nextConfig;
