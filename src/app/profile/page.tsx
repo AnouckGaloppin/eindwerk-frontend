@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import { useAuth } from "@/lib/auth-context";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.ddev.site";
+// const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.ddev.site";
 
 export default function ProfilePage() {
   const { user, refreshUser } = useAuth();

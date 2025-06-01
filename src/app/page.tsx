@@ -162,16 +162,35 @@
 //   );
 // }
 
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
 import Categories from "@/components/Categories";
 import Link from "next/link";
 
 export default function HomePage() {
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user, router]);
+
+  if (!user) {
+    return <div className="p-4 text-center">Loading...</div>;
+  }
+
   return (
     <section className="p-4 flex flex-col flex-grow">
-      <h1 className="text-2xl font-bold mb-4 text-center">Welkom</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center">
+        Welkom, {user.username}!
+      </h1>
       {/* Home content */}
       <Categories />
-
       <div className="flex flex-grow justify-center items-center">
         <div className="home flex flex-col gap-4 w-full">
           <Link
