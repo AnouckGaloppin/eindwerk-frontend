@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import api from "@/lib/axios";
 import type { User } from "@/types/userTypes";
 import { useRouter } from "next/navigation";
+import { Pencil, Trash } from "lucide-react";
 
 export default function AdminUsers() {
   const { user, setUser } = useAuth();
@@ -23,6 +24,18 @@ export default function AdminUsers() {
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   // const { user, loading: authLoading } = useAuth();
 
+  const fetchUsers = async () => {
+    try {
+      const response = await api.get("/api/admin/users");
+      setUsers(response.data);
+      console.log(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!user) {
       router.push("/login");
@@ -33,16 +46,6 @@ export default function AdminUsers() {
       return;
     }
 
-    const fetchUsers = async () => {
-      try {
-        const response = await api.get("/admin/users");
-        setUsers(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        setLoading(false);
-      }
-    };
     fetchUsers();
   }, [user, router]);
 
@@ -56,13 +59,13 @@ export default function AdminUsers() {
     e.preventDefault();
     try {
       if (editingUserId) {
-        await api.put(`/admin/users/${editingUserId}`, formData);
+        await api.put(`/api/admin/users/${editingUserId}`, formData);
         alert("Gebruiker bijgewerkt");
       } else {
-        await api.post("/admin/users", formData);
+        await api.post("/api/admin/users", formData);
         alert("Gebruiker aangemaakt");
       }
-      const response = await api.get("/admin/users");
+      const response = await api.get("/api/admin/users");
       setUsers(response.data);
       setFormData({
         username: "",
@@ -82,7 +85,7 @@ export default function AdminUsers() {
   };
 
   const handleEdit = (user: User) => {
-    setEditingUserId(user._id);
+    setEditingUserId(user.id);
     setFormData({
       username: user.username,
       email: user.email,
@@ -109,10 +112,12 @@ export default function AdminUsers() {
   const handleDelete = async (id: string) => {
     if (confirm("Weet je zeker dat je deze gebruiker wilt verwijderen?")) {
       try {
-        await api.delete(`/admin/users/${id}`);
+        await api.get("/sanctum/csrf-cookie");
+        await api.delete(`/api/admin/users/${id}`);
         alert("Gebruiker verwijderd");
-        const response = await api.get("/admin/users");
-        setUsers(response.data);
+        fetchUsers();
+        // const response = await api.get("/api/admin/users");
+        // setUsers(response.data);
       } catch (error: any) {
         setError(
           "Failed to delete user: " + error.response?.data?.message ||
@@ -139,6 +144,7 @@ export default function AdminUsers() {
       <table className="w-full border-collapse">
         <thead>
           <tr>
+            {/* <th>iD</th> */}
             <th className="border p-2">Gebruikersnaam</th>
             <th className="border p-2">Email</th>
             <th className="border p-2">Rol</th>
@@ -147,22 +153,23 @@ export default function AdminUsers() {
         </thead>
         <tbody>
           {users.map((user) => (
-            <tr key={user._id}>
+            <tr key={user.email}>
+              {/* <td>{user.id}</td> */}
               <td className="border p-2">{user.username}</td>
               <td className="border p-2">{user.email}</td>
               <td className="border p-2">{user.role}</td>
-              <td className="border p-2">
+              <td className="border p-2 flex">
                 <Link
-                  href={`/admin/users/edit/${user._id}`}
+                  href={`/admin/users/edit/${user.id}`}
                   className="text-blue-500 mr-2"
                 >
-                  Bewerken
+                  <Pencil />
                 </Link>
                 <button
-                  onClick={() => handleDelete(user._id)}
+                  onClick={() => handleDelete(user.id)}
                   className="text-red-500"
                 >
-                  Verwijderen
+                  <Trash />
                 </button>
               </td>
             </tr>

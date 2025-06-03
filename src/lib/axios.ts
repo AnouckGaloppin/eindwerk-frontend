@@ -3,7 +3,7 @@ import axios from "axios";
 // import Cookies from "js-cookie";
 
 const api = axios.create({
-  baseURL: "http://localhost:51032",
+  baseURL: "http://localhost:53261",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -14,13 +14,14 @@ const api = axios.create({
   xsrfHeaderName: "X-XSRF-TOKEN",
 });
 
-// api.interceptors.request.use((config) => {
-//   const token = localStorage.getItem("sanctum_token");
-//   if (token) {
-//     config.headers.Authorization = `Bearer ${token}`;
-//   }
-//   return config;
-// });
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("sanctum_token");
+  console.log("Token:", token);
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 export default api;
 

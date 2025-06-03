@@ -12,28 +12,50 @@ export default function EditUser() {
     password: "",
     role: "user",
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const router = useRouter();
   const { id } = useParams();
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
-  if (loading) return <p>Laden...</p>;
-  if (!user || user.role !== "admin") {
-    return <p className="text-red-500">Alleen toegankelijk voor beheerders</p>;
-  }
+  // if (loading) return <p>Laden...</p>;
+  // if (!user || user.role !== "admin") {
+  //   return <p className="text-red-500">Alleen toegankelijk voor beheerders</p>;
+  // }
 
   useEffect(() => {
     if (id) {
-      api
-        .get(`/admin/users/${id}`)
-        .then((response) => {
+      const fetchUser = async () => {
+        try {
+          console.log("Fetching user.... With id:", id);
+          setIsLoading(true);
+          const response = await api.get(`/api/admin/users/${id}`);
           setForm({
             username: response.data.username,
             email: response.data.email,
             password: "",
             role: response.data.role,
           });
-        })
-        .catch((error) => console.error("Error fetching user:", error));
+        } catch (error) {
+          console.error("Error fetching user:", error);
+          // setError();
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchUser();
+
+      // api
+      //   .get(`/admin/users/${id}`)
+      //   .then((response) => {
+      //     setForm({
+      //       username: response.data.username,
+      //       email: response.data.email,
+      //       password: "",
+      //       role: response.data.role,
+      //     });
+      //   })
+      //   .catch((error) => console.error("Error fetching user:", error));
     }
   }, [id]);
 
@@ -41,7 +63,7 @@ export default function EditUser() {
     e.preventDefault();
     try {
       await api.get("/sanctum/csrf-cookie");
-      await api.put(`/admin/users/${id}`, form);
+      await api.put(`/api/admin/users/${id}`, form);
       router.push("/admin/users");
     } catch (error: any) {
       console.error("Error updating user:", error);
@@ -51,9 +73,19 @@ export default function EditUser() {
     }
   };
 
+  if (authLoading) return <p className="text-gray-500">Laden...</p>;
+
+  if (!user || user.role !== "admin") {
+    return <p className="text-red-500">Alleen toegankelijk voor beheerders</p>;
+  }
+  if (isLoading)
+    return <p className="text-gray-500">Gebruikersgegevens laden...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Gebruiker Bewerken (Admin)</h1>
+      {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block">Gebruikersnaam</label>
@@ -66,7 +98,7 @@ export default function EditUser() {
           />
         </div>
         <div>
-          <label className="block">Email</label>
+          <label className="block text-sm font-medium">Email</label>
           <input
             type="email"
             value={form.email}
@@ -76,7 +108,7 @@ export default function EditUser() {
           />
         </div>
         <div>
-          <label className="block">
+          <label className="block text-sm font-medium">
             Wachtwoord (leeg laten om ongewijzigd te houden)
           </label>
           <input
@@ -87,7 +119,7 @@ export default function EditUser() {
           />
         </div>
         <div>
-          <label className="block">Rol</label>
+          <label className="block text-sm font-medium">Rol</label>
           <select
             value={form.role}
             onChange={(e) => setForm({ ...form, role: e.target.value })}
@@ -97,12 +129,22 @@ export default function EditUser() {
             <option value="admin">Admin</option>
           </select>
         </div>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Bijwerken
-        </button>
+        <div className="flex space-x-4">
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Bijwerken
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/admin/users")}
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+          >
+            Annuleren
+          </button>
+        </div>
       </form>
     </div>
   );
