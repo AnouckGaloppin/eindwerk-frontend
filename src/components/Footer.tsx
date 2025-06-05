@@ -23,7 +23,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="fixed bottom-0 w-full z-50 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white">
+    <footer className="fixed bottom-0 w-full z-50 bg-gradient-to-r from-indigo-500 to-teal-500 text-white">
       <nav className="max-w-screen-sm mx-auto flex justify-between items-center px-4 py-3">
         {navItems.map(({ label, href, icon: Icon }) => {
           const isActive =
@@ -36,14 +36,14 @@ const Footer = () => {
               className={clsx(
                 "flex flex-col items-center text-xs transition-all px-3 py-2 rounded-xl",
                 isActive
-                  ? "bg-white text-black shadow-md scale-105"
-                  : "hover:bg-white/10 text-white/80 hover:text-white"
+                  ? "bg-teal-400 text-black shadow-md scale-110 ring-2 ring-teal-300"
+                  : "hover:bg-white/20 text-white/80 hover:text-white hover:scale-102"
               )}
             >
               <Icon
                 className={clsx(
                   "w-6 h-6 mb-1 transition-transform",
-                  isActive && "scale-110"
+                  isActive && "scale-115 drop-shadow-sm"
                 )}
               />
             </NavItem>

@@ -170,21 +170,25 @@ export default function HomePage() {
     <section className="p-4 flex flex-col flex-grow">
       <h1 className="text-2xl font-bold mb-4 text-center">Welkom</h1>
       {/* Home content */}
-      <Categories className="mb-6" />
+      <Categories />
 
       <div className="flex flex-grow justify-center items-center">
         <div className="home grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl mx-auto">
           <Link
             href="/shoppinglist"
-            className="bg-blue-500 text-white px-4 py-2 rounded h-20 flex items-center justify-center w-full"
+            className="bg-teal-500 border text-white px-4 py-2 rounded-lg h-20 flex items-center justify-center w-full shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-300 ease-in-out group"
           >
-            Boodschappen
+            <span className="text-lg font-semibold tracking-tight group-hover:tracking-wide transition-all">
+              Boodschappen
+            </span>
           </Link>
           <Link
             href="/favourites"
-            className="bg-green-500 text-white px-4 py-2 rounded h-20 flex items-center justify-center"
+            className="bg-teal-500 text-white px-4 py-2 rounded-lg h-20 flex items-center justify-center w-full shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-300 ease-in-out group"
           >
-            Favorieten
+            <span className="text-lg font-semibold tracking-tight group-hover:tracking-wide transition-all">
+              Favorieten
+            </span>
           </Link>
         </div>
       </div>

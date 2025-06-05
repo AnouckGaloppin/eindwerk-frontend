@@ -31,7 +31,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-lg px-6 py-3 flex items-center justify-between text-white">
+    <header className="bg-gradient-to-r from-indigo-500 to-teal-500 shadow-lg px-6 py-3 flex items-center justify-between text-white">
       <Link
         href="/"
         className="text-2xl font-extrabold tracking-tight hover:opacity-90 transition"
