@@ -138,15 +138,15 @@ export default function LoginPage() {
       //   );
       // }
     } catch (err: any) {
-      console.error("Error details:", {
-        message: err.message,
-        // name: err.name,
-        // stack: err.stack,
-        // cause: err.cause,
-        // response: err.response?.data,
-        status: err.response?.status,
-        data: err.response?.data,
-      });
+      // console.error("Error details:", {
+      //   message: err.message,
+      //   // name: err.name,
+      //   // stack: err.stack,
+      //   // cause: err.cause,
+      //   // response: err.response?.data,
+      //   status: err.response?.status,
+      //   data: err.response?.data,
+      // });
       setError(
         err.response?.data?.message ||
           err.message ||
