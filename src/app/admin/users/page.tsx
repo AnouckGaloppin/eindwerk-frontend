@@ -24,6 +24,26 @@ export default function AdminUsers() {
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   // const { user, loading: authLoading } = useAuth();
 
+  //tijdelijk probeersel
+  useEffect(() => {
+    const init = async () => {
+      await api.get("/sanctum/csrf-cookie");
+      fetchUsers();
+    };
+
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    if (user.role !== "admin") {
+      router.push("/");
+      return;
+    }
+
+    init();
+  }, [user, router]);
+
   const fetchUsers = async () => {
     try {
       const response = await api.get("/api/admin/users");
@@ -36,18 +56,18 @@ export default function AdminUsers() {
     }
   };
 
-  useEffect(() => {
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-    if (user.role !== "admin") {
-      router.push("/");
-      return;
-    }
+  // useEffect(() => {
+  //   if (!user) {
+  //     router.push("/login");
+  //     return;
+  //   }
+  //   if (user.role !== "admin") {
+  //     router.push("/");
+  //     return;
+  //   }
 
-    fetchUsers();
-  }, [user, router]);
+  //   fetchUsers();
+  // }, [user, router]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
