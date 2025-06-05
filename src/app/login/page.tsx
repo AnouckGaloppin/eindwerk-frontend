@@ -62,7 +62,7 @@ export default function LoginPage() {
       console.log("Login response:", response.data, "Status:", response.status);
       if (response.status >= 200 && response.status < 300) {
         setUser(response.data.user);
-        router.push("/");
+        router.push(response.data.redirectTo);
       } else {
         throw new Error(
           response.data.message || `Login failed with status ${response.status}`
