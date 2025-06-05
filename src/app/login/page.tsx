@@ -6,8 +6,8 @@ import Link from "next/link";
 import api from "@/lib/axios";
 import { useAuth } from "@/lib/auth-context";
 
-// const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.ddev.site";
-// console.log("API_URL:", API_URL);
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.ddev.site";
+console.log("API_URL:", API_URL);
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -47,24 +47,22 @@ export default function LoginPage() {
     setError("");
     // console.log("Submitting !");
     try {
-      // console.log(
-      //   "Fetching CSRF token from:",
-      //   `${API_URL}/sanctum/csrf-cookie`
-      // );
+      console.log(
+        "Fetching CSRF token from:",
+        `${API_URL}/sanctum/csrf-cookie`
+      );
 
       await api.get("/sanctum/csrf-cookie");
       console.log("Cookies after CSRF:", document.cookie);
-      // console.log("Submitting to:", `${API_URL}/api/login`);
+      console.log("Submitting to:", `${API_URL}/api/login`);
       const response = await api.post("/api/login", {
         email,
         password,
       });
       console.log("Login response:", response.data, "Status:", response.status);
       if (response.status >= 200 && response.status < 300) {
-        localStorage.setItem("sanctum_token", response.data.token);
         setUser(response.data.user);
-        const redirectTo = response.data.redirectTo || "/";
-        router.push(redirectTo);
+        router.push("/");
       } else {
         throw new Error(
           response.data.message || `Login failed with status ${response.status}`
