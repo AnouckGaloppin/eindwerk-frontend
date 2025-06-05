@@ -4,16 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 // je zelf moeten controleren op fouten.
 //gemakkelijkere configuratie
 //makkelijker werken met JSON
-import axios from "axios";
 import { Products } from "@/types/productTypes";
+import api from "@/lib/axios";
 
 export function useProducts() {
   return useQuery<Products, Error>({
     queryKey: ["products"],
     queryFn: async () => {
-      const response = await axios.get<Products>(
-        `${process.env.NEXT_PUBLIC_API_URL}/products`
-      );
+      const response = await api.get<Products>(`/api/products`);
       return response.data;
     },
   });
