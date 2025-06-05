@@ -21,10 +21,12 @@ export function NavItem({
   label,
   href,
   children,
+  className,
 }: {
   children: ReactNode;
   href: string;
   label: string;
+  className?: string;
 }) {
   return (
     <Link href={href} className="flex flex-col items-center text-sm">

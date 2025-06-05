@@ -137,14 +137,14 @@ export default function RegisterPage() {
             required
           />
         </div>
-        <button className="bg-blue-500 text-white w-full py-2 rounded hover:bg-blue-600">
+        <button className="bg-gradient-to-r from-indigo-500 to-teal-500 text-white w-full py-2 rounded hover:bg-gradient-to-r hover:from-indigo-600 hover:to-teal-600 transition-colors">
           Register
         </button>
         {message && (
           <p className="text-green-500 mt-4 text-center">{message}</p>
         )}
         <p className="mt-4 text-center text-sm text-gray-600">
-          Al een account?
+          Al een account?{" "}
           <Link href="/login" className="text-blue-500 hover:underline">
             Log in
           </Link>

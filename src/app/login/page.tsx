@@ -156,7 +156,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded shadow-md w-full max-w-sm"
@@ -185,7 +185,7 @@ export default function LoginPage() {
         </div>
         <button
           type="submit"
-          className="bg-blue-500 text-white w-full py-2 rounded hover:bg-blue-600"
+          className="bg-gradient-to-r from-indigo-500 to-teal-500 text-white w-full py-2 rounded hover:bg-gradient-to-r hover:from-indigo-600 hover:to-teal-600 transition-colors"
         >
           Inloggen
         </button>
@@ -199,7 +199,7 @@ export default function LoginPage() {
         </button> */}
 
         <p className="mt-4 text-center text-sm text-gray-600">
-          Nog geen account?
+          Nog geen account?{" "}
           <Link href="/register" className="text-blue-500 hover:underline">
             Registreer
           </Link>
