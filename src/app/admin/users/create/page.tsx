@@ -52,7 +52,7 @@ export default function CreateUser() {
   // };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 pt-20 pb-24">
       <h1 className="text-2xl font-bold mb-4">Nieuwe Gebruiker (Admin)</h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">

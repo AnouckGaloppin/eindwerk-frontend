@@ -2,6 +2,8 @@ import axios from "axios";
 // import { url } from "inspector";
 // import Cookies from "js-cookie";
 
+// const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.ddev.site";
+
 const api = axios.create({
   baseURL: "http://localhost:53404",
   withCredentials: true,
@@ -22,6 +24,20 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Add response interceptor to handle token storage
+api.interceptors.response.use(
+  (response) => {
+    // If this is a login response and contains a token, store it
+    if (response.config.url === "/api/login" && response.data.token) {
+      localStorage.setItem("sanctum_token", response.data.token);
+    }
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export default api;
 
