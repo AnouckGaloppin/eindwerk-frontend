@@ -14,6 +14,7 @@ export default function ProfilePage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const router = useRouter();
 
   // Redirect if not authenticated
@@ -38,6 +39,7 @@ export default function ProfilePage() {
         password: password || undefined,
       });
       setSuccess(response.data.message || "Profile updated successfully");
+      setToast({ message: response.data.message || "Profiel succesvol bijgewerkt", type: "success" });
       refreshUser(); // Refresh user data in context
       setPassword("");
     } catch (err: any) {
@@ -50,8 +52,17 @@ export default function ProfilePage() {
         err.response?.data?.message ||
           "An error occurred while updating the profile"
       );
+      setToast({ message: err.response?.data?.message || "Fout bij het bijwerken van het profiel", type: "error" });
     }
   };
+
+  // Toast auto-dismiss effect
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   if (!user) {
     return <div>Loading...</div>;
@@ -59,70 +70,59 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 pt-20 pb-24">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded shadow-md w-full max-w-sm"
-      >
-        <h2 className="text-xl font-bold mb-4">User Profile</h2>
-        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-        {success && (
-          <p className="text-green-500 mb-4 text-center">{success}</p>
-        )}
-        <div className="mb-3">
-          <label
-            htmlFor="username"
-            className="block text-sm font-medium text-gray-700"
+      {/* Toast notification */}
+      {toast && (
+        <div className={`fixed inset-0 z-[60] flex items-center justify-center pointer-events-none`}>
+          <div className={`px-6 py-3 rounded-lg shadow-lg text-white font-semibold transition-all duration-300 pointer-events-auto ${toast.type === "success" ? "bg-teal-500" : "bg-red-500"}`}
           >
-            Username
-          </label>
-          <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full p-2 border rounded"
-            required
-          />
+            {toast.message}
+          </div>
         </div>
-        <div className="mb-3">
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
+      )}
+      <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl border border-gray-100 p-8">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Profiel Bewerken</h2>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">Gebruikersnaam</label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:border-transparent focus:ring-2 focus:ring-indigo-400 transition"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:border-transparent focus:ring-2 focus:ring-indigo-400 transition"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Nieuw wachtwoord <span className='text-gray-400'>(optioneel)</span></label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Laat leeg om ongewijzigd te houden"
+              className="border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:border-transparent focus:ring-2 focus:ring-indigo-400 transition"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-indigo-500 text-white font-semibold px-6 py-3 rounded-lg shadow hover:bg-indigo-600 transition"
           >
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
-          >
-            New Password (optional)
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Leave blank to keep unchanged"
-            className="w-full p-2 border rounded"
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white w-full p-2 rounded hover:bg-blue-600"
-        >
-          Save Changes
-        </button>
-      </form>
+            Wijzigingen opslaan
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
