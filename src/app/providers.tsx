@@ -1,20 +1,20 @@
 "use client";
 
-import { ReactNode } from "react";
-// import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactNode, useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/lib/auth-context";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-// const queryClient = new QueryClient();
-
 export default function Providers({ children }: { children: ReactNode }) {
+  const [queryClient] = useState(() => new QueryClient());
   return (
-    <AuthProvider>
-      <Header />
-      <main>{children}</main>
-      <Footer />
-    </AuthProvider>
-    // <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Header />
+        <main>{children}</main>
+        <Footer />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }

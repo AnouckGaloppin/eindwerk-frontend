@@ -1,4 +1,4 @@
 export type Favourite = {
   id: string;
-  name: string;
+  product: { id: string; name: string; img?: string };
 };

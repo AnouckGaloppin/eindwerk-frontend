@@ -1,7 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-// import api from "@/lib/api";
-import axios from "axios";
-import { ShoppingItem } from "@/types/shoppingTypes";
+import type {
+  ShoppingListItem,
+  AddToShoppingListInput,
+  UpdateShoppingListItemInput,
+} from "@/types/shoppingTypes";
+import api from "@/lib/axios";
 
 // export type ShoppingItem = {
 //   id: string;
@@ -9,56 +12,81 @@ import { ShoppingItem } from "@/types/shoppingTypes";
 //   quantity: number;
 // };
 
-const API_SHOPPINGLIST_URL = "https://localhost:50776/shopping-list-item";
+// TODO: Re-enable authentication later
+// const getAuthHeaders = () => {
+//   const token = localStorage.getItem('token');
+//   return {
+//     'Content-Type': 'application/json',
+//     'Authorization': `Bearer ${token}`
+//   };
+// };
 
-export const useShoppingList = () => {
-  return useQuery<ShoppingItem[], Error>({
+export function useShoppingList() {
+  const queryClient = useQueryClient();
+
+  const {
+    data: items = [],
+    isLoading,
+    error,
+  } = useQuery<ShoppingListItem[]>({
     queryKey: ["shoppingList"],
     queryFn: async () => {
-      const res = await axios.get(API_SHOPPINGLIST_URL);
-      console.log(res.data);
-      return res.data;
+      const response = await api.get("/shopping-list");
+      return response.data.items;
     },
   });
-};
 
-export const useAddItem = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (newItem: { name: string }) => {
-      const res = await axios.post(API_SHOPPINGLIST_URL, newItem);
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
-    },
-  });
-};
-
-export const useUpdateItem = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (item: ShoppingItem) => {
-      const response = await axios.put(`${API_SHOPPINGLIST_URL}/${item.id}`, {
-        name: item.name,
-        quantity: parseInt(item.quantity),
-      });
+  const { mutate: addItem, isPending: isAdding } = useMutation({
+    mutationFn: async (input: AddToShoppingListInput) => {
+      const response = await api.post("/shopping-list", input);
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
     },
   });
-};
 
-export const useDeleteItem = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => {
-      await axios.delete(`${API_SHOPPINGLIST_URL}/${id}`);
+  const { mutate: updateItem, isPending: isUpdating } = useMutation({
+    mutationFn: async ({ itemId, ...input }: UpdateShoppingListItemInput) => {
+      const response = await api.put(`/shopping-list/${itemId}`, input);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
     },
   });
-};
+
+  const { mutate: deleteItem, isPending: isDeleting } = useMutation({
+    mutationFn: async (itemId: string) => {
+      await api.delete(`/shopping-list/${itemId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
+    },
+  });
+
+  return {
+    items,
+    isLoading,
+    error,
+    addItem,
+    updateItem,
+    deleteItem,
+    isAdding,
+    isUpdating,
+    isDeleting,
+  };
+}
+
+export function useDeleteItem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (itemId: string) => {
+      await api.delete(`/shopping-list/${itemId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
+    },
+  });
+}

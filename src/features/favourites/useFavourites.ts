@@ -1,29 +1,37 @@
-import axios from "axios";
+"use client";
+
+import api from "@/lib/axios";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Favourite } from "@/types/favouritesTypes";
+import { data } from "framer-motion/client";
 
-const API_FAVOURITES_URL = "http://localhost:50776/api/favourites";
+// const API_FAVOURITES_URL = `Baseurl/favourites";
 
 // export type Favourite = {
 //   id: string;
 //   name: string;
 // };
 
-export const useFavourites = () => {
-  return useQuery({
+export function useFavourites() {
+  return useQuery<Favourite[], Error>({
     queryKey: ["favourites"],
     queryFn: async () => {
-      const res = await axios.get(API_FAVOURITES_URL);
+      const res = await api.get("/favourites");
       return res.data;
     },
   });
-};
 
-export const useAddFavourite = () => {
+  // const productIds = data.map((fav) => fav.productId);
+}
+
+export const useToggleFavourite = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async (newItem: { name: string }) => {
-      const res = await axios.post(API_FAVOURITES_URL, newItem);
+    mutationFn: async ({ product_id }: { product_id: string }) => {
+      const res = await api.post("/favourites/toggle", {
+        product_id,
+      });
       return res.data;
     },
     onSuccess: () => {
@@ -32,14 +40,28 @@ export const useAddFavourite = () => {
   });
 };
 
-export const useDeleteFavourite = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => {
-      await axios.delete(`${API_FAVOURITES_URL}/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["favourites"] });
-    },
-  });
-};
+// export const useDeleteFavourite = () => {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: async (id: string) => {
+//       await api.delete(`/favourites/${id}`);
+//     },
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ["favourites"] });
+//     },
+//   });
+// };
+
+// export const useAddFavourite = () => {
+//   const queryClient = useQueryClient();
+//   return useMutation({
+//     mutationFn: async (newItem: { name: string }) => {
+//       const res = await api.post("/favourites", newItem);
+//       return res.data;
+//     },
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ["favourites"] });
+//     },
+//   });
+// };

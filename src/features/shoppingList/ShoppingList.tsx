@@ -1,235 +1,163 @@
-import { useEffect, useState } from "react";
-import {
-  useShoppingList,
-  useAddItem,
-  useDeleteItem,
-  useUpdateItem,
-  // ShoppingItem,
-} from "./useShoppingList";
-import {
-  useFavourites,
-  useAddFavourite,
-  useDeleteFavourite,
-  // Favourite,
-} from "@/features/favourites/useFavourites";
-import { Heart, HeartOff, Trash } from "lucide-react";
+import { useState } from "react";
+import { useShoppingList } from "./useShoppingList";
 import { useSwipeable } from "react-swipeable";
-import type { Favourite } from "@/types/favouritesTypes";
+import { motion, AnimatePresence } from "framer-motion";
+import type { ShoppingListItem } from "@/types/shoppingTypes";
+import { useDeleteItem } from "./useShoppingList";
+
+interface ShoppingListItemProps {
+  item: ShoppingListItem;
+  onQuantityChange: (item: ShoppingListItem, newQuantity: string) => void;
+  onDelete: (itemId: string) => void;
+}
+
+function ShoppingListItemComponent({
+  item,
+  onQuantityChange,
+  onDelete,
+}: ShoppingListItemProps) {
+  const [editingItem, setEditingItem] = useState<string | null>(null);
+  const [quantity, setQuantity] = useState<string>("");
+  const [swiping, setSwiping] = useState(false);
+
+  // Debug log for item structure
+  console.log("Shopping list item:", item);
+
+  const getItemId = () => String(item.id || item._id);
+
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      onDelete(getItemId());
+      setSwiping(false);
+    },
+    onSwiping: (event) => {
+      if (event.dir === "Left") setSwiping(true);
+    },
+    onSwipedRight: () => setSwiping(false),
+    onTap: () => setSwiping(false),
+    preventScrollOnSwipe: true,
+    trackMouse: true,
+  });
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -100 }}
+      className="relative bg-white rounded-lg shadow-md overflow-hidden"
+      {...swipeHandlers}
+    >
+      <div className="flex items-center p-4">
+        {item.product?.img && (
+          <img
+            src={item.product.img}
+            alt={item.product?.name || "Product image"}
+            className="w-16 h-16 object-cover rounded-md mr-4"
+          />
+        )}
+        <div className="flex-1">
+          <h3 className="text-lg font-semibold">
+            {item.product?.name || "Unknown Product"}
+          </h3>
+          <div className="flex items-center space-x-2 mt-1">
+            <input
+              type="number"
+              value={editingItem === item._id ? quantity : item.quantity}
+              onChange={(e) => onQuantityChange(item, e.target.value)}
+              onFocus={() => {
+                setEditingItem(item._id);
+                setQuantity(item.quantity.toString());
+              }}
+              onBlur={() => setEditingItem(null)}
+              className="w-20 px-2 py-1 border rounded"
+              min="0"
+              step="0.1"
+            />
+            <span className="text-gray-600">{item.unit}</span>
+          </div>
+        </div>
+        <button
+          onClick={() => onDelete(getItemId())}
+          className="hidden md:block p-2 text-red-500 hover:text-red-700"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
+          </svg>
+        </button>
+      </div>
+      <div className="absolute inset-y-0 right-0 flex items-center bg-red-500 text-white px-4 md:hidden">
+        <span>Delete</span>
+      </div>
+    </motion.div>
+  );
+}
 
 export default function ShoppingList() {
-  const { data, isLoading, error } = useShoppingList();
-  const addItem = useAddItem();
+  const { items, isLoading, error, updateItem } = useShoppingList();
   const deleteItem = useDeleteItem();
-  const updateItem = useUpdateItem();
 
-  const { data: favourites } = useFavourites();
-  const addFavourite = useAddFavourite();
-  const deleteFavourite = useDeleteFavourite();
+  if (isLoading) {
+    return <div className="text-center">Loading...</div>;
+  }
 
-  const [newItem, setNewItem] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editedName, setEditedName] = useState("");
-  const [isMobile, setIsMobile] = useState(false);
+  if (error) {
+    return (
+      <div className="text-center text-red-500">
+        Error loading shopping list
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const checkMobile = () => setIsMobile(window.innerWidth < 768);
-      checkMobile();
-      window.addEventListener("resize", checkMobile);
-      return () => window.removeEventListener("resize", checkMobile);
-    }
-  }, []);
+  const handleQuantityChange = (
+    item: ShoppingListItem,
+    newQuantity: string
+  ) => {
+    if (newQuantity === "") return;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newItem.trim()) {
-      addItem.mutate({ name: newItem });
-      setNewItem("");
+    const numQuantity = parseFloat(newQuantity);
+    if (!isNaN(numQuantity) && numQuantity > 0) {
+      updateItem({
+        itemId: item._id,
+        quantity: numQuantity,
+      });
     }
   };
 
-  if (isLoading) return <p>Laden...Boopyy</p>;
-  if (error) return <p>Fout bij ophalen: {error.message}</p>;
+  // Debug log to check items
+  console.log("Shopping list items:", items);
 
   return (
-    <div className="p-4 max-w-xl mx-auto">
-      {/* Input form */}
-      <form
-        onSubmit={handleSubmit}
-        className="mb-4 flex gap-2"
-        aria-label="Voeg nieuw product toe aan je winkelmandje."
-      >
-        <input
-          value={newItem}
-          onChange={(e) => setNewItem(e.target.value)}
-          placeholder="Nieuw item"
-          aria-label="Nieuw item invoer"
-          className="border rounded p-2 w-full"
-        />
-        <button
-          type="submit"
-          disabled={addItem.isPending}
-          className={`p-2 rounded text-white ${
-            addItem.isPending ? "bg-blue-300" : "bg-blue-500 hover:bg-blue-600"
-          }`}
-          aria-label="Item toevoegen"
-        >
-          {addItem.isPending ? "Toevoegen..." : "Toevoegen"}
-        </button>
-      </form>
-
-      {/* List of items */}
-      <ul className="space-y-2">
-        {data?.map((item) => {
-          const isFavourite = favourites?.some(
-            (f: Favourite) => f.name === item.name
-          );
-
-          // const swipeHandlers = useSwipeable({
-          //   onSwipedLeft: () => console.log(item.id),
-          //   // deleteItem.mutate(item.id),
-          //   preventScrollOnSwipe: true,
-          //   trackMouse: true,
-          // });
-
-          // const listItemProps = isMobile ? swipeHandlers : {};
-          const listItemProps = {};
-
+    <div className="space-y-4">
+      <AnimatePresence mode="wait">
+        {items.map((item, index) => {
+          // Create a unique key using both _id and index
+          const uniqueKey = `${item._id}-${index}`;
           return (
-            <li
-              key={item.id}
-              className="border p-3 rounded flex justify-between items-center text-sm"
-              {...listItemProps}
-            >
-              {editingId === item.id ? (
-                <div className="flex items-center w-full gap-2">
-                  <input
-                    value={editedName}
-                    onChange={(e) => setEditedName(e.target.value)}
-                    className="border rounded p-1 flex-grow"
-                  />
-                  <button
-                    onClick={() => {
-                      updateItem.mutate({ ...item, name: editedName });
-                      setEditingId(null);
-                    }}
-                    className="text-green-600 ml-2"
-                  >
-                    Opslaan
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <span className="break-words max-w-[60%]">{item.name}</span>
-                  {/* {!isMobile && ( */}
-                  <div className="flex gap-3 items-center">
-                    <button
-                      onClick={() => {
-                        if (isFavourite) {
-                          const fav = favourites.find(
-                            (f: Favourite) => f.name === item.name
-                          );
-                          if (fav) {
-                            deleteFavourite.mutate(fav.id);
-                          } else {
-                            addFavourite.mutate({ name: item.name });
-                          }
-                        }
-                      }}
-                      className="text-pink-600"
-                      aria-label={
-                        isFavourite
-                          ? "Verwijder uit favoriet"
-                          : "Voeg toe aan favorieten"
-                      }
-                    >
-                      {isFavourite ? (
-                        <HeartOff className="w-4 h-4" />
-                      ) : (
-                        <Heart className="w-4 h-4" />
-                      )}
-                    </button>
-
-                    {/* Favourite button */}
-                    <button
-                      onClick={() => {
-                        setEditingId(item.id);
-                        setEditedName(item.name);
-                      }}
-                      className="text-yellow-600"
-                      aria-label="Wijzig item"
-                    >
-                      Wijzig
-                    </button>
-
-                    {/* Alleen desktop: Trash-knop */}
-                    {!isMobile && (
-                      <button
-                        onClick={() => deleteItem.mutate(item.id)}
-                        className="text-red-600"
-                        aria-label="Verwijder item"
-                      >
-                        <Trash className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-
-                  {/* )} */}
-                </>
-              )}
-            </li>
+            <ShoppingListItemComponent
+              key={uniqueKey}
+              item={item}
+              onQuantityChange={handleQuantityChange}
+              onDelete={(id) => deleteItem.mutate(id)}
+            />
           );
         })}
-      </ul>
+      </AnimatePresence>
+      {items.length === 0 && (
+        <div className="text-center text-gray-500 py-8">
+          Your shopping list is empty
+        </div>
+      )}
     </div>
   );
 }
-//           <li
-//             key={item.id}
-//             className="border p-3 rounded flex justify-between items-center text-sm"
-//           >
-//             {editingId === item.id ? (
-//               <div className="flex items-center w-full gap-2">
-//                 <input
-//                   value={editedName}
-//                   onChange={(e) => setEditedName(e.target.value)}
-//                   className="border rounded p-1 flex-grow"
-//                 />
-//                 <button
-//                   onClick={() => {
-//                     updateItem.mutate({ ...item, name: editedName });
-//                     setEditingId(null);
-//                   }}
-//                   className="text-green-600 ml-2"
-//                 >
-//                   Opslaan
-//                 </button>
-//               </div>
-//             ) : (
-//               <>
-//                 <span className="break-words max-w-[60%]">{item.name}</span>
-//                 <div className="flex gap-3">
-//                   <button
-//                     onClick={() => {
-//                       setEditingId(item.id);
-//                       setEditedName(item.name);
-//                     }}
-//                     className="text-yellow-600"
-//                   >
-//                     Wijzig
-//                   </button>
-//                   <button
-//                     onClick={() => deleteItem.mutate(item.id)}
-//                     className="text-red-600"
-//                   >
-//                     <Trash />
-//                   </button>
-//                 </div>
-//               </>
-//             )}
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// }

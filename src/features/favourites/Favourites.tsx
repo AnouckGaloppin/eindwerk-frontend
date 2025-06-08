@@ -3,22 +3,22 @@
 import { useState, useEffect } from "react";
 import {
   useFavourites,
-  useAddFavourite,
-  useDeleteFavourite,
+  useToggleFavourite,
   // Favourite,
 } from "./useFavourites";
-import { useSwipeable } from "react-swipeable";
-import { Heart } from "lucide-react";
+// import { useSwipeable } from "react-swipeable";
+// import { Heart } from "lucide-react";
 import type { Favourite } from "@/types/favouritesTypes";
+import { FavouriteItem } from "@/components/FavouriteItem";
+// import { li } from "framer-motion/client";
 
 // const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
 export default function Favourites() {
-  const { data: favourites, isLoading, error } = useFavourites();
-  const addFavourite = useAddFavourite();
-  const deleteFavourite = useDeleteFavourite();
+  const { data: favourites = [], isLoading, error } = useFavourites();
+  // const addFavourite = useAddFavourite();
+  const toggleFavourite = useToggleFavourite();
 
-  const [newFavourite, setNewFavourite] = useState({ name: "" });
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -27,17 +27,49 @@ export default function Favourites() {
     }
   }, []);
 
-  const handleAddFavourite = () => {
-    if (newFavourite.name.trim() !== "") {
-      addFavourite.mutate(newFavourite);
-      setNewFavourite({ name: "" });
-    }
-  };
+  if (isLoading) return <div className="p-4">Loading...</div>;
+  if (error)
+    return (
+      <div className="p-4 text-red-500">
+        Error loading favourites: {error.message}
+      </div>
+    );
+
+  // const isFavourite = favourites.some(
+  //   (fav) => fav.product?.id === product.id || fav.product?._id === product.id
+  // );
+
+  // // const [newFavourite, setNewFavourite] = useState({ name: "" });
+  // const [isMobile, setIsMobile] = useState(false);
+  // // const [favourites, setFavourites] = useState<Favourite[]>([]);
+  // // const { favourites } = useFavourites();
+
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     setIsMobile(window.innerWidth < 768);
+  //   }
+  // }, []);
+
+  // const handleAddFavourite = () => {
+  //   if (newFavourite.name.trim() !== "") {
+  //     addFavourite.mutate(newFavourite);
+  //     setNewFavourite({ name: "" });
+  //   }
+  // };
+
+  // if (isLoading) return <div className="p-4">Loading...</div>;
+  // if (error)
+  //   return (
+  //     <div className="p-4 text-red-500">
+  //       Error loading favourites: {error.message}
+  //     </div>
+  //   );
 
   return (
     <div className="p-4">
       {/* Input om favoriet toe te voegen */}
-      <div className="flex gap-2 mb-4">
+      <h1 className="text-xl font-semibold mb-4">Favorieten</h1>
+      {/* <div className="flex gap-2 mb-4">
         <input
           type="text"
           placeholder="Voeg een favoriet toe"
@@ -51,36 +83,22 @@ export default function Favourites() {
         >
           Voeg toe
         </button>
-      </div>
+      </div> */}
 
       {/* Lijst met favorieten */}
-      <ul className="space-y-2 border-red-400 border p-4">
-        {favourites?.map((favourite: Favourite) => {
-          const swipeHandlers = useSwipeable({
-            onSwipedLeft: () => deleteFavourite.mutate(favourite.id),
-            preventScrollOnSwipe: true,
-            trackTouch: true,
-          });
-          return (
-            <li
-              key={favourite.id}
-              className="border p-3 rounded flex justify-between items-center text-sm"
-              {...(isMobile ? swipeHandlers : {})}
-            >
-              <span>{favourite.name}</span>
-
-              {!isMobile && (
-                <button
-                  onClick={() => deleteFavourite.mutate(favourite.id)}
-                  className="text-red-600"
-                  aria-label="Verwijder favoriet"
-                >
-                  <Heart className="w-4 h-4" />
-                </button>
-              )}
-            </li>
-          );
-        })}
+      <ul className="space-y-2 p-4">
+        {!favourites || favourites.length === 0 ? (
+          <li>You do not have favourites yet. Please add products.</li>
+        ) : (
+          favourites.map((fav: Favourite) => (
+            <FavouriteItem
+              key={fav.id}
+              favourite={fav}
+              toggleFavourite={toggleFavourite}
+              // onDelete={(id) => deleteFavourite.mutate(id)}
+            />
+          ))
+        )}
       </ul>
     </div>
   );
