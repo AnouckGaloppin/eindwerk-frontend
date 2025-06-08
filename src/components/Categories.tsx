@@ -9,32 +9,32 @@ import api from "@/lib/axios";
 import type { Category } from "@/types/productTypes";
 import { Loader } from "lucide-react";
 
-const staticCategories: Category[] = [
-  { _id: "1", name: "Fruit", slug: "fruit", color: "bg-amber-500" },
-  { _id: "2", name: "Vegetables", slug: "vegetables", color: "bg-green-500" },
-  { _id: "3", name: "Dairy", slug: "dairy", color: "bg-yellow-500" },
-  { _id: "4", name: "Meat", slug: "meat", color: "bg-red-500" },
-  { _id: "5", name: "Fish", slug: "fish", color: "bg-blue-500" },
-  { _id: "6", name: "Drinks", slug: "drinks", color: "bg-orange-400" },
-  {
-    _id: "7",
-    name: "Meat substitutes",
-    slug: "meatsubstitutes",
-    color: "bg-green-700",
-  },
-  { _id: "8", name: "Bread", slug: "bread", color: "bg-amber-700" },
-  {
-    _id: "9",
-    name: "Salty snacks",
-    slug: "saltysnacks",
-    color: "bg-purple-500",
-  },
-  { _id: "10", name: "Sweet snacks", slug: "sweetsnacks", color: "bg-pink-500" },
-  { _id: "11", name: "Grains", slug: "grains", color: "bg-amber-200" },
-  { _id: "12", name: "Spices", slug: "spices", color: "bg-green-600" },
-  { _id: "13", name: "Canned food", slug: "cannedfood", color: "bg-gray-500" },
-  { _id: "14", name: "Frozen", slug: "frozen", color: "bg-blue-300" },
-];
+// const staticCategories: Category[] = [
+//   { _id: "1", name: "Fruit", slug: "fruit", color: "bg-amber-500" },
+//   { _id: "2", name: "Vegetables", slug: "vegetables", color: "bg-green-500" },
+//   { _id: "3", name: "Dairy", slug: "dairy", color: "bg-yellow-500" },
+//   { _id: "4", name: "Meat", slug: "meat", color: "bg-red-500" },
+//   { _id: "5", name: "Fish", slug: "fish", color: "bg-blue-500" },
+//   { _id: "6", name: "Drinks", slug: "drinks", color: "bg-orange-400" },
+//   {
+//     _id: "7",
+//     name: "Meat substitutes",
+//     slug: "meatsubstitutes",
+//     color: "bg-green-700",
+//   },
+//   { _id: "8", name: "Bread", slug: "bread", color: "bg-amber-700" },
+//   {
+//     _id: "9",
+//     name: "Salty snacks",
+//     slug: "saltysnacks",
+//     color: "bg-purple-500",
+//   },
+//   { _id: "10", name: "Sweet snacks", slug: "sweetsnacks", color: "bg-pink-500" },
+//   { _id: "11", name: "Grains", slug: "grains", color: "bg-amber-200" },
+//   { _id: "12", name: "Spices", slug: "spices", color: "bg-green-600" },
+//   { _id: "13", name: "Canned food", slug: "cannedfood", color: "bg-gray-500" },
+//   { _id: "14", name: "Frozen", slug: "frozen", color: "bg-blue-300" },
+// ];
 
 interface CategoriesProps {
   className?: string;
@@ -51,9 +51,10 @@ export default function Categories({ className }: CategoriesProps) {
     setHasMounted(true);
     const fetchCategories = async () => {
       try {
-        const response = await api.get("/categories");
-        console.log('Categories response:', response.data);
+        const response = await api.get("/api/categories");
+        console.log("Categories response:", response.data);
         const fetchedCategories = response.data.categories;
+        console.log("Fetched categories:", fetchedCategories);
         if (!Array.isArray(fetchedCategories)) {
           throw new Error("Expected categories to be an array");
         }
@@ -72,7 +73,7 @@ export default function Categories({ className }: CategoriesProps) {
       } catch (error: any) {
         console.error("Error fetching categories:", error.message || error);
         setError("Failed to load categories, using defaults");
-        setCategories(staticCategories);
+        // setCategories(staticCategories);
       } finally {
         setIsLoading(false);
       }

@@ -23,7 +23,7 @@ function ShoppingListItemComponent({
   // Debug log for item structure
   console.log("Shopping list item:", item);
 
-  const getItemId = () => String(item.id || item._id);
+  const getItemId = () => String(item.id);
 
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => {
@@ -62,15 +62,17 @@ function ShoppingListItemComponent({
           <div className="flex items-center space-x-2 mt-1">
             <input
               type="number"
-              value={editingItem === item._id ? quantity : item.quantity}
-              onChange={(e) => onQuantityChange(item, e.target.value)}
+              value={editingItem === item.id ? quantity : item.quantity}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onQuantityChange(item, e.target.value)
+              }
               onFocus={() => {
-                setEditingItem(item._id);
+                setEditingItem(item.id);
                 setQuantity(item.quantity.toString());
               }}
               onBlur={() => setEditingItem(null)}
               className="w-20 px-2 py-1 border rounded"
-              min="0"
+              min="0.01"
               step="0.1"
             />
             <span className="text-gray-600">{item.unit}</span>
@@ -79,6 +81,7 @@ function ShoppingListItemComponent({
         <button
           onClick={() => onDelete(getItemId())}
           className="hidden md:block p-2 text-red-500 hover:text-red-700"
+          aria-label="Delete item from shopping list"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -96,9 +99,11 @@ function ShoppingListItemComponent({
           </svg>
         </button>
       </div>
-      <div className="absolute inset-y-0 right-0 flex items-center bg-red-500 text-white px-4 md:hidden">
-        <span>Delete</span>
-      </div>
+      {swiping && (
+        <div className="absolute inset-y-0 right-0 flex items-center bg-red-500 text-white px-4 md:hidden">
+          <span>Delete</span>
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -114,7 +119,7 @@ export default function ShoppingList() {
   if (error) {
     return (
       <div className="text-center text-red-500">
-        Error loading shopping list
+        Error loading shopping list: {error.message}
       </div>
     );
   }
@@ -128,7 +133,7 @@ export default function ShoppingList() {
     const numQuantity = parseFloat(newQuantity);
     if (!isNaN(numQuantity) && numQuantity > 0) {
       updateItem({
-        itemId: item._id,
+        itemId: item.id,
         quantity: numQuantity,
       });
     }
@@ -142,7 +147,7 @@ export default function ShoppingList() {
       <AnimatePresence mode="wait">
         {items.map((item, index) => {
           // Create a unique key using both _id and index
-          const uniqueKey = `${item._id}-${index}`;
+          const uniqueKey = `${item.id}-${index}`;
           return (
             <ShoppingListItemComponent
               key={uniqueKey}

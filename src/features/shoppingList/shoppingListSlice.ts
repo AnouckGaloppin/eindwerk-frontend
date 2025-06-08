@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { ShoppingItem, ShoppingListState } from "@/types/shoppingTypes";
+import { ShoppingListItem, ShoppingListState } from "@/types/shoppingTypes";
 
 // type ShoppingItem = {
 //   id: string;
@@ -20,20 +20,20 @@ const initialState: ShoppingListState = {
   error: null,
 };
 
-export const fetchShoppingList = createAsyncThunk<ShoppingItem[]>(
+export const fetchShoppingList = createAsyncThunk<ShoppingListItem[]>(
   "shoppingList/fetch",
   async () => {
-    const response = await axios.get<ShoppingItem[]>(
+    const response = await axios.get<ShoppingListItem[]>(
       "http://localhost:8000/api/shopping-list"
     );
     return response.data;
   }
 );
 
-export const addItem = createAsyncThunk<ShoppingItem, { name: string }>(
+export const addItem = createAsyncThunk<ShoppingListItem, { name: string }>(
   "shoppingList/add",
   async (item) => {
-    const response = await axios.post<ShoppingItem>(
+    const response = await axios.post<ShoppingListItem>(
       "http://localhost:8000/api/shopping-list",
       item
     );

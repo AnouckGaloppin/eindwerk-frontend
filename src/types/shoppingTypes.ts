@@ -1,21 +1,24 @@
 import { Product } from "./productTypes";
 
-export type ShoppingItem = {
-  _id: string;
-  id: string;
-  name: string;
-  quantity: number;
-};
+// export type ShoppingItem = {
+//   _id: string;
+//   // id: string;
+//   name: string;
+//   quantity: number;
+//   unit: string;
+//   product_id: string;
+//   checked: boolean;
+// };
 
 export type ShoppingListState = {
-  items: ShoppingItem[];
+  items: ShoppingListItem[];
   loading: boolean;
   error: string | null;
 };
 
 export type ShoppingListItem = {
   id: string;
-  _id: string;
+  product_id: string;
   product: Product;
   quantity: number;
   unit: string;

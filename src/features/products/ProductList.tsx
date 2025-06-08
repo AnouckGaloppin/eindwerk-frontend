@@ -1,230 +1,125 @@
-import { useEffect, useState } from "react";
-import {
-  useProducts,
-  // ShoppingItem,
-} from "./useProducts";
-import {
-  useFavourites,
-  useAddFavourite,
-  useDeleteFavourite,
-  //   Favourite,
-} from "@/features/favourites/useFavourites";
-import { Heart, HeartOff, Trash } from "lucide-react";
-import { useSwipeable } from "react-swipeable";
-import type { Favourite } from "@/types/favouritesTypes";
+import { Heart } from "lucide-react";
+import type { Product, StorePrice } from "@/types/productTypes";
+import type { ShoppingListItem } from "@/types/shoppingTypes";
 
-export default function ShoppingList() {
-  const { data, isLoading, error } = useProducts();
-  //   const addItem = useAddItem();
-  //   const deleteItem = useDeleteItem();
-  //   const updateItem = useUpdateItem();
+type ProductListProps = {
+  products: Product[];
+  shoppingList: ShoppingListItem[];
+  favourites: { product: { id: string } }[];
+  isLoading?: boolean;
+  error?: string | null;
+  onAddOrUpdate: (product: Product) => void;
+  onQuantityChange: (itemId: string, newQuantity: string) => void;
+  onToggleFavourite: (productId: string) => void;
+};
 
-  const { data: favourites } = useFavourites();
-  const addFavourite = useAddFavourite();
-  const deleteFavourite = useDeleteFavourite();
+export default function ProductList({
+  products,
+  shoppingList,
+  favourites,
+  isLoading,
+  error,
+  onAddOrUpdate,
+  onQuantityChange,
+  onToggleFavourite,
+}: ProductListProps) {
+  if (isLoading) return <div className="p-4 text-center">Loading...</div>;
+  if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
 
-  const [newItem, setNewItem] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editedName, setEditedName] = useState("");
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const checkMobile = () => setIsMobile(window.innerWidth < 768);
-      checkMobile();
-      window.addEventListener("resize", checkMobile);
-      return () => window.removeEventListener("resize", checkMobile);
-    }
-  }, []);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newItem.trim()) {
-      addItem.mutate({ name: newItem });
-      setNewItem("");
-    }
+  const getLowestPrice = (product: Product): string => {
+    const prices = Object.values(product.price_per_store || {})
+      .map((store: StorePrice) => parseFloat(store.price_per_item))
+      .filter((price) => !isNaN(price));
+    return prices.length ? Math.min(...prices).toFixed(2) : "0.00";
   };
-
-  if (isLoading) return <p>Laden...Boopyy</p>;
-  if (error) return <p>Fout bij ophalen: {error.message}</p>;
 
   return (
     <div className="p-4 max-w-xl mx-auto">
-      {/* Input form */}
-      <form
-        onSubmit={handleSubmit}
-        className="mb-4 flex gap-2"
-        aria-label="Voeg nieuw product toe aan je winkelmandje."
-      >
-        <input
-          value={newItem}
-          onChange={(e) => setNewItem(e.target.value)}
-          placeholder="Nieuw item"
-          aria-label="Nieuw item invoer"
-          className="border rounded p-2 w-full"
-        />
-        <button
-          type="submit"
-          disabled={addItem.isPending}
-          className={`p-2 rounded text-white ${
-            addItem.isPending ? "bg-blue-300" : "bg-blue-500 hover:bg-blue-600"
-          }`}
-          aria-label="Item toevoegen"
-        >
-          {addItem.isPending ? "Toevoegen..." : "Toevoegen"}
-        </button>
-      </form>
+      {products.length === 0 ? (
+        <p className="text-center text-gray-500">No products found.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {products.map((product: Product) => {
+            const productId = String(product.id);
+            const shoppingListItem = shoppingList.find(
+              (item: any) => item.product_id === productId
+            );
+            const isFavourite = favourites.some(
+              (fav) => fav.product.id === productId
+            );
 
-      {/* List of items */}
-      <ul className="space-y-2">
-        {data?.map((item) => {
-          const isFavourite = favourites?.some(
-            (f: Favourite) => f.name === item.name
-          );
-
-          const swipeHandlers = useSwipeable({
-            onSwipedLeft: () => deleteItem.mutate(item.id),
-            preventScrollOnSwipe: true,
-            trackMouse: true,
-          });
-
-          const listItemProps = isMobile ? swipeHandlers : {};
-
-          return (
-            <li
-              key={item.id}
-              className="border p-3 rounded flex justify-between items-center text-sm"
-              {...listItemProps}
-            >
-              {editingId === item.id ? (
-                <div className="flex items-center w-full gap-2">
-                  <input
-                    value={editedName}
-                    onChange={(e) => setEditedName(e.target.value)}
-                    className="border rounded p-1 flex-grow"
+            return (
+              <div
+                key={productId}
+                className="border p-4 rounded shadow hover:shadow-lg transition-shadow"
+              >
+                {product.img && (
+                  <img
+                    src={product.img}
+                    alt={product.name}
+                    className="w-full h-48 object-cover rounded mb-4"
                   />
+                )}
+                <h3 className="text-lg font-semibold">{product.name}</h3>
+                <p className="text-sm text-gray-500">
+                  Quantity: {product.quantity} {product.unit}
+                </p>
+                <p className="text-lg font-bold mt-2">
+                  €{getLowestPrice(product)}
+                </p>
+
+                {!shoppingListItem ? (
                   <button
-                    onClick={() => {
-                      updateItem.mutate({ ...item, name: editedName });
-                      setEditingId(null);
-                    }}
-                    className="text-green-600 ml-2"
+                    onClick={() => onAddOrUpdate(product)}
+                    className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md"
                   >
-                    Opslaan
+                    Add to Shopping List
                   </button>
-                </div>
-              ) : (
-                <>
-                  <span className="break-words max-w-[60%]">{item.name}</span>
-                  {/* {!isMobile && ( */}
-                  <div className="flex gap-3 items-center">
-                    <button
-                      onClick={() => {
-                        if (isFavourite) {
-                          const fav = favourites.find(
-                            (f: Favourite) => f.name === item.name
-                          );
-                          if (fav) {
-                            deleteFavourite.mutate(fav.id);
-                          } else {
-                            addFavourite.mutate({ name: item.name });
-                          }
-                        }
-                      }}
-                      className="text-pink-600"
-                      aria-label={
-                        isFavourite
-                          ? "Verwijder uit favoriet"
-                          : "Voeg toe aan favorieten"
-                      }
-                    >
-                      {isFavourite ? (
-                        <HeartOff className="w-4 h-4" />
-                      ) : (
-                        <Heart className="w-4 h-4" />
-                      )}
-                    </button>
-
-                    {/* Favourite button */}
-                    <button
-                      onClick={() => {
-                        setEditingId(item.id);
-                        setEditedName(item.name);
-                      }}
-                      className="text-yellow-600"
-                      aria-label="Wijzig item"
-                    >
-                      Wijzig
-                    </button>
-
-                    {/* Alleen desktop: Trash-knop */}
-                    {!isMobile && (
-                      <button
-                        onClick={() => deleteItem.mutate(item.id)}
-                        className="text-red-600"
-                        aria-label="Verwijder item"
+                ) : (
+                  <div className="flex flex-col gap-2 mt-2">
+                    <div className="flex items-center gap-2">
+                      <label
+                        htmlFor={`quantity-${productId}`}
+                        className="text-sm text-gray-600"
                       >
-                        <Trash className="w-4 h-4" />
-                      </button>
-                    )}
+                        Quantity:
+                      </label>
+                      <input
+                        id={`quantity-${productId}`}
+                        type="number"
+                        min={0.01}
+                        step={0.1}
+                        value={shoppingListItem.quantity}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          onQuantityChange(shoppingListItem._id, e.target.value)
+                        }
+                        className="w-16 border px-2 py-1 rounded"
+                      />
+                      <span className="text-sm text-gray-600">
+                        {shoppingListItem.unit}
+                      </span>
+                    </div>
                   </div>
+                )}
 
-                  {/* )} */}
-                </>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+                <button
+                  onClick={() => onToggleFavourite(productId)}
+                  aria-label={
+                    isFavourite ? "Remove from favourites" : "Add to favourites"
+                  }
+                  className="mt-2"
+                >
+                  {isFavourite ? (
+                    <Heart className="fill-red-500 text-red-500 w-6 h-6" />
+                  ) : (
+                    <Heart className="w-6 h-6" />
+                  )}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
-//           <li
-//             key={item.id}
-//             className="border p-3 rounded flex justify-between items-center text-sm"
-//           >
-//             {editingId === item.id ? (
-//               <div className="flex items-center w-full gap-2">
-//                 <input
-//                   value={editedName}
-//                   onChange={(e) => setEditedName(e.target.value)}
-//                   className="border rounded p-1 flex-grow"
-//                 />
-//                 <button
-//                   onClick={() => {
-//                     updateItem.mutate({ ...item, name: editedName });
-//                     setEditingId(null);
-//                   }}
-//                   className="text-green-600 ml-2"
-//                 >
-//                   Opslaan
-//                 </button>
-//               </div>
-//             ) : (
-//               <>
-//                 <span className="break-words max-w-[60%]">{item.name}</span>
-//                 <div className="flex gap-3">
-//                   <button
-//                     onClick={() => {
-//                       setEditingId(item.id);
-//                       setEditedName(item.name);
-//                     }}
-//                     className="text-yellow-600"
-//                   >
-//                     Wijzig
-//                   </button>
-//                   <button
-//                     onClick={() => deleteItem.mutate(item.id)}
-//                     className="text-red-600"
-//                   >
-//                     <Trash />
-//                   </button>
-//                 </div>
-//               </>
-//             )}
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// }

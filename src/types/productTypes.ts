@@ -3,18 +3,26 @@ type MongoDBObjectId = {
   $oid: string;
 };
 
+export type StorePrice = {
+  price_per_item: string;
+  price_per_unit: string;
+};
+
 export type Product = {
-  _id: string | MongoDBObjectId;
   id: string | MongoDBObjectId;
+  // id: string | MongoDBObjectId;
   name: string;
-  description?: string;
-  category_id: string;
-  price_per_item: number | { $numberDecimal: string };
-  price_per_kg?: string;
-  standard_unit: string;
+  brand?: string;
+  img: string;
+  unit: string;
   quantity: string;
-  img?: string;
-  winkel_id?: string;
+  categories: string[];
+  nutriscore?: string;
+
+  // voeg dit toe:
+  price_per_store?: {
+    [storeName: string]: StorePrice;
+  };
 };
 
 export type Products = Product[];

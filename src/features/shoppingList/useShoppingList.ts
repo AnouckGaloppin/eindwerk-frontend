@@ -28,40 +28,49 @@ export function useShoppingList() {
     data: items = [],
     isLoading,
     error,
-  } = useQuery<ShoppingListItem[]>({
+  } = useQuery<ShoppingListItem[], Error>({
     queryKey: ["shoppingList"],
     queryFn: async () => {
-      const response = await api.get("/shopping-list");
-      return response.data.items;
+      const response = await api.get("/api/shopping-list");
+      return Array.isArray(response.data.items) ? response.data.items : [];
     },
   });
 
   const { mutate: addItem, isPending: isAdding } = useMutation({
     mutationFn: async (input: AddToShoppingListInput) => {
-      const response = await api.post("/shopping-list", input);
-      return response.data;
+      const response = await api.post("/api/shopping-list", input);
+      return response.data.item;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
+    },
+    onError: (error: any) => {
+      console.error("Error adding to shopping list:", error);
     },
   });
 
   const { mutate: updateItem, isPending: isUpdating } = useMutation({
     mutationFn: async ({ itemId, ...input }: UpdateShoppingListItemInput) => {
-      const response = await api.put(`/shopping-list/${itemId}`, input);
+      const response = await api.put(`/api/shopping-list/${itemId}`, input);
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
     },
+    onError: (error: any) => {
+      console.error("Error updating shopping list item:", error);
+    },
   });
 
   const { mutate: deleteItem, isPending: isDeleting } = useMutation({
     mutationFn: async (itemId: string) => {
-      await api.delete(`/shopping-list/${itemId}`);
+      await api.delete(`/api/shopping-list/${itemId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
+    },
+    onError: (error: any) => {
+      console.error("Error deleting shopping list item:", error);
     },
   });
 
@@ -83,10 +92,13 @@ export function useDeleteItem() {
 
   return useMutation({
     mutationFn: async (itemId: string) => {
-      await api.delete(`/shopping-list/${itemId}`);
+      await api.delete(`/api/shopping-list/${itemId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
+    },
+    onError: (error: any) => {
+      console.error("Error deleting shopping list item:", error);
     },
   });
 }

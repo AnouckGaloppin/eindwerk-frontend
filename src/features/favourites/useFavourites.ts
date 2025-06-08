@@ -16,7 +16,7 @@ export function useFavourites() {
   return useQuery<Favourite[], Error>({
     queryKey: ["favourites"],
     queryFn: async () => {
-      const res = await api.get("/favourites");
+      const res = await api.get("/api/favourites");
       return res.data;
     },
   });
@@ -29,7 +29,7 @@ export const useToggleFavourite = () => {
 
   return useMutation({
     mutationFn: async ({ product_id }: { product_id: string }) => {
-      const res = await api.post("/favourites/toggle", {
+      const res = await api.post("/api/favourites/toggle", {
         product_id,
       });
       return res.data;
