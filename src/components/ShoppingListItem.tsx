@@ -17,7 +17,7 @@ export default function ShoppingListItem({ product, onDelete }: Props) {
 
   const updateQuantity = useMutation({
     mutationFn: async (quantity: number) => {
-      const response = await api.put(`/api/shopping-list/${product._id}`, {
+      const response = await api.put(`/api/shopping-list/${product.id}`, {
         quantity,
       });
       return response.data.item;
@@ -32,10 +32,10 @@ export default function ShoppingListItem({ product, onDelete }: Props) {
 
   const handleDeleteFromShoppingList = useMutation({
     mutationFn: async () => {
-      await api.delete(`/api/shopping-list/${product._id}`);
+      await api.delete(`/api/shopping-list/${product.id}`);
     },
     onSuccess: () => {
-      onDelete(product._id);
+      onDelete(product.id);
       setSwiping(false);
     },
     onError: (error: any) => {
@@ -72,13 +72,13 @@ export default function ShoppingListItem({ product, onDelete }: Props) {
         <span className="text-lg font-medium">{product.product.name}</span>
         <div className="flex items-center gap-2 mt-1">
           <label
-            htmlFor={`quantity=${product._id}`}
+            htmlFor={`quantity=${product.id}`}
             className="text-sm text-gray-600"
           >
             Quantity:
           </label>
           <input
-            id={`quantity=${product._id}`}
+            id={`quantity=${product.id}`}
             type="number"
             min={0.01}
             step={0.1}

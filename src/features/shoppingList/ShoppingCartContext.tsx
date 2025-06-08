@@ -27,7 +27,7 @@ export const ShoppingCartProvider = ({ children }: { children: ReactNode }) => {
         : typeof product.id === "string"
         ? product.id
         : product.id
-        ? product.id.toString()
+        ? product.id
         : "";
 
     if (!productId) {
@@ -37,7 +37,7 @@ export const ShoppingCartProvider = ({ children }: { children: ReactNode }) => {
 
     setCartItems((current) => {
       const itemIndex = current.findIndex(
-        (item) => item.product.product_id === productId
+        (item) => item.product.id === productId
       );
       if (itemIndex !== -1) {
         // Als product al in winkelmand, verhoog quantity
@@ -46,8 +46,8 @@ export const ShoppingCartProvider = ({ children }: { children: ReactNode }) => {
         return updated;
       } else {
         const newItem: ShoppingListItem = {
-          //   id: uuidv4(), // uniek id genereren
-          _id: productId, // als dit ook nodig is
+          id: uuidv4(), // uniek id genereren
+          product_id: productId, // als dit ook nodig is
           product,
           quantity,
           unit: product.unit, // bijvoorbeeld overnemen van product
@@ -62,20 +62,20 @@ export const ShoppingCartProvider = ({ children }: { children: ReactNode }) => {
 
   const removeFromCart = (productId: string) => {
     setCartItems((current) =>
-      current.filter((item) => item.product.product_id !== productId)
+      current.filter((item) => item.product.id !== productId)
     );
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
     setCartItems((current) => {
       return current.map((item) =>
-        item.product.product_id === productId ? { ...item, quantity } : item
+        item.product.id === productId ? { ...item, quantity } : item
       );
     });
   };
 
   const isInCart = (productId: string) => {
-    return cartItems.some((item) => item.product.product_id === productId);
+    return cartItems.some((item) => item.product.id === productId);
   };
 
   return (

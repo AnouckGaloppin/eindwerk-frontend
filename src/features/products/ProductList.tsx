@@ -91,7 +91,7 @@ export default function ProductList({
                         step={0.1}
                         value={shoppingListItem.quantity}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          onQuantityChange(shoppingListItem._id, e.target.value)
+                          onQuantityChange(shoppingListItem.id, e.target.value)
                         }
                         className="w-16 border px-2 py-1 rounded"
                       />

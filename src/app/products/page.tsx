@@ -47,7 +47,7 @@ export default function ProductsPage() {
     if (existingItem) {
       // Update quantity
       updateItem({
-        itemId: existingItem._id,
+        itemId: existingItem.id,
         quantity: existingItem.quantity + 1,
       });
     } else {
