@@ -10,15 +10,17 @@ export default function HomePage() {
   const { user } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!user) {
-      router.push("/login");
-    }
-  }, [user, router]);
+  // TODO: Re-enable authentication check later
+  // useEffect(() => {
+  //   if (!user) {
+  //     router.push("/login");
+  //   }
+  // }, [user, router]);
 
-  if (!user) {
-    return <div className="p-4 text-center">Loading...</div>;
-  }
+  // TODO: Re-enable loading state later
+  // if (!user) {
+  //   return <div className="p-4 text-center">Loading...</div>;
+  // }
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100 pt-20 pb-24">

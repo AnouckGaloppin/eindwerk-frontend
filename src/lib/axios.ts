@@ -5,36 +5,62 @@ import axios from "axios";
 // const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.ddev.site";
 
 const api = axios.create({
-  baseURL: "http://localhost:53404",
+  baseURL: "http://localhost:51952/api",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
+    "X-Requested-With": "XMLHttpRequest",
   },
+  // TODO: Re-enable CSRF protection later
   withXSRFToken: true,
   xsrfCookieName: "XSRF-TOKEN",
   xsrfHeaderName: "X-XSRF-TOKEN",
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("sanctum_token");
-  console.log("Token:", token);
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Add response interceptor to handle token storage
-api.interceptors.response.use(
-  (response) => {
-    // If this is a login response and contains a token, store it
-    if (response.config.url === "/api/login" && response.data.token) {
-      localStorage.setItem("sanctum_token", response.data.token);
-    }
-    return response;
+// TODO: Re-enable authentication later
+api.interceptors.request.use(
+  async (config) => {
+    // TODO: Re-enable auth header when authentication is needed
+    // const token = localStorage.getItem("token");
+    // if (token) {
+    //   config.headers.Authorization = `Bearer ${token}`;
+    // }
+    return config;
   },
   (error) => {
+    console.error("Request interceptor error:", error);
+    return Promise.reject(error);
+  }
+);
+
+// Handle response errors
+api.interceptors.response.use(
+  (response) => {
+    console.log("Response received:", {
+      url: response.config.url,
+      status: response.status,
+      data: response.data,
+    });
+    // If this is a login response and contains a token, store it
+    // if (response.config.url === "/api/login" && response.data.token) {
+    //   localStorage.setItem("sanctum_token", response.data.token);
+    // }
+    return response;
+  },
+  async (error) => {
+    if (error.response?.status === 419) {
+      // CSRF token mismatch, try to get a new one
+      try {
+        await axios.get("http://localhost:56998/sanctum/csrf-cookie", {
+          withCredentials: true,
+        });
+        // Retry the original request
+        return api(error.config);
+      } catch (retryError) {
+        return Promise.reject(retryError);
+      }
+    }
     return Promise.reject(error);
   }
 );

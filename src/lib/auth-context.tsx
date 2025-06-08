@@ -16,24 +16,35 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// TODO: Remove this mock user when re-enabling authentication
+const mockUser: User = {
+  id: "1",
+  username: "test_user",
+  email: "test@example.com",
+  role: "user"
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(mockUser); // Set default user for testing
+  const [loading, setLoading] = useState(false); // Set loading to false by default
   const router = useRouter();
 
-  // Fetch user data on mount to restore session
-  useEffect(() => {
-    refreshUser();
-  }, []);
+  // TODO: Re-enable user fetching later
+  // useEffect(() => {
+  //   refreshUser();
+  // }, []);
 
   const refreshUser = async () => {
     try {
-      await api.get("/sanctum/csrf-cookie");
-      const response = await api.get("/api/user");
-      setUser(response.data);
+      // TODO: Re-enable CSRF and user fetching later
+      // await api.get("/sanctum/csrf-cookie");
+      // const response = await api.get("/api/user");
+      // console.log("Fetched data:", response.data);
+      // setUser(response.data);
+      setUser(mockUser); // Use mock user for testing
       setLoading(false);
     } catch (err) {
-      setUser(null);
+      setUser(mockUser); // Use mock user even on error
       setLoading(false);
     }
   };
@@ -41,11 +52,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     setLoading(true);
     try {
-      await api.get("/sanctum/csrf-cookie");
-      await api.post("/api/logout");
-      setUser(null);
+      // TODO: Re-enable logout functionality later
+      // await api.get("/sanctum/csrf-cookie");
+      // await api.post("/api/logout");
+      setUser(mockUser); // Keep mock user for testing
       setLoading(false);
-      router.push("/login");
+      // router.push("/login");
     } catch (err) {
       console.error("Logout error:", err);
       setLoading(false);
@@ -54,8 +66,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await api.post("/api/login", { email, password });
-      setUser(response.data);
+      // TODO: Re-enable login functionality later
+      // const response = await api.post("/api/login", { email, password });
+      // setUser(response.data);
+      setUser(mockUser); // Use mock user for testing
     } catch (err) {
       console.error("Login error:", err);
     }
