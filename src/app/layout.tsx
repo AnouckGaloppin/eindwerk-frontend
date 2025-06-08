@@ -9,7 +9,6 @@ import { ReactNode } from "react";
 // import { AuthProvider } from "@/lib/auth-context";
 // import ClientProvider from "./ClientProvider";
 import Link from "next/link";
-
 const inter = Inter({ subsets: ["latin"] });
 
 // export const metadata = {

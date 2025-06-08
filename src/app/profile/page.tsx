@@ -48,11 +48,11 @@ export default function ProfilePage() {
         status: err.response?.status,
         data: err.response?.data,
       });
-      setError(
-        err.response?.data?.message ||
-          "An error occurred while updating the profile"
-      );
-      setToast({ message: err.response?.data?.message || "Fout bij het bijwerken van het profiel", type: "error" });
+      const errorMessage = err.response?.data?.errors 
+        ? Object.values(err.response.data.errors).flat().join(', ')
+        : err.response?.data?.message || "An error occurred while updating the profile";
+      setError(errorMessage);
+      setToast({ message: errorMessage, type: "error" });
     }
   };
 

@@ -16,7 +16,10 @@ export default function CreateUser() {
   const [error, setError] = useState(null);
   const router = useRouter();
   const { user, loading } = useAuth();
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +30,10 @@ export default function CreateUser() {
       setToast({ message: "Gebruiker succesvol aangemaakt", type: "success" });
       setTimeout(() => router.push("/admin/users"), 1500);
     } catch (error) {
-      setToast({ message: "Fout bij het aanmaken van de gebruiker", type: "error" });
+      setToast({
+        message: "Fout bij het aanmaken van de gebruiker",
+        type: "error",
+      });
       console.error("Error creating user:", error);
     }
   };
@@ -49,19 +55,29 @@ export default function CreateUser() {
     <div className="min-h-screen flex items-center justify-center p-4 pt-20 pb-24">
       {/* Toast notification */}
       {toast && (
-        <div className={`fixed inset-0 z-[60] flex items-center justify-center pointer-events-none`}>
-          <div className={`px-6 py-3 rounded-lg shadow-lg text-white font-semibold transition-all duration-300 pointer-events-auto ${toast.type === "success" ? "bg-teal-500" : "bg-red-500"}`}
+        <div
+          className={`fixed inset-0 z-[60] flex items-center justify-center pointer-events-none`}
+        >
+          <div
+            className={`px-6 py-3 rounded-lg shadow-lg text-white font-semibold transition-all duration-300 pointer-events-auto ${
+              toast.type === "success" ? "bg-teal-500" : "bg-red-500"
+            }`}
           >
             {toast.message}
           </div>
         </div>
       )}
       <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl border border-gray-100 p-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">Nieuwe Gebruiker <span className="text-base font-normal text-gray-500">(Admin)</span></h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+          Nieuwe Gebruiker{" "}
+          <span className="text-base font-normal text-gray-500">(Admin)</span>
+        </h1>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Gebruikersnaam</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Gebruikersnaam
+            </label>
             <input
               type="text"
               value={form.username}
@@ -71,7 +87,9 @@ export default function CreateUser() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
             <input
               type="email"
               value={form.email}
@@ -81,7 +99,9 @@ export default function CreateUser() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Wachtwoord</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Wachtwoord
+            </label>
             <input
               type="password"
               value={form.password}
@@ -91,7 +111,9 @@ export default function CreateUser() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Rol
+            </label>
             <select
               value={form.role}
               onChange={(e) => setForm({ ...form, role: e.target.value })}
