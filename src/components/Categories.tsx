@@ -10,30 +10,30 @@ import type { Category } from "@/types/productTypes";
 import { Loader } from "lucide-react";
 
 const staticCategories: Category[] = [
-  // { id: "1", name: "Fruit", slug: "fruit", color: "bg-amber-500" },
-  // { id: "2", name: "Vegetables", slug: "vegetables", color: "bg-green-500" },
-  // { id: "3", name: "Dairy", slug: "dairy", color: "bg-yellow-500" },
-  // { id: "4", name: "Meat", slug: "meat", color: "bg-red-500" },
-  // { id: "5", name: "Fish", slug: "fish", color: "bg-blue-500" },
-  // { id: "6", name: "Drinks", slug: "drinks", color: "bg-orange-400" },
-  // {
-  //   id: "7",
-  //   name: "Meat substitutes",
-  //   slug: "meatsubstitutes",
-  //   color: "bg-green-700",
-  // },
-  // { id: "8", name: "Bread", slug: "bread", color: "bg-amber-700" },
-  // {
-  //   id: "9",
-  //   name: "Salty snacks",
-  //   slug: "saltysnacks",
-  //   color: "bg-purple-500",
-  // },
-  // { id: "10", name: "Sweet snacks", slug: "sweetsnacks", color: "bg-pink-500" },
-  // { id: "11", name: "Grains", slug: "grains", color: "bg-amber-200" },
-  // { id: "12", name: "Spices", slug: "spices", color: "bg-green-600" },
-  // { id: "13", name: "Canned food", slug: "cannedfood", color: "bg-gray-500" },
-  // { id: "14", name: "Frozen", slug: "frozen", color: "bg-blue-300" },
+  { _id: "1", name: "Fruit", slug: "fruit", color: "bg-amber-500" },
+  { _id: "2", name: "Vegetables", slug: "vegetables", color: "bg-green-500" },
+  { _id: "3", name: "Dairy", slug: "dairy", color: "bg-yellow-500" },
+  { _id: "4", name: "Meat", slug: "meat", color: "bg-red-500" },
+  { _id: "5", name: "Fish", slug: "fish", color: "bg-blue-500" },
+  { _id: "6", name: "Drinks", slug: "drinks", color: "bg-orange-400" },
+  {
+    _id: "7",
+    name: "Meat substitutes",
+    slug: "meatsubstitutes",
+    color: "bg-green-700",
+  },
+  { _id: "8", name: "Bread", slug: "bread", color: "bg-amber-700" },
+  {
+    _id: "9",
+    name: "Salty snacks",
+    slug: "saltysnacks",
+    color: "bg-purple-500",
+  },
+  { _id: "10", name: "Sweet snacks", slug: "sweetsnacks", color: "bg-pink-500" },
+  { _id: "11", name: "Grains", slug: "grains", color: "bg-amber-200" },
+  { _id: "12", name: "Spices", slug: "spices", color: "bg-green-600" },
+  { _id: "13", name: "Canned food", slug: "cannedfood", color: "bg-gray-500" },
+  { _id: "14", name: "Frozen", slug: "frozen", color: "bg-blue-300" },
 ];
 
 interface CategoriesProps {
@@ -51,16 +51,17 @@ export default function Categories({ className }: CategoriesProps) {
     setHasMounted(true);
     const fetchCategories = async () => {
       try {
-        const response = await api.get("/api/categories");
+        const response = await api.get("/categories");
+        console.log('Categories response:', response.data);
         const fetchedCategories = response.data.categories;
         if (!Array.isArray(fetchedCategories)) {
           throw new Error("Expected categories to be an array");
         }
         const mappedCategories = fetchedCategories.map(
           (cat: any, index: number) => {
-            const categoryId = cat.id || `fallback-${index}`;
+            const categoryId = cat._id || `fallback-${index}`;
             return {
-              id: categoryId,
+              _id: categoryId,
               name: cat.name || "Unnamed Category",
               slug: cat.slug || "unknown Slug",
               color: cat.color || "bg-gray-500",
@@ -130,7 +131,7 @@ function DesktopCategories({
           loop={false}
         >
           {categories.map((category) => (
-            <SwiperSlide key={category.id} className="swiper-slide-custom">
+            <SwiperSlide key={category._id} className="swiper-slide-custom">
               <CategoryBox category={category} />
             </SwiperSlide>
           ))}
@@ -164,7 +165,7 @@ function MobileCategories({
           loop={false}
         >
           {categories.map((category) => (
-            <SwiperSlide key={category.id} className="swiper-slide-custom">
+            <SwiperSlide key={category._id} className="swiper-slide-custom">
               <CategoryBox category={category} />
             </SwiperSlide>
           ))}
