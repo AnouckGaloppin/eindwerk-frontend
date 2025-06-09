@@ -22,23 +22,27 @@ export default function Favourites() {
 
   const addAllFavouritesToShoppingList = async () => {
     try {
-      const response = await api.post(
-        "/api/shopping-list/add-all-favourites",
-        {
-          favouriteIds: favourites.map((fav: Favourite) => fav.product.id),
-        }
-        // {
-        //   headers: {
-        //     Authorization: `Bearer ${localStorage.getItem("token")}`, // Pas aan op basis van je authenticatie
-        //   },
-        // }
-      );
-      alert(response.data.message); // Toon succesmelding
+      // Get the product IDs from favourites
+      const productIds = favourites.map((fav: Favourite) => fav.product.id);
+      
+      if (productIds.length === 0) {
+        alert("No favourites to add to shopping list");
+        return;
+      }
+
+      const response = await api.post("/api/shopping-list/add-all-favourites", {
+        favouriteIds: productIds
+      });
+
+      if (response.data.message) {
+        alert(response.data.message);
+        // Optionally refresh the shopping list here
+      }
     } catch (error: any) {
-      console.error("Fout bij toevoegen favorieten:", error);
+      console.error("Error adding favourites to shopping list:", error);
       alert(
         error.response?.data?.message ||
-          "Fout bij toevoegen favorieten aan boodschappenlijst"
+          "Error adding favourites to shopping list"
       );
     }
   };
