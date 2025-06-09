@@ -1,15 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  useFavourites,
-  useToggleFavourite,
-  // Favourite,
-} from "./useFavourites";
+import { useFavourites, useToggleFavourite } from "./useFavourites";
 // import { useSwipeable } from "react-swipeable";
 // import { Heart } from "lucide-react";
 import type { Favourite } from "@/types/favouritesTypes";
 import { FavouriteItem } from "@/components/FavouriteItem";
+import axios from "axios";
+import { button } from "framer-motion/client";
+import api from "@/lib/axios";
 // import { li } from "framer-motion/client";
 
 // const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
@@ -20,6 +19,29 @@ export default function Favourites() {
   const toggleFavourite = useToggleFavourite();
 
   const [isMobile, setIsMobile] = useState(false);
+
+  const addAllFavouritesToShoppingList = async () => {
+    try {
+      const response = await api.post(
+        "/api/shopping-list/add-all-favourites",
+        {
+          favouriteIds: favourites.map((fav: Favourite) => fav.product.id),
+        }
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${localStorage.getItem("token")}`, // Pas aan op basis van je authenticatie
+        //   },
+        // }
+      );
+      alert(response.data.message); // Toon succesmelding
+    } catch (error: any) {
+      console.error("Fout bij toevoegen favorieten:", error);
+      alert(
+        error.response?.data?.message ||
+          "Fout bij toevoegen favorieten aan boodschappenlijst"
+      );
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -67,8 +89,18 @@ export default function Favourites() {
 
   return (
     <div className="p-4">
-      {/* Input om favoriet toe te voegen */}
-      <h1 className="text-xl font-semibold mb-4">Favorieten</h1>
+      <div className="flex justify-between items-center mb-4">
+        {/* Input om favoriet toe te voegen */}
+        <h1 className="text-xl font-semibold mb-4">Favorieten</h1>
+        {favourites.length > 0 && (
+          <button
+            onClick={addAllFavouritesToShoppingList}
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+          >
+            Voeg alle favorieten toe aan boodschappenlijst
+          </button>
+        )}
+      </div>
       {/* <div className="flex gap-2 mb-4">
         <input
           type="text"
