@@ -7,7 +7,7 @@ import type { User } from "@/types/userTypes";
 
 interface AuthContextType {
   user: User | null;
-  setUser: (user: User | null) => void;
+  setUser: (user: User) => void;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -17,34 +17,56 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // TODO: Remove this mock user when re-enabling authentication
-const mockUser: User = {
-  id: "1",
-  username: "test_user",
-  email: "test@example.com",
-  role: "user"
-};
+// const mockUser: User = {
+//   id: "1",
+//   username: "test_user",
+//   email: "test@example.com",
+//   role: "user",
+// };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(mockUser); // Set default user for testing
+  const [user, setUser] = useState<User | null>(null); // Set default user for testing
   const [loading, setLoading] = useState(false); // Set loading to false by default
   const router = useRouter();
 
   // TODO: Re-enable user fetching later
-  // useEffect(() => {
-  //   refreshUser();
-  // }, []);
+  useEffect(() => {
+    api.get("/sanctum/csrf-cookie").then(() => {
+      api.get("/api/user").then((response) => {
+        console.log(
+          "Setting user in initial user fetch of page: ",
+          response.data
+        );
+        setUser(response.data);
+      });
+    });
+    // const response = await api.get("/api/user");
+    // console.log("Fetched data:", response.data);
+    // setUser(response.data);
+  }, []);
 
   const refreshUser = async () => {
     try {
-      // TODO: Re-enable CSRF and user fetching later
-      // await api.get("/sanctum/csrf-cookie");
-      // const response = await api.get("/api/user");
-      // console.log("Fetched data:", response.data);
-      // setUser(response.data);
-      setUser(mockUser); // Use mock user for testing
+      console.log("Refreshing user");
+      await api.get("/sanctum/csrf-cookie");
+      const response = await api.get("/api/user");
+      console.log("Fetched data:", response.data);
+      if (response.data) {
+        setUser(response.data);
+        console.log("User state updated with:", response.data);
+      } else {
+        console.log("No user data received from API");
+        setUser(null);
+      }
       setLoading(false);
-    } catch (err) {
-      setUser(mockUser); // Use mock user even on error
+    } catch (err: any) {
+      console.error("Error refreshing user:", err);
+      if (err.response?.status === 403) {
+        router.push("/verify");
+      } else {
+        router.push("/login");
+      }
+      setUser(null);
       setLoading(false);
     }
   };
@@ -53,11 +75,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       // TODO: Re-enable logout functionality later
-      // await api.get("/sanctum/csrf-cookie");
-      // await api.post("/api/logout");
-      setUser(mockUser); // Keep mock user for testing
+      await api.get("/sanctum/csrf-cookie");
+      await api.post("/logout");
+      console.log("Setting user in logout");
+      setUser(null);
+      // setUser(mockUser); // Keep mock user for testing
       setLoading(false);
-      // router.push("/login");
+      router.push("/login");
     } catch (err) {
       console.error("Logout error:", err);
       setLoading(false);
@@ -67,9 +91,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       // TODO: Re-enable login functionality later
-      // const response = await api.post("/api/login", { email, password });
-      // setUser(response.data);
-      setUser(mockUser); // Use mock user for testing
+      const response = await api.post("/login", { email, password });
+      console.log("Logged in ?");
+      if (response.status == 200) {
+        const user_data = await api.get("/api/user");
+        console.log("User data: ", user_data.data);
+        setUser(user_data.data);
+      }
+      // setUser(mockUser); // Use mock user for testing
     } catch (err) {
       console.error("Login error:", err);
     }

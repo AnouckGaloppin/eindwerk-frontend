@@ -5,22 +5,21 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import Categories from "@/components/Categories";
 import Link from "next/link";
+import api from "@/lib/axios";
 
 export default function HomePage() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const router = useRouter();
 
   // TODO: Re-enable authentication check later
-  // useEffect(() => {
-  //   if (!user) {
-  //     router.push("/login");
-  //   }
-  // }, [user, router]);
+  useEffect(() => {
+    refreshUser();
+  }, []);
 
   // TODO: Re-enable loading state later
-  // if (!user) {
-  //   return <div className="p-4 text-center">Loading...</div>;
-  // }
+  if (!user) {
+    return <div className="p-4 text-center">Loading...</div>;
+  }
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100 pt-20 pb-24">

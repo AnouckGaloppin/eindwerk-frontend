@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { Pencil, Trash } from "lucide-react";
 
 export default function AdminUsers() {
-  const { user, setUser } = useAuth();
+  // const { user, setUser } = useAuth();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,14 +22,15 @@ export default function AdminUsers() {
     role: "user",
   });
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
-  // const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
-  //tijdelijk probeersel
   useEffect(() => {
     const init = async () => {
       await api.get("/sanctum/csrf-cookie");
       fetchUsers();
     };
+
+    console.log("User in useEffect admin/users: ", user);
 
     if (!user) {
       router.push("/login");

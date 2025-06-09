@@ -3,4 +3,5 @@ export type User = {
   username: string;
   email: string;
   role: string;
+  two_factor_confirmed_at: Date;
 };
