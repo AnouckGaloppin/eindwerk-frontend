@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
+import { v4 as uuidv4 } from 'uuid';
 import type { Product } from "@/types/productTypes";
 import type { ShoppingListItem } from "@/types/shoppingTypes";
 
@@ -19,39 +20,34 @@ export const ShoppingCartProvider = ({ children }: { children: ReactNode }) => {
 
   const addToCart = (product: Product, quantity = 1) => {
     console.log("Adding product to cart:", product);
-    const productId =
-      typeof product.id === "string"
-        ? product.id
-        : product.id
-        ? product.id.toString()
-        : typeof product.id === "string"
-        ? product.id
-        : product.id
-        ? product.id
-        : "";
+    
+    // Get the product ID, handling both string and object ID formats
+    const productId = typeof product.id === 'object' ? product.id.$oid : product.id;
 
     if (!productId) {
-      console.error("Product has no id or _id:", product);
+      console.error("Product has no id:", product);
       return;
     }
 
     setCartItems((current) => {
       const itemIndex = current.findIndex(
-        (item) => item.product.id === productId
+        (item) => item.product_id === productId
       );
+      
       if (itemIndex !== -1) {
-        // Als product al in winkelmand, verhoog quantity
+        // If product is already in cart, increase quantity
         const updated = [...current];
         updated[itemIndex].quantity += quantity;
         return updated;
       } else {
+        // Add new item to cart
         const newItem: ShoppingListItem = {
-          id: uuidv4(), // uniek id genereren
-          product_id: productId, // als dit ook nodig is
+          id: uuidv4(),
+          product_id: productId,
           product,
           quantity,
-          unit: product.unit, // bijvoorbeeld overnemen van product
-          checked: false, // standaard false
+          unit: product.unit || 'piece',
+          checked: false,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
@@ -62,20 +58,20 @@ export const ShoppingCartProvider = ({ children }: { children: ReactNode }) => {
 
   const removeFromCart = (productId: string) => {
     setCartItems((current) =>
-      current.filter((item) => item.product.id !== productId)
+      current.filter((item) => item.product_id !== productId)
     );
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
     setCartItems((current) => {
       return current.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item
+        item.product_id === productId ? { ...item, quantity } : item
       );
     });
   };
 
   const isInCart = (productId: string) => {
-    return cartItems.some((item) => item.product.id === productId);
+    return cartItems.some((item) => item.product_id === productId);
   };
 
   return (
@@ -97,11 +93,8 @@ export const useShoppingCart = (): ShoppingCartContextType => {
   const context = useContext(ShoppingCartContext);
   if (!context) {
     throw new Error(
-      "useShoppingCart moet binnen ShoppingCartProvider gebruikt worden"
+      "useShoppingCart must be used within ShoppingCartProvider"
     );
   }
   return context;
 };
-function uuidv4(): string {
-  throw new Error("Function not implemented.");
-}

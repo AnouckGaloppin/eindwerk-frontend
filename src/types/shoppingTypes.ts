@@ -16,28 +16,25 @@ export type ShoppingListState = {
   error: string | null;
 };
 
-export type ShoppingListItem = {
-  id: string;
+export interface ShoppingListItem {
+  _id: string;
   product_id: string;
   product: Product;
   quantity: number;
   unit: string;
-  checked: boolean;
-  createdAt: string;
-  updatedAt: string;
-};
+  created_at: string;
+  updated_at: string;
+}
 
 export type ShoppingList = ShoppingListItem[];
 
-export type AddToShoppingListInput = {
+export interface AddToShoppingListInput {
   productId: string;
   quantity: number;
   unit: string;
-};
+}
 
-export type UpdateShoppingListItemInput = {
-  itemId: string;
-  quantity?: number;
-  unit?: string;
-  checked?: boolean;
-};
+export interface UpdateShoppingListItemInput {
+  id: string;
+  data: Partial<ShoppingListItem>;
+}

@@ -1,125 +1,159 @@
-import { Heart } from "lucide-react";
-import type { Product, StorePrice } from "@/types/productTypes";
-import type { ShoppingListItem } from "@/types/shoppingTypes";
+import React from 'react';
+import { Heart, Plus, Minus } from 'lucide-react';
+import { Product } from '@/types/productTypes';
+import { ShoppingListItem } from '@/types/shoppingTypes';
+import { Favourite } from "@/types/favouritesTypes";
+import { useShoppingList } from '@/features/shoppingList/useShoppingList';
+import Link from "next/link";
+import { formatPrice, formatQuantity } from '@/lib/utils';
 
-type ProductListProps = {
+interface ProductListProps {
   products: Product[];
   shoppingList: ShoppingListItem[];
-  favourites: { product: { id: string } }[];
+  favourites: Favourite[];
   isLoading?: boolean;
   error?: string | null;
-  onAddOrUpdate: (product: Product) => void;
-  onQuantityChange: (itemId: string, newQuantity: string) => void;
-  onToggleFavourite: (productId: string) => void;
-};
+  onAddOrUpdate: (product: Product, quantity: number) => void;
+  onToggleFavourite: (product: Product) => void;
+  onQuantityChange: (itemId: string, quantity: number) => void;
+}
 
-export default function ProductList({
+const ProductList: React.FC<ProductListProps> = ({
   products,
   shoppingList,
   favourites,
   isLoading,
   error,
   onAddOrUpdate,
-  onQuantityChange,
   onToggleFavourite,
-}: ProductListProps) {
-  if (isLoading) return <div className="p-4 text-center">Loading...</div>;
-  if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
+  onQuantityChange,
+}) => {
+  const { items: shoppingListItems, updateItem, addItem } = useShoppingList();
 
-  const getLowestPrice = (product: Product): string => {
-    const prices = Object.values(product.price_per_store || {})
-      .map((store: StorePrice) => parseFloat(store.price_per_item))
-      .filter((price) => !isNaN(price));
-    return prices.length ? Math.min(...prices).toFixed(2) : "0.00";
+  const getLowestPrice = (product: Product) => {
+    if (!product.price_per_store || typeof product.price_per_store !== 'object') return 0;
+    
+    // Convert price_per_store object to array of prices
+    const prices = Object.values(product.price_per_store).map(store => 
+      typeof store === 'object' && 'price_per_item' in store 
+        ? parseFloat(store.price_per_item) 
+        : 0
+    ).filter(price => !isNaN(price));
+    
+    return prices.length ? Math.min(...prices) : 0;
   };
 
+  const handleQuantityChange = (productId: string, newQuantity: number) => {
+    const shoppingListItem = shoppingListItems.find(item => item.product_id === productId);
+    if (shoppingListItem) {
+      updateItem({ id: shoppingListItem._id, data: { quantity: newQuantity } });
+    } else {
+      const product = products.find(p => p._id === productId);
+      if (product) {
+        addItem({
+          productId,
+          quantity: newQuantity,
+          unit: product.unit
+        });
+      }
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">Error: {error}</div>;
+  }
+
+  console.log('ProductList received products:', products);
+  console.log('ProductList received shoppingList:', shoppingListItems);
+  console.log('ProductList received favourites:', favourites);
+
+  if (!products || products.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">Geen producten gevonden</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-4 max-w-xl mx-auto">
-      {products.length === 0 ? (
-        <p className="text-center text-gray-500">No products found.</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {products.map((product: Product) => {
-            const productId = String(product.id);
-            const shoppingListItem = shoppingList.find(
-              (item: any) => item.product_id === productId
-            );
-            const isFavourite = favourites.some(
-              (fav) => fav.product.id === productId
-            );
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {products.map((product) => {
+        console.log('Rendering product:', product);
+        console.log('Product _id:', product._id);
+        
+        if (!product._id) {
+          console.error('Product missing _id:', product);
+          return null;
+        }
 
-            return (
-              <div
-                key={productId}
-                className="border p-4 rounded shadow hover:shadow-lg transition-shadow"
+        const shoppingListItem = shoppingListItems.find(item => item.product_id === product._id);
+        const isFavourite = favourites.some(fav => fav.product._id === product._id);
+        
+        const price = product.price_per_store?.colruyt?.price_per_item;
+        console.log('Product price:', price);
+        
+        return (
+          <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="relative">
+              <img 
+                src={product.img} 
+                alt={product.name}
+                className="w-full h-48 object-cover"
+              />
+              <button
+                onClick={() => onToggleFavourite(product)}
+                className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white"
               >
-                {product.img && (
-                  <img
-                    src={product.img}
-                    alt={product.name}
-                    className="w-full h-48 object-cover rounded mb-4"
-                  />
-                )}
-                <h3 className="text-lg font-semibold">{product.name}</h3>
-                <p className="text-sm text-gray-500">
-                  Quantity: {product.quantity} {product.unit}
-                </p>
-                <p className="text-lg font-bold mt-2">
-                  €{getLowestPrice(product)}
-                </p>
-
-                {!shoppingListItem ? (
+                <Heart 
+                  className={`w-6 h-6 ${isFavourite ? 'text-red-500 fill-current' : 'text-gray-400'}`}
+                />
+              </button>
+            </div>
+            
+            <div className="p-4">
+              <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
+              <p className="text-sm text-gray-600">{product.brand}</p>
+              
+              <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => onAddOrUpdate(product)}
-                    className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md"
+                    onClick={() => handleQuantityChange(product._id, Math.max(0, (shoppingListItem?.quantity || 0) - 0.01))}
+                    className="p-1 hover:bg-gray-100 rounded"
                   >
-                    Add to Shopping List
+                    -
                   </button>
-                ) : (
-                  <div className="flex flex-col gap-2 mt-2">
-                    <div className="flex items-center gap-2">
-                      <label
-                        htmlFor={`quantity-${productId}`}
-                        className="text-sm text-gray-600"
-                      >
-                        Quantity:
-                      </label>
-                      <input
-                        id={`quantity-${productId}`}
-                        type="number"
-                        min={0.01}
-                        step={0.1}
-                        value={shoppingListItem.quantity}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          onQuantityChange(shoppingListItem.id, e.target.value)
-                        }
-                        className="w-16 border px-2 py-1 rounded"
-                      />
-                      <span className="text-sm text-gray-600">
-                        {shoppingListItem.unit}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  onClick={() => onToggleFavourite(productId)}
-                  aria-label={
-                    isFavourite ? "Remove from favourites" : "Add to favourites"
-                  }
-                  className="mt-2"
-                >
-                  {isFavourite ? (
-                    <Heart className="fill-red-500 text-red-500 w-6 h-6" />
-                  ) : (
-                    <Heart className="w-6 h-6" />
-                  )}
-                </button>
+                  
+                  <span className="mx-2">{formatQuantity(shoppingListItem?.quantity || 0)}</span>
+                  
+                  <button
+                    onClick={() => handleQuantityChange(product._id, (shoppingListItem?.quantity || 0) + 0.01)}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    +
+                  </button>
+                  
+                  <span className="text-sm text-gray-500">
+                    {product.unit}
+                  </span>
+                </div>
+                
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">Prijs per {product.unit}</p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    €{formatPrice(getLowestPrice(product))}
+                  </p>
+                </div>
               </div>
-            );
-          })}
-        </div>
-      )}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
-}
+};
+
+export default ProductList;
