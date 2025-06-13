@@ -5,6 +5,7 @@ import type {
   UpdateShoppingListItemInput,
 } from "@/types/shoppingTypes";
 import api from "@/lib/axios";
+import { getAuthHeaders } from "@/lib/auth";
 
 // export type ShoppingItem = {
 //   id: string;
@@ -12,65 +13,77 @@ import api from "@/lib/axios";
 //   quantity: number;
 // };
 
-// TODO: Re-enable authentication later
-// const getAuthHeaders = () => {
-//   const token = localStorage.getItem('token');
-//   return {
-//     'Content-Type': 'application/json',
-//     'Authorization': `Bearer ${token}`
-//   };
-// };
-
 export function useShoppingList() {
   const queryClient = useQueryClient();
 
-  const {
-    data: items = [],
-    isLoading,
-    error,
-  } = useQuery<ShoppingListItem[], Error>({
+  const { data: items = [], isLoading, error } = useQuery<ShoppingListItem[]>({
     queryKey: ["shoppingList"],
     queryFn: async () => {
-      const response = await api.get("/api/shopping-list");
-      return Array.isArray(response.data.items) ? response.data.items : [];
+      const headers = getAuthHeaders();
+      console.log('Fetching shopping list with headers:', headers);
+      const response = await api.get("/api/shopping-list", { headers });
+      console.log('Raw response from backend:', response.data);
+      console.log('Items before processing:', response.data.items);
+
+      const processedItems = response.data.items.map((item: any) => ({
+        ...item,
+        _id: typeof item._id === 'object' ? item._id.$oid : item._id,
+        product_id: typeof item.product_id === 'object' ? item.product_id.$oid : item.product_id,
+        quantity: parseFloat(item.quantity)
+      }));
+
+      console.log('Processed items:', processedItems);
+      return processedItems;
     },
   });
 
-  const { mutate: addItem, isPending: isAdding } = useMutation({
+  const addItemMutation = useMutation({
     mutationFn: async (input: AddToShoppingListInput) => {
-      const response = await api.post("/api/shopping-list", input);
-      return response.data.item;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
-    },
-    onError: (error: any) => {
-      console.error("Error adding to shopping list:", error);
-    },
-  });
-
-  const { mutate: updateItem, isPending: isUpdating } = useMutation({
-    mutationFn: async ({ itemId, ...input }: UpdateShoppingListItemInput) => {
-      const response = await api.put(`/api/shopping-list/${itemId}`, input);
+      const headers = getAuthHeaders();
+      const response = await api.post("/api/shopping-list", {
+        product_id: input.productId,
+        quantity: input.quantity,
+        unit: input.unit
+      }, { headers });
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
     },
     onError: (error: any) => {
-      console.error("Error updating shopping list item:", error);
+      console.error("Error adding to shopping list:", error.response?.data || error);
     },
   });
 
-  const { mutate: deleteItem, isPending: isDeleting } = useMutation({
-    mutationFn: async (itemId: string) => {
-      await api.delete(`/api/shopping-list/${itemId}`);
+  const updateItemMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<ShoppingListItem> }) => {
+      const headers = getAuthHeaders();
+      console.log('Updating item:', { id, data });
+      console.log('Using headers:', headers);
+      const response = await api.put(`/api/shopping-list/${id}`, data, { headers });
+      console.log('Update response:', response.data);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
     },
     onError: (error: any) => {
-      console.error("Error deleting shopping list item:", error);
+      console.error("Error updating shopping list item:", error.response?.data || error);
+    },
+  });
+
+  const deleteItemMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const headers = getAuthHeaders();
+      console.log('Deleting item:', id);
+      console.log('Using headers:', headers);
+      await api.delete(`/api/shopping-list/${id}`, { headers });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
+    },
+    onError: (error: any) => {
+      console.error("Error deleting shopping list item:", error.response?.data || error);
     },
   });
 
@@ -78,12 +91,9 @@ export function useShoppingList() {
     items,
     isLoading,
     error,
-    addItem,
-    updateItem,
-    deleteItem,
-    isAdding,
-    isUpdating,
-    isDeleting,
+    addItem: addItemMutation.mutate,
+    updateItem: updateItemMutation.mutate,
+    deleteItem: deleteItemMutation.mutate,
   };
 }
 
@@ -92,7 +102,10 @@ export function useDeleteItem() {
 
   return useMutation({
     mutationFn: async (itemId: string) => {
-      await api.delete(`/api/shopping-list/${itemId}`);
+      const response = await api.delete(`/api/shopping-list/${itemId}`, {
+        headers: getAuthHeaders()
+      });
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });

@@ -1,41 +1,40 @@
 import api from "@/lib/axios";
-import type { ShoppingListItem } from "@/types/shoppingTypes";
+import type { ShoppingListItem as ShoppingListItemType } from "@/types/shoppingTypes";
 import { Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSwipeable } from "react-swipeable";
+import { useShoppingList } from "@/features/shoppingList/useShoppingList";
 
 type Props = {
-  product: ShoppingListItem;
-  onDelete: (productId: string) => void;
+  product: ShoppingListItemType;
+  onDelete: (id: string) => void;
+};
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
+  };
 };
 
 export default function ShoppingListItem({ product, onDelete }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [swiping, setSwiping] = useState(false);
+  const [quantity, setQuantity] = useState<string>(product.quantity.toString());
   const queryClient = useQueryClient();
-
-  const updateQuantity = useMutation({
-    mutationFn: async (quantity: number) => {
-      const response = await api.put(`/api/shopping-list/${product.id}`, {
-        quantity,
-      });
-      return response.data.item;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shopping-list"] });
-    },
-    onError: (error: any) => {
-      setError(error.response?.data?.error || "Failed to update quantity");
-    },
-  });
+  const { updateItem } = useShoppingList();
 
   const handleDeleteFromShoppingList = useMutation({
     mutationFn: async () => {
-      await api.delete(`/api/shopping-list/${product.id}`);
+      await api.delete(`/api/shopping-list/${product._id}`, {
+        headers: getAuthHeaders()
+      });
     },
     onSuccess: () => {
-      onDelete(product.id);
+      onDelete(product._id);
       setSwiping(false);
     },
     onError: (error: any) => {
@@ -45,6 +44,20 @@ export default function ShoppingListItem({ product, onDelete }: Props) {
       setSwiping(false);
     },
   });
+
+  const handleQuantityChange = (newQuantity: string) => {
+    const parsedQuantity = parseFloat(newQuantity);
+    if (isNaN(parsedQuantity) || parsedQuantity < 0.01) return;
+
+    setQuantity(newQuantity);
+    updateItem({
+      id: product._id,
+      data: {
+        quantity: parsedQuantity,
+        unit: product.unit
+      }
+    });
+  };
 
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => {
@@ -63,52 +76,54 @@ export default function ShoppingListItem({ product, onDelete }: Props) {
     trackMouse: true,
   });
 
+  if (!product.product) {
+    console.warn('ShoppingListItem received item without product:', product);
+    return null;
+  }
+
+  console.log('ShoppingListItem product data:', {
+    name: product.product.name,
+    img: product.product.img,
+    fullProduct: product.product
+  });
+
   return (
     <div
-      className="relative flex items-center justify-between p-4 border-b"
       {...swipeHandlers}
+      className={`relative bg-white rounded-lg shadow-sm p-4 transition-transform ${
+        swiping ? "translate-x-[-100px]" : ""
+      }`}
     >
-      <div className="flex flex-col w-full">
-        <span className="text-lg font-medium">{product.product.name}</span>
-        <div className="flex items-center gap-2 mt-1">
-          <label
-            htmlFor={`quantity=${product.id}`}
-            className="text-sm text-gray-600"
-          >
-            Quantity:
-          </label>
-          <input
-            id={`quantity=${product.id}`}
-            type="number"
-            min={0.01}
-            step={0.1}
-            value={product.quantity}
-            onChangeCapture={(e: React.ChangeEvent<HTMLInputElement>) =>
-              updateQuantity.mutate(parseFloat(e.target.value))
-            }
-            className="w-16 border rounded px-2 py-1 text-sm"
-            disabled={
-              updateQuantity.isPending || handleDeleteFromShoppingList.isPending
-            }
+      <div className="flex items-center gap-4">
+        {product.product.img && (
+          <img
+            src={product.product.img}
+            alt={product.product.name}
+            className="w-16 h-16 object-cover rounded-lg"
           />
-          <span className="text-sm text-gray-600">{product.unit}</span>
+        )}
+        <div className="flex-1">
+          <h3 className="text-lg font-medium text-gray-900">{product.product.name}</h3>
+          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
         </div>
-        {error && <span className="text-red-500 text-xs ml-2">{error}</span>}
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            value={quantity}
+            onChange={(e) => handleQuantityChange(e.target.value)}
+            className="w-20 px-2 py-1 border rounded text-center"
+            min="0.01"
+            step="0.01"
+          />
+          <span className="text-gray-500">{product.unit}</span>
+          <button
+            onClick={() => handleDeleteFromShoppingList.mutate()}
+            className="p-2 text-red-500 hover:text-red-700 transition-colors"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+        </div>
       </div>
-
-      <button
-        onClick={() => handleDeleteFromShoppingList.mutate()}
-        className="text-red-500 hover:text-red-700 cursor-pointer p-2"
-        aria-label="Delete item from shopping list"
-        disabled={handleDeleteFromShoppingList.isPending}
-      >
-        <Trash2 className="w-5 h-5" />
-      </button>
-      {swiping && (
-        <div className="absolute inset-0 bg-red-100 flex items-center justify-center">
-          <span className="text-red-500">Delete</span>
-        </div>
-      )}
     </div>
   );
 }
