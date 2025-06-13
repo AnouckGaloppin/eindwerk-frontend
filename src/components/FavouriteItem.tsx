@@ -42,28 +42,28 @@ export function FavouriteItem({
   return (
     <li
       {...(isMobile ? swipeHandlers : {})}
-      className="p-2 border rounded flex justify-between items-center"
+      className="bg-white p-4 border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex justify-between items-center mb-4 max-w-2xl mx-auto hover:scale-[1.02]"
     >
       <div className="flex items-center gap-4">
         {product?.img && (
           <img
             src={product.img}
             alt={favourite.product?.name || "Onbekend product"}
-            className="w-12 h-12 object-cover rounded"
+            className="w-16 h-16 object-cover rounded-lg shadow-sm"
           />
         )}
       </div>
-      <span>{favourite.product?.name || "Onbekend product"}</span>
+      <span className="text-gray-800 font-medium text-lg">{favourite.product?.name || "Onbekend product"}</span>
       {!isMobile && (
         <button
           onClick={() => handleToggle()}
-          className="text-red-600"
+          className="text-red-600 hover:text-red-700 transition-colors duration-200 p-2 hover:bg-red-50 rounded-full"
           aria-label="Toggle favourite"
         >
           {isFavourite ? (
-            <Heart className="fill-red-500 w-4 h-4" />
+            <Heart className="fill-red-500 w-6 h-6" />
           ) : (
-            <Heart className="w-4 h-4" />
+            <Heart className="w-6 h-6" />
           )}
         </button>
       )}
