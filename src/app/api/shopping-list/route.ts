@@ -2,9 +2,15 @@ import { NextResponse } from 'next/server';
 
 const BACKEND_URL = 'http://localhost:8000'; // Update this to match your backend URL
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/shopping-list`);
+    const authHeader = request.headers.get('authorization');
+    const response = await fetch(`${BACKEND_URL}/api/shopping-list`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authHeader && { 'Authorization': authHeader })
+      }
+    });
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
@@ -18,10 +24,12 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const authHeader = request.headers.get('authorization');
     const response = await fetch(`${BACKEND_URL}/api/shopping-list`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(authHeader && { 'Authorization': authHeader })
       },
       body: JSON.stringify(body),
     });

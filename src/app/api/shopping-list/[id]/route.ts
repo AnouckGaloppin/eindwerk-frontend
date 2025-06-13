@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const BACKEND_URL = 'http://localhost:8000'; // Update this to match your backend URL
+const BACKEND_URL = 'http://localhost:63167'; // Backend URL
 
 export async function PUT(
   request: Request,
@@ -8,10 +8,12 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
+    const authHeader = request.headers.get('authorization');
     const response = await fetch(`${BACKEND_URL}/api/shopping-list/${params.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        ...(authHeader && { 'Authorization': authHeader })
       },
       body: JSON.stringify(body),
     });
@@ -30,14 +32,29 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const authHeader = request.headers.get('authorization');
     const response = await fetch(`${BACKEND_URL}/api/shopping-list/${params.id}`, {
       method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authHeader && { 'Authorization': authHeader })
+      }
     });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return NextResponse.json(
+        { message: errorData.message || 'Failed to delete shopping list item' },
+        { status: response.status }
+      );
+    }
+
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
+    console.error('Error in DELETE route:', error);
     return NextResponse.json(
-      { message: 'Failed to delete shopping list item' },
+      { message: 'Failed to delete shopping list item', error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
