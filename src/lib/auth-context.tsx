@@ -25,48 +25,60 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null); // Set default user for testing
-  const [loading, setLoading] = useState(false); // Set loading to false by default
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // TODO: Re-enable user fetching later
   useEffect(() => {
-    api.get("/sanctum/csrf-cookie").then(() => {
-      api.get("/api/user").then((response) => {
-        console.log(
-          "Setting user in initial user fetch of page: ",
-          response.data
-        );
-        setUser(response.data);
-      });
-    });
-    // const response = await api.get("/api/user");
-    // console.log("Fetched data:", response.data);
-    // setUser(response.data);
+    const initAuth = async () => {
+      try {
+        await api.get("/sanctum/csrf-cookie");
+        const response = await api.get("/api/user");
+        console.log("Initial user fetch:", response.data);
+        if (response.data) {
+          setUser(response.data);
+          // Store the token if it's in the response
+          if (response.data.token) {
+            localStorage.setItem('token', response.data.token);
+          }
+        }
+      } catch (error) {
+        console.error("Initial auth error:", error);
+        setUser(null);
+        localStorage.removeItem('token');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
   }, []);
 
   const refreshUser = async () => {
     try {
-      console.log("Refreshing user");
+      setLoading(true);
       await api.get("/sanctum/csrf-cookie");
       const response = await api.get("/api/user");
-      console.log("Fetched data:", response.data);
+      console.log("Refreshed user data:", response.data);
       if (response.data) {
         setUser(response.data);
-        console.log("User state updated with:", response.data);
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+        }
       } else {
-        console.log("No user data received from API");
         setUser(null);
+        localStorage.removeItem('token');
       }
-      setLoading(false);
     } catch (err: any) {
       console.error("Error refreshing user:", err);
+      setUser(null);
+      localStorage.removeItem('token');
       if (err.response?.status === 403) {
         router.push("/verify");
       } else {
         router.push("/login");
       }
-      setUser(null);
+    } finally {
       setLoading(false);
     }
   };
@@ -74,33 +86,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     setLoading(true);
     try {
-      // TODO: Re-enable logout functionality later
       await api.get("/sanctum/csrf-cookie");
       await api.post("/logout");
-      console.log("Setting user in logout");
       setUser(null);
-      // setUser(mockUser); // Keep mock user for testing
-      setLoading(false);
+      localStorage.removeItem('token');
       router.push("/login");
     } catch (err) {
       console.error("Logout error:", err);
+    } finally {
       setLoading(false);
     }
   };
 
   const login = async (email: string, password: string) => {
     try {
-      // TODO: Re-enable login functionality later
+      setLoading(true);
+      await api.get("/sanctum/csrf-cookie");
       const response = await api.post("/login", { email, password });
-      console.log("Logged in ?");
-      if (response.status == 200) {
-        const user_data = await api.get("/api/user");
-        console.log("User data: ", user_data.data);
-        setUser(user_data.data);
+      console.log("Login response:", response.data);
+      
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
       }
-      // setUser(mockUser); // Use mock user for testing
+      
+      const userResponse = await api.get("/api/user");
+      console.log("User data after login:", userResponse.data);
+      setUser(userResponse.data);
+      router.push("/");
     } catch (err) {
       console.error("Login error:", err);
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
