@@ -25,6 +25,11 @@
 
 const nextConfig = {
   reactStrictMode: true,
+  images: {
+    domains: [
+      'static.colruytgroup.com'
+    ],
+  },
 };
 
 export default nextConfig;
