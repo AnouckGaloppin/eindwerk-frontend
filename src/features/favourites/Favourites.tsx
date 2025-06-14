@@ -9,6 +9,7 @@ import { FavouriteItem } from "@/components/FavouriteItem";
 import axios from "axios";
 import { button } from "framer-motion/client";
 import api from "@/lib/axios";
+import { useQueryClient } from "@tanstack/react-query";
 // import { li } from "framer-motion/client";
 
 // const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
@@ -17,6 +18,7 @@ export default function Favourites() {
   const { data: favourites = [], isLoading, error } = useFavourites();
   // const addFavourite = useAddFavourite();
   const toggleFavourite = useToggleFavourite();
+  const queryClient = useQueryClient();
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -35,8 +37,9 @@ export default function Favourites() {
       });
 
       if (response.data.message) {
+        // Invalidate the shopping list query to trigger a refetch
+        queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
         alert(response.data.message);
-        // Optionally refresh the shopping list here
       }
     } catch (error: any) {
       console.error("Error adding favourites to shopping list:", error);
@@ -53,10 +56,10 @@ export default function Favourites() {
     }
   }, []);
 
-  if (isLoading) return <div className="p-4">Loading...</div>;
+  if (isLoading) return <div className="p-4 text-gray-900 dark:text-white">Loading...</div>;
   if (error)
     return (
-      <div className="p-4 text-red-500">
+      <div className="p-4 text-red-500 dark:text-red-400">
         Error loading favourites: {error.message}
       </div>
     );
@@ -95,11 +98,11 @@ export default function Favourites() {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         {/* Input om favoriet toe te voegen */}
-        <h1 className="text-xl font-semibold mb-4">Favorieten</h1>
+        <h1 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Favorieten</h1>
         {favourites.length > 0 && (
           <button
             onClick={addAllFavouritesToShoppingList}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+            className="bg-green-500 dark:bg-green-600 text-white px-4 py-2 rounded hover:bg-green-600 dark:hover:bg-green-700 transition"
           >
             Voeg alle favorieten toe aan boodschappenlijst
           </button>
@@ -124,7 +127,7 @@ export default function Favourites() {
       {/* Lijst met favorieten */}
       <ul className="space-y-2 p-4">
         {!favourites || favourites.length === 0 ? (
-          <li>You do not have favourites yet. Please add products.</li>
+          <li className="text-gray-900 dark:text-white">You do not have favourites yet. Please add products.</li>
         ) : (
           favourites.map((fav: Favourite) => (
             <FavouriteItem
