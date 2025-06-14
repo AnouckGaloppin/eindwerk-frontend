@@ -5,7 +5,6 @@ import type {
   UpdateShoppingListItemInput,
 } from "@/types/shoppingTypes";
 import api from "@/lib/axios";
-import { getAuthHeaders } from "@/lib/auth";
 
 // export type ShoppingItem = {
 //   id: string;
@@ -19,9 +18,8 @@ export function useShoppingList() {
   const { data: items = [], isLoading, error } = useQuery<ShoppingListItem[]>({
     queryKey: ["shoppingList"],
     queryFn: async () => {
-      const headers = getAuthHeaders();
-      console.log('Fetching shopping list with headers:', headers);
-      const response = await api.get("/api/shopping-list", { headers });
+      console.log('Fetching shopping list');
+      const response = await api.get("/api/shopping-list");
       console.log('Raw response from backend:', response.data);
       console.log('Items before processing:', response.data.items);
 
@@ -39,12 +37,11 @@ export function useShoppingList() {
 
   const addItemMutation = useMutation({
     mutationFn: async (input: AddToShoppingListInput) => {
-      const headers = getAuthHeaders();
       const response = await api.post("/api/shopping-list", {
         product_id: input.productId,
         quantity: input.quantity,
         unit: input.unit
-      }, { headers });
+      });
       return response.data;
     },
     onSuccess: () => {
@@ -57,10 +54,8 @@ export function useShoppingList() {
 
   const updateItemMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<ShoppingListItem> }) => {
-      const headers = getAuthHeaders();
       console.log('Updating item:', { id, data });
-      console.log('Using headers:', headers);
-      const response = await api.put(`/api/shopping-list/${id}`, data, { headers });
+      const response = await api.put(`/api/shopping-list/${id}`, data);
       console.log('Update response:', response.data);
       return response.data;
     },
@@ -74,10 +69,8 @@ export function useShoppingList() {
 
   const deleteItemMutation = useMutation({
     mutationFn: async (id: string) => {
-      const headers = getAuthHeaders();
       console.log('Deleting item:', id);
-      console.log('Using headers:', headers);
-      await api.delete(`/api/shopping-list/${id}`, { headers });
+      await api.delete(`/api/shopping-list/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
@@ -102,9 +95,7 @@ export function useDeleteItem() {
 
   return useMutation({
     mutationFn: async (itemId: string) => {
-      const response = await api.delete(`/api/shopping-list/${itemId}`, {
-        headers: getAuthHeaders()
-      });
+      const response = await api.delete(`/api/shopping-list/${itemId}`);
       return response.data;
     },
     onSuccess: () => {

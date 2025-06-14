@@ -28,7 +28,7 @@ function ShoppingListItemComponent({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="bg-white rounded-lg shadow-sm border border-gray-200"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
     >
       <div className="flex items-center p-4">
         {item.product?.img && (
@@ -39,7 +39,7 @@ function ShoppingListItemComponent({
           />
         )}
         <div className="flex-1">
-          <h3 className="text-lg font-semibold">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             {item.product?.name || "Unknown Product"}
           </h3>
           <div className="flex items-center space-x-2 mt-1">
@@ -55,16 +55,16 @@ function ShoppingListItemComponent({
                 setQuantity(item.quantity.toString());
               }}
               onBlur={() => setEditingItem(null)}
-              className="w-20 px-2 py-1 border rounded"
+              className="w-20 px-2 py-1 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
               min="0.01"
               step="0.1"
             />
-            <span className="text-gray-600">{item.unit}</span>
+            <span className="text-gray-600 dark:text-gray-400">{item.unit}</span>
           </div>
         </div>
         <button
           onClick={() => onDelete(getItemId())}
-          className="hidden md:block p-2 text-red-500 hover:text-red-700"
+          className="hidden md:block p-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
           aria-label="Delete item from shopping list"
         >
           <svg
@@ -91,11 +91,11 @@ export default function ShoppingList() {
   const { items, isLoading, error, deleteItem } = useShoppingList();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="text-gray-900 dark:text-white">Loading...</div>;
   }
 
   if (error) {
-    return <div>Error: {error.message}</div>;
+    return <div className="text-red-500 dark:text-red-400">Error: {error.message}</div>;
   }
 
   // Debug log to see the items structure

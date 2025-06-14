@@ -124,7 +124,7 @@ const Header = () => {
                     setIsDropdownVisible(true);
                   }
                 }}
-                className="w-full pl-4 pr-12 py-2 rounded-lg bg-white text-gray-800 placeholder-gray-500 border border-transparent shadow-md transition-all duration-300 ease-in-out transform group-focus-within:scale-[1.02] group-focus-within:shadow-lg group-focus-within:ring-2 group-focus-within:ring-white focus:outline-none"
+                className="w-full pl-4 pr-12 py-2 rounded-lg bg-white/90 backdrop-blur-sm text-gray-900 placeholder-gray-500 border border-white/20 shadow-md transition-all duration-300 ease-in-out transform group-focus-within:scale-[1.02] group-focus-within:shadow-lg group-focus-within:ring-2 group-focus-within:ring-white/50 focus:outline-none"
               />
               {searchQuery ? (
                 <button
@@ -157,16 +157,16 @@ const Header = () => {
         </div>
         <div className="flex items-center gap-4">
           {error && <span className="text-sm text-yellow-200">{error}</span>}
+          {user && (
+            <button
+              onClick={handleLogout}
+              className="hover:bg-white/10 p-2 rounded-full transition"
+              title="Logout"
+            >
+              <LogOut className="w-6 h-6" />
+            </button>
+          )}
         </div>
-        {user && (
-          <button
-            onClick={handleLogout}
-            className="hover:bg-white hover:text-red-600 p-2 rounded-full transition"
-            title="Logout"
-          >
-            <LogOut className="w-6 h-6" />
-          </button>
-        )}
       </div>
     </header>
   );

@@ -84,7 +84,7 @@ export default function Categories({ className }: CategoriesProps) {
   if (!hasMounted || isLoading) {
     return (
       <div className="flex items-center justify-center h-44">
-        <Loader className="animate-spin" />
+        <Loader className="animate-spin text-gray-900" />
       </div>
     );
   }
@@ -181,7 +181,7 @@ function CategoryBox({ category }: { category: Category }) {
   return (
     <Link href={`/products?category=${category.slug}`}>
       <div
-        className={`${category.color} flex items-center justify-center rounded-lg h-24 text-white font-semibold cursor-pointer hover:opacity-90 transition-opacity min-h-[96px]`}
+        className={`${category.color} flex items-center justify-center rounded-lg h-24 text-white font-semibold cursor-pointer hover:opacity-90 transition-opacity min-h-[96px] shadow-md`}
       >
         {category.name}
       </div>

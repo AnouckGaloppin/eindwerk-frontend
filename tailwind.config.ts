@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 const config = {
+  // darkMode: 'class',
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
@@ -27,6 +28,16 @@ const config = {
     "bg-rose-500",
     "bg-green-900",
     "bg-red-400",
+    // Dark mode classes
+    "dark:bg-gray-900",
+    "dark:bg-gray-800",
+    "dark:bg-gray-700",
+    "dark:text-white",
+    "dark:text-gray-400",
+    "dark:border-gray-700",
+    "dark:border-gray-600",
+    "dark:hover:bg-gray-600",
+    "dark:hover:text-red-300",
   ],
   theme: {
     extend: {},

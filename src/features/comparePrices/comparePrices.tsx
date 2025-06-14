@@ -38,47 +38,66 @@ export default function PriceComparison({
 
   return (
     <div className="price-comparison">
-      <h2>Prijsvergelijking</h2>
       <button
         onClick={fetchComparison}
         disabled={loading || productIds.length === 0}
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
+        className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 transition-colors mb-4"
       >
-        {loading ? "Laden..." : "Vergelijk prijzen"}
+        {loading ? "Loading..." : "Compare Prices"}
       </button>
       {showResults && (
-        // Resultaten alleen tonen als showResults true is
-        <>
-          {loading && <p>Laden...</p>}
-          {error && <p>{error}</p>}
+        <div className="space-y-4">
+          {loading && (
+            <div className="flex justify-center items-center py-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            </div>
+          )}
+          {error && (
+            <div className="text-red-500 bg-red-50 p-4 rounded-lg">
+              {error}
+            </div>
+          )}
           {!loading && !error && comparisonData.length === 0 && (
-            <p>Geen prijzen beschikbaar.</p>
+            <div className="text-gray-500 text-center py-4">
+              No prices available.
+            </div>
           )}
           {!loading && !error && comparisonData.length > 0 && (
-            <ul>
+            <div className="space-y-4">
               {comparisonData.map((item: any) => (
-                <li key={item.product_id} className="mt-2">
-                  <strong>{item.product_name}</strong>
-                  <p>
-                    Goedkoopste: {item.cheapest_store} (€
-                    {item.cheapest_price_per_item})
-                  </p>
-                  {item.all_prices.length > 1 && (
-                    <ul className="ml-4">
-                      {item.all_prices.map((price: any, idx: number) => (
-                        <li key={idx}>
-                          {price.store}: €{price.price_per_item}{" "}
-                          {price.price_per_unit &&
-                            `(${price.price_per_unit} per unit)`}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
+                <div key={item.product_id} className="border rounded-lg p-4 bg-gray-50">
+                  <h3 className="font-semibold text-lg mb-2">{item.product_name}</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center bg-white p-2 rounded">
+                      <span className="text-gray-600">Cheapest:</span>
+                      <div className="text-right">
+                        <span className="font-medium text-green-600">{item.cheapest_store}</span>
+                        <span className="ml-2">€{item.cheapest_price_per_item}</span>
+                      </div>
+                    </div>
+                    {item.all_prices.length > 1 && (
+                      <div className="space-y-1">
+                        {item.all_prices.map((price: any, idx: number) => (
+                          <div key={idx} className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">{price.store}</span>
+                            <div className="text-right">
+                              <span>€{price.price_per_item}</span>
+                              {price.price_per_unit && (
+                                <span className="text-gray-500 text-xs ml-1">
+                                  ({price.price_per_unit})
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

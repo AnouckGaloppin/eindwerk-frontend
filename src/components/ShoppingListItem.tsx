@@ -11,14 +11,6 @@ type Props = {
   onDelete: (id: string) => void;
 };
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` })
-  };
-};
 
 export default function ShoppingListItem({ product, onDelete }: Props) {
   const [error, setError] = useState<string | null>(null);
@@ -29,9 +21,7 @@ export default function ShoppingListItem({ product, onDelete }: Props) {
 
   const handleDeleteFromShoppingList = useMutation({
     mutationFn: async () => {
-      await api.delete(`/api/shopping-list/${product._id}`, {
-        headers: getAuthHeaders()
-      });
+      await api.delete(`/api/shopping-list/${product._id}`);
     },
     onSuccess: () => {
       onDelete(product._id);
