@@ -3,27 +3,26 @@ type MongoDBObjectId = {
   $oid: string;
 };
 
-export type StorePrice = {
+export interface StorePrice {
   price_per_item: string;
   price_per_unit: string;
-};
-
-export type Product = {
-  id: string | MongoDBObjectId;
-  // id: string | MongoDBObjectId;
-  name: string;
-  brand?: string;
-  img: string;
   unit: string;
-  quantity: string;
-  categories: string[];
-  nutriscore?: string;
+}
 
-  // voeg dit toe:
-  price_per_store?: {
-    [storeName: string]: StorePrice;
-  };
-};
+export interface PriceData {
+  [store: string]: StorePrice;
+}
+
+export interface Product {
+  _id: string | MongoDBObjectId;
+  name: string;
+  brand: string;
+  img?: string;
+  price_per_store: PriceData;
+  unit: string;
+  quantity: number;
+  categories: string[];
+}
 
 export type Products = Product[];
 
