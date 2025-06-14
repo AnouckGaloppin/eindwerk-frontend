@@ -11,12 +11,11 @@ const Footer = () => {
   const pathname = usePathname();
 
   const navItems = [
-    { label: "Home", href: "/", icon: House },
-    { label: "Zoek", href: "/search", icon: Search },
-    { label: "Boodschappenlijst", href: "/shoppinglist", icon: ShoppingCart },
-    { label: "Favorieten", href: "/favourites", icon: Heart },
+    { href: "/", icon: House },
+    { href: "/search", icon: Search },
+    { href: "/shoppinglist", icon: ShoppingCart },
+    { href: "/favourites", icon: Heart },
     {
-      label: user ? "Profiel" : "Login",
       href: user ? "/profile" : "/login",
       icon: User,
     },
@@ -25,27 +24,22 @@ const Footer = () => {
   return (
     <footer className="fixed bottom-0 w-full z-50 bg-gradient-to-r from-indigo-500 to-teal-500 text-white">
       <nav className="max-w-screen-sm mx-auto flex justify-between items-center px-4 py-3">
-        {navItems.map(({ label, href, icon: Icon }) => {
+        {navItems.map(({ href, icon: Icon }) => {
           const isActive =
             href === "/" ? pathname === "/" : pathname.startsWith(href);
+          
           return (
             <NavItem
-              key={label}
-              label={label}
+              key={href}
               href={href}
-              className={clsx(
-                "flex flex-col items-center text-xs transition-all px-3 py-2 rounded-xl",
-                isActive
-                  ? "bg-teal-400 text-black shadow-md scale-110 ring-2 ring-teal-300"
-                  : "hover:bg-white/20 text-white/80 hover:text-white hover:scale-102"
-              )}
+              className="flex flex-col items-center text-xs transition-all px-3 py-2 rounded-xl"
             >
-              <Icon
-                className={clsx(
-                  "w-6 h-6 mb-1 transition-transform",
-                  isActive && "scale-115 drop-shadow-sm"
-                )}
-              />
+              <div className={clsx(
+                "rounded-full",
+                isActive ? "p-3 border-2 border-white" : "p-1"
+              )}>
+                <Icon className="w-6 h-6" />
+              </div>
             </NavItem>
           );
         })}
@@ -55,49 +49,3 @@ const Footer = () => {
 };
 
 export default Footer;
-
-// {
-/* <NavItem
-        label="Home"
-        href="/"
-        className="flex flex-col items-center text-sm hover:text-white/80 transition"
-      >
-        <House className="w-6 h-6 mb-1" />
-      </NavItem>
-
-      <NavItem
-        label="Zoek"
-        href="#"
-        className="flex flex-col items-center text-sm hover:text-white/80 transition"
-      >
-        <Search className="w-6 h-6 mb-1" />
-      </NavItem>
-
-      <NavItem
-        label="Boodschappenlijst"
-        href="/shoppinglist"
-        className="flex flex-col items-center text-sm hover:text-white/80 transition"
-      >
-        <ShoppingCart className="w-6 h-6 mb-1" />
-      </NavItem>
-
-      <NavItem
-        label="Favorieten"
-        href="/favourites"
-        className="flex flex-col items-center text-sm hover:text-white/80 transition"
-      >
-        <Heart className="w-6 h-6 mb-1" />
-      </NavItem>
-
-      <NavItem
-        label={user ? "Profiel" : "Login"}
-        href={user ? "/profile" : "/login"}
-        className="flex flex-col items-center text-sm hover:text-white/80 transition"
-      >
-        <User className="w-6 h-6 mb-1" />
-      </NavItem> */
-// }
-//     </footer>
-//   );
-// };
-// export default Footer;

@@ -25,13 +25,13 @@ export function NavItem({
 }: {
   children: ReactNode;
   href: string;
-  label: string;
+  label?: string;
   className?: string;
 }) {
   return (
     <Link href={href} className="flex flex-col items-center text-sm">
       <span className="text-2xl">{children}</span>
-      <span>{label}</span>
+      {label && <span>{label}</span>}
     </Link>
   );
 }
