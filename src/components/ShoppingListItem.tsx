@@ -1,39 +1,47 @@
-import api from "@/lib/axios";
-import type { ShoppingListItem as ShoppingListItemType } from "@/types/shoppingTypes";
-import { Trash2 } from "lucide-react";
-import React, { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import { useShoppingList } from "@/features/shoppingList/useShoppingList";
+import { getStringId } from "@/lib/utils";
+import { Trash2 } from "lucide-react";
 
-type Props = {
-  product: ShoppingListItemType;
+interface Props {
+  product: {
+    _id: string | { $oid: string };
+    product: {
+      name: string;
+      img?: string;
+      price_per_store?: {
+        [key: string]: {
+          price_per_item: string;
+          price_per_unit: string;
+        };
+      };
+    };
+    quantity: number;
+    unit: string;
+  };
   onDelete: (id: string) => void;
-};
-
+}
 
 export default function ShoppingListItem({ product, onDelete }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [swiping, setSwiping] = useState(false);
   const [quantity, setQuantity] = useState<string>(product.quantity.toString());
-  const queryClient = useQueryClient();
-  const { updateItem } = useShoppingList();
+  const { updateItem, deleteItem } = useShoppingList();
 
-  const handleDeleteFromShoppingList = useMutation({
-    mutationFn: async () => {
-      await api.delete(`/api/shopping-list/${product._id}`);
-    },
-    onSuccess: () => {
-      onDelete(product._id);
+  const itemId = getStringId(product._id);
+
+  const handleDeleteFromShoppingList = async () => {
+    try {
+      await deleteItem(itemId);
       setSwiping(false);
-    },
-    onError: (error: any) => {
+    } catch (error: any) {
       setError(
-        error.response?.data?.error || "Failed to delete from shopping list"
+        error.response?.data?.message || error.message || "Failed to delete from shopping list"
       );
       setSwiping(false);
-    },
-  });
+    }
+  };
 
   const handleQuantityChange = (newQuantity: string) => {
     const parsedQuantity = parseFloat(newQuantity);
@@ -41,7 +49,7 @@ export default function ShoppingListItem({ product, onDelete }: Props) {
 
     setQuantity(newQuantity);
     updateItem({
-      id: product._id,
+      id: itemId,
       data: {
         quantity: parsedQuantity,
         unit: product.unit
@@ -52,15 +60,13 @@ export default function ShoppingListItem({ product, onDelete }: Props) {
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => {
       setSwiping(true);
-      handleDeleteFromShoppingList.mutate();
+      handleDeleteFromShoppingList();
     },
     onSwiping: (eventData) => {
       setSwiping(eventData.dir === "Left");
     },
     onSwiped: () => {
-      if (!handleDeleteFromShoppingList.isPending) {
-        setSwiping(false);
-      }
+      setSwiping(false);
     },
     preventScrollOnSwipe: true,
     trackMouse: true,
@@ -107,7 +113,7 @@ export default function ShoppingListItem({ product, onDelete }: Props) {
           />
           <span className="text-gray-500">{product.unit}</span>
           <button
-            onClick={() => handleDeleteFromShoppingList.mutate()}
+            onClick={handleDeleteFromShoppingList}
             className="p-2 text-red-500 hover:text-red-700 transition-colors"
           >
             <Trash2 className="w-5 h-5" />

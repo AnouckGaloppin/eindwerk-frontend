@@ -67,7 +67,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         <ul className="max-h-80 overflow-y-auto">
           {results.map((product, index) => {
             const lowestPrice = getLowestPrice(product.price_per_store);
-            const productId = typeof product.id === 'object' ? product.id.$oid : product.id;
+            const productId = typeof product._id === 'object' ? product._id.$oid : product._id;
             const uniqueKey = productId || `product-${index}`;
             const productSlug = product.name.toLowerCase().replace(/\s+/g, '-');
             

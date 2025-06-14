@@ -33,28 +33,36 @@ export async function DELETE(
 ) {
   try {
     const authHeader = request.headers.get('authorization');
+    console.log('Attempting to delete item with ID:', params.id);
+    
     const response = await fetch(`${BACKEND_URL}/api/shopping-list/${params.id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         ...(authHeader && { 'Authorization': authHeader })
-      }
+      },
+      credentials: 'include'
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
+      console.error('Backend delete error:', data);
       return NextResponse.json(
-        { message: errorData.message || 'Failed to delete shopping list item' },
+        { message: data.message || 'Failed to delete shopping list item' },
         { status: response.status }
       );
     }
 
-    const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error in DELETE route:', error);
     return NextResponse.json(
-      { message: 'Failed to delete shopping list item', error: error instanceof Error ? error.message : 'Unknown error' },
+      { 
+        message: 'Failed to delete shopping list item', 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        id: params.id
+      },
       { status: 500 }
     );
   }

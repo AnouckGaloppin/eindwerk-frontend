@@ -10,6 +10,11 @@ import { useShoppingList } from "@/features/shoppingList/useShoppingList";
 import { useState } from "react";
 import { ShoppingListItem } from "@/types/shoppingTypes";
 
+// Helper function to get string ID
+const getStringId = (id: string | { $oid: string }): string => {
+  return typeof id === 'object' ? id.$oid : id;
+};
+
 export default function ProductDetailPage() {
   const { id: slug } = useParams();
   const [quantity, setQuantity] = useState<number>(1);
@@ -48,14 +53,9 @@ export default function ProductDetailPage() {
   if (error) return <div className="p-4 text-center text-red-500">Error loading product: {error.message}</div>;
   if (!product) return <div className="p-4 text-center">Product not found</div>;
 
-  const isFavourite = favourites.some((fav) => fav.product._id === product._id);
-  const productId = typeof product._id === 'object' ? product._id.$oid : product._id;
-  const existingItem = items.find((item: ShoppingListItem) => {
-    const itemProductId = typeof item.product_id === 'object' && item.product_id !== null
-      ? item.product_id.$oid
-      : item.product_id;
-    return itemProductId === productId;
-  });
+  const productId = getStringId(product._id);
+  const isFavourite = favourites.some((fav) => getStringId(fav.product._id) === productId);
+  const existingItem = items.find((item: ShoppingListItem) => getStringId(item.product_id) === productId);
 
   const getLowestPrice = (product: Product): string => {
     if (!product.price_per_store || typeof product.price_per_store !== 'object') return "0.00";
@@ -79,26 +79,11 @@ export default function ProductDetailPage() {
       unit: product.unit
     });
 
-    // Get the product ID, handling both string and object ID formats
-    const productId = typeof product._id === 'object' && product._id !== null 
-      ? product._id.$oid 
-      : product._id;
-
-    console.log('Product ID:', productId);
-
-    // Check if the item already exists in the shopping list
-    const existingItem = items.find((item: ShoppingListItem) => {
-      const itemProductId = typeof item.product_id === 'object' && item.product_id !== null
-        ? item.product_id.$oid
-        : item.product_id;
-      return itemProductId === productId;
-    });
-
     if (existingItem) {
       // Update existing item
       console.log('Updating existing item:', existingItem);
       await updateItem({
-        id: existingItem._id,
+        id: getStringId(existingItem._id),
         data: {
           quantity: Number(existingItem.quantity) + Number(quantity),
           unit: product.unit
@@ -107,12 +92,12 @@ export default function ProductDetailPage() {
     } else {
       // Add new item
       console.log('Adding new item with:', {
-        product_id: productId,
+        productId,
         quantity: Number(quantity),
         unit: product.unit
       });
       await addItem({
-        product_id: productId,
+        productId,
         quantity: Number(quantity),
         unit: product.unit
       });
@@ -202,7 +187,7 @@ export default function ProductDetailPage() {
                       
                       if (existingItem) {
                         updateItem({
-                          id: existingItem._id,
+                          id: getStringId(existingItem._id),
                           data: {
                             quantity: newQuantity,
                             unit: product.unit || 'piece'

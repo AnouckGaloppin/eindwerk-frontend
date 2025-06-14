@@ -11,4 +11,12 @@ export const formatQuantity = (quantity: number): string => {
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
-} 
+}
+
+// Helper function to get string ID from either string or MongoDB ObjectId
+export const getStringId = (id: string | { $oid: string }): string => {
+  if (typeof id === 'object' && id !== null && '$oid' in id) {
+    return id.$oid;
+  }
+  return id;
+}; 

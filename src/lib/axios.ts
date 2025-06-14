@@ -18,6 +18,39 @@ const api = axios.create({
   xsrfHeaderName: "X-XSRF-TOKEN",
 });
 
+// Add request interceptor for logging
+api.interceptors.request.use(
+  (config) => {
+    console.log('Making request to:', config.url);
+    return config;
+  },
+  (error) => {
+    console.error('Request error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for logging
+api.interceptors.response.use(
+  (response) => {
+    console.log('Response received:', {
+      url: response.config.url,
+      status: response.status,
+      data: response.data,
+    });
+    return response;
+  },
+  (error) => {
+    console.error('Response error:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+    return Promise.reject(error);
+  }
+);
+
 // TODO: Re-enable authentication later
 // api.interceptors.request.use(
 //   async (config) => {
@@ -82,7 +115,6 @@ export default api;
 //   //   //   }
 //   //   // );
 //   //   // console.log("CSRF token fetched");
-//   //   console.log(document.cookie);
 // const token = Cookies.get("XSRF-TOKEN");
 //   //   console.log(Cookies.get("XSRF-TOKEN"));
 //   if (token) {

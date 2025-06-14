@@ -7,6 +7,11 @@ import { useShoppingList } from '@/features/shoppingList/useShoppingList';
 import Link from "next/link";
 import { formatPrice, formatQuantity } from '@/lib/utils';
 
+// Helper function to get string ID
+const getStringId = (id: string | { $oid: string }): string => {
+  return typeof id === 'object' ? id.$oid : id;
+};
+
 interface ProductListProps {
   products: Product[];
   shoppingList: ShoppingListItem[];
@@ -14,7 +19,7 @@ interface ProductListProps {
   isLoading?: boolean;
   error?: string | null;
   onAddOrUpdate: (product: Product, quantity: number) => void;
-  onToggleFavourite: (product: Product) => void;
+  onToggleFavourite: (productId: string) => void;
   onQuantityChange: (itemId: string, quantity: number) => void;
 }
 
@@ -44,11 +49,17 @@ const ProductList: React.FC<ProductListProps> = ({
   };
 
   const handleQuantityChange = (productId: string, newQuantity: number) => {
-    const shoppingListItem = shoppingListItems.find(item => item.product_id === productId);
+    const shoppingListItem = shoppingListItems.find(item => getStringId(item.product_id) === productId);
     if (shoppingListItem) {
-      updateItem({ id: shoppingListItem._id, data: { quantity: newQuantity } });
+      updateItem({ 
+        id: getStringId(shoppingListItem._id), 
+        data: { 
+          quantity: newQuantity,
+          unit: shoppingListItem.unit
+        } 
+      });
     } else {
-      const product = products.find(p => p._id === productId);
+      const product = products.find(p => getStringId(p._id) === productId);
       if (product) {
         addItem({
           productId,
@@ -81,7 +92,7 @@ const ProductList: React.FC<ProductListProps> = ({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {products.map((product) => {
+      {products.map((product: Product) => {
         console.log('Rendering product:', product);
         console.log('Product _id:', product._id);
         
@@ -90,14 +101,15 @@ const ProductList: React.FC<ProductListProps> = ({
           return null;
         }
 
-        const shoppingListItem = shoppingListItems.find(item => item.product_id === product._id);
-        const isFavourite = favourites.some(fav => fav.product._id === product._id);
+        const productId = getStringId(product._id);
+        const shoppingListItem = shoppingListItems.find(item => getStringId(item.product_id) === productId);
+        const isFavourite = favourites.some(fav => getStringId(fav.product._id) === productId);
         
         const price = product.price_per_store?.colruyt?.price_per_item;
         console.log('Product price:', price);
         
         return (
-          <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div key={productId} className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="relative">
               <img 
                 src={product.img} 
@@ -105,7 +117,7 @@ const ProductList: React.FC<ProductListProps> = ({
                 className="w-full h-48 object-cover"
               />
               <button
-                onClick={() => onToggleFavourite(product)}
+                onClick={() => onToggleFavourite(productId)}
                 className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white"
               >
                 <Heart 
@@ -121,7 +133,7 @@ const ProductList: React.FC<ProductListProps> = ({
               <div className="mt-4 flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => handleQuantityChange(product._id, Math.max(0, (shoppingListItem?.quantity || 0) - 0.01))}
+                    onClick={() => handleQuantityChange(productId, Math.max(0, (shoppingListItem?.quantity || 0) - 0.01))}
                     className="p-1 hover:bg-gray-100 rounded"
                   >
                     -
@@ -130,7 +142,7 @@ const ProductList: React.FC<ProductListProps> = ({
                   <span className="mx-2">{formatQuantity(shoppingListItem?.quantity || 0)}</span>
                   
                   <button
-                    onClick={() => handleQuantityChange(product._id, (shoppingListItem?.quantity || 0) + 0.01)}
+                    onClick={() => handleQuantityChange(productId, (shoppingListItem?.quantity || 0) + 0.01)}
                     className="p-1 hover:bg-gray-100 rounded"
                   >
                     +

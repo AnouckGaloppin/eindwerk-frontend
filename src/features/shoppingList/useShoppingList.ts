@@ -12,6 +12,14 @@ import api from "@/lib/axios";
 //   quantity: number;
 // };
 
+// Helper function to get string ID
+const getStringId = (id: string | { $oid: string }): string => {
+  if (typeof id === 'object' && id !== null && '$oid' in id) {
+    return id.$oid;
+  }
+  return id;
+};
+
 export function useShoppingList() {
   const queryClient = useQueryClient();
 
@@ -36,24 +44,35 @@ export function useShoppingList() {
   });
 
   const addItemMutation = useMutation({
-    mutationFn: async (input: AddToShoppingListInput) => {
+    mutationFn: async ({
+      productId,
+      quantity,
+      unit,
+    }: {
+      productId: string;
+      quantity: number;
+      unit: string;
+    }) => {
       const response = await api.post("/api/shopping-list", {
-        product_id: input.productId,
-        quantity: input.quantity,
-        unit: input.unit
+        product_id: productId,
+        quantity,
+        unit,
       });
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
     },
-    onError: (error: any) => {
-      console.error("Error adding to shopping list:", error.response?.data || error);
-    },
   });
 
   const updateItemMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<ShoppingListItem> }) => {
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Partial<ShoppingListItem>;
+    }) => {
       console.log('Updating item:', { id, data });
       const response = await api.put(`/api/shopping-list/${id}`, data);
       console.log('Update response:', response.data);
@@ -62,21 +81,36 @@ export function useShoppingList() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
     },
-    onError: (error: any) => {
-      console.error("Error updating shopping list item:", error.response?.data || error);
-    },
   });
 
   const deleteItemMutation = useMutation({
-    mutationFn: async (id: string) => {
-      console.log('Deleting item:', id);
-      await api.delete(`/api/shopping-list/${id}`);
+    mutationFn: async (id: string | { $oid: string }) => {
+      const stringId = getStringId(id);
+      console.log('Attempting to delete item with ID:', stringId);
+      
+      try {
+        const response = await api.delete(`/api/shopping-list/${stringId}`);
+        if (!response.data) {
+          throw new Error('No response data received from delete operation');
+        }
+        return response.data;
+      } catch (error: any) {
+        console.error('Delete error details:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message,
+          id: stringId
+        });
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
     },
     onError: (error: any) => {
-      console.error("Error deleting shopping list item:", error.response?.data || error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to delete item';
+      console.error("Error deleting shopping list item:", errorMessage);
+      throw new Error(errorMessage);
     },
   });
 
@@ -94,8 +128,9 @@ export function useDeleteItem() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (itemId: string) => {
-      const response = await api.delete(`/api/shopping-list/${itemId}`);
+    mutationFn: async (itemId: string | { $oid: string }) => {
+      const stringId = getStringId(itemId);
+      const response = await api.delete(`/api/shopping-list/${stringId}`);
       return response.data;
     },
     onSuccess: () => {

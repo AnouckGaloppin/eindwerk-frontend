@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const BACKEND_URL = 'http://localhost:8000'; // Update this to match your backend URL
+const BACKEND_URL = 'http://localhost:63167'; // Update this to match your backend URL
 
 export async function GET(request: Request) {
   try {

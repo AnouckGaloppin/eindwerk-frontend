@@ -53,9 +53,11 @@ export default function ProductsPage() {
       if (existingItem) {
         // Update existing item
         await updateItem({
-          itemId: existingItem._id,
-          quantity: existingItem.quantity + quantity,
-          unit: product.unit || 'piece'
+          id: existingItem._id,
+          data: {
+            quantity: existingItem.quantity + quantity,
+            unit: product.unit || 'piece'
+          }
         });
       } else {
         // Add new item
@@ -110,8 +112,10 @@ export default function ProductsPage() {
             }
             onQuantityChange={(itemId, quantity) => {
               updateItem({
-                itemId,
-                quantity,
+                id: itemId,
+                data: {
+                  quantity: quantity
+                }
               });
             }}
           />
