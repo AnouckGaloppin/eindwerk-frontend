@@ -169,7 +169,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 pt-20 pb-24">
+    <div className="min-h-screen flex items-center justify-center p-4 pb-24">
       {/* Toast notification */}
       {toast && (
         <div
@@ -325,9 +325,9 @@ export default function ProfilePage() {
           </button>
         </form>
         <div className="mt-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          {/* <label className="block text-sm font-medium text-gray-700 mb-2">
             Twee-factor authenticatie
-          </label>
+          </label> */}
           <button
             onClick={handleToggle2FA}
             className={`w-full bg-gradient-to-r ${
@@ -337,8 +337,8 @@ export default function ProfilePage() {
             } text-white font-semibold px-6 py-3 rounded-lg shadow hover:brightness-110 transition`}
           >
             {user?.two_factor_confirmed_at
-              ? "2FA uitschakelen"
-              : "2FA inschakelen"}
+              ? "2 Factor Authenticatie uitschakelen"
+              : "2 Factor Authenticatie inschakelen"}
           </button>
         </div>
       </div>

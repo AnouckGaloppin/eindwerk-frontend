@@ -104,9 +104,9 @@ export default function LoginPage() {
         {!show2FA ? (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              {/* <label className="block text-sm font-medium text-gray-700">
                 Email
-              </label>
+              </label> */}
               <input
                 type="email"
                 placeholder="Email"
@@ -117,9 +117,9 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              {/* <label className="block text-sm font-medium text-gray-700">
                 Password
-              </label>
+              </label> */}
               <input
                 type="password"
                 placeholder="Password"
