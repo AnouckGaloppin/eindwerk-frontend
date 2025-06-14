@@ -26,8 +26,13 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [
-      'static.colruytgroup.com'
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'static.colruytgroup.com',
+        port: '',
+        pathname: '/images/**',
+      },
     ],
   },
 };

@@ -91,6 +91,8 @@ export default function ProductsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Producten</h1>
         </div>
 
+        <Categories className="mb-8" />
+
         {isProductsLoading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>

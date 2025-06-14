@@ -1,0 +1,18 @@
+.swiper-slide {
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    overflow: visible;
+  }
+  .swiper-slide-active > a > div {
+    transform: scale(1.1);
+    /* width: 18rem !important; w-72 */
+    /* height: 8rem !important;  h-32 */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                width 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+    border-radius: 0.75rem;
+    will-change: transform, width, height;
+    display: flex;
+    align-items: center;
+    justify-content: center;;
+  }

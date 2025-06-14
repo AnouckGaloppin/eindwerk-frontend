@@ -4,10 +4,14 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useMediaQuery } from "@/app/hooks";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { useSearchParams, useRouter } from "next/navigation";
 import "swiper/css";
 import api from "@/lib/axios";
 import type { Category } from "@/types/productTypes";
 import { Loader } from "lucide-react";
+import clsx from "clsx";
+import './Categories.css';
+// import { div } from "framer-motion/client";
 
 // const staticCategories: Category[] = [
 //   { _id: "1", name: "Fruit", slug: "fruit", color: "bg-amber-500" },
@@ -45,16 +49,21 @@ export default function Categories({ className }: CategoriesProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const searchParams = useSearchParams();
+  const currentCategory = searchParams.get('category');
+  const swiperRef = useRef<any>(null);
+  // const slidesPerView = 5;
+  // const router = useRouter();
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     setHasMounted(true);
     const fetchCategories = async () => {
       try {
+        // console.log('Fetching categories...');
         const response = await api.get("/api/categories");
-        console.log("Categories response:", response.data);
+        // console.log('Categories API response:', response.data);
         const fetchedCategories = response.data.categories;
-        console.log("Fetched categories:", fetchedCategories);
         if (!Array.isArray(fetchedCategories)) {
           throw new Error("Expected categories to be an array");
         }
@@ -70,16 +79,43 @@ export default function Categories({ className }: CategoriesProps) {
           }
         );
         setCategories(mappedCategories);
+        // console.log('Mapped categories:', mappedCategories);
+      
+      // if (currentCategory) {
+      //   const initialIndex = mappedCategories.findIndex((cat)=>cat.slug === currentCategory);
+      //   if (initialIndex !== -1) {
+      //     setActiveIndex(initialIndex);
+      //     // router.push(`/products?category=${currentCategory}`);
+      //   }
+      // }
+
       } catch (error: any) {
-        console.error("Error fetching categories:", error.message || error);
+        // console.error("Error fetching categories:", error.message || error);
         setError("Failed to load categories, using defaults");
-        // setCategories(staticCategories);
       } finally {
         setIsLoading(false);
       }
     };
     fetchCategories();
   }, []);
+
+  // Effect to scroll to active category when it changes
+  useEffect(() => {
+    if (currentCategory && swiperRef.current?.swiper && categories.length > 0) {
+      const activeIndex = categories.findIndex(cat => cat.slug === currentCategory);
+      if (activeIndex !== -1) {
+        let targetIndex = activeIndex;
+        if (activeIndex <= 1) {
+          targetIndex = 0;
+        } else if (activeIndex >= categories.length - 2) {
+          targetIndex = Math.max(categories.length - 5, 0);
+        } else {
+          targetIndex = activeIndex - 2;
+        }
+        swiperRef.current.swiper.slideTo(targetIndex);
+      }
+    }
+  }, [currentCategory, categories]);
 
   if (!hasMounted || isLoading) {
     return (
@@ -89,101 +125,60 @@ export default function Categories({ className }: CategoriesProps) {
     );
   }
 
-  return (
-    <div>
-      {isDesktop ? (
-        <DesktopCategories
-          categories={categories}
-          error={error}
-          className={className}
-        />
-      ) : (
-        <MobileCategories
-          categories={categories}
-          error={error}
-          className={className}
-        />
-      )}
-    </div>
-  );
-}
+  // Debug message to confirm rendering
+  // console.log('Rendering Categories component. Categories:', categories);
 
-interface DesktopCategoriesProps {
-  categories: Category[];
-  error: string;
-  className?: string;
-}
-
-function DesktopCategories({
-  categories,
-  error,
-  className,
-}: DesktopCategoriesProps) {
   return (
-    <div className={`mb-4 w-full max-w-5xl mx-auto ${className}`}>
+    <div className={className}>
+      {/* <div className="bg-yellow-100 text-yellow-800 p-2 mb-2 rounded text-center text-xs font-bold">[DEBUG] Categories component rendered</div> */}
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {categories.length === 0 ? (
         <p className="text-gray-500">No categories available</p>
       ) : (
-        <Swiper
-          spaceBetween={20}
-          slidesPerView={4}
-          grabCursor={true}
-          loop={false}
-        >
-          {categories.map((category) => (
-            <SwiperSlide key={category._id} className="swiper-slide-custom">
-              <CategoryBox category={category} />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+        <div className="w-full max-w-[1200px] flex items-center justify-center overflow-hidden mx-auto min-h-[7rem]">
+          <Swiper
+            ref={swiperRef}
+            spaceBetween={20}
+            grabCursor={true}
+            loop={false}
+            slidesPerView={5}
+            centeredSlides={false}
+            className="w-full h-full flex items-center"
+            breakpoints={{
+              0: { slidesPerView: 2 },
+              640: { slidesPerView: 3 },
+              1024: { slidesPerView: 5 },
+            }}
+          >
+            {categories.map((category) => (
+              <SwiperSlide key={category._id} className="h-full flex items-center justify-center">
+                <div className="w-full h-full flex items-center justify-center">
+                  <CategoryBox category={category} isActive={category.slug === currentCategory} />
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
       )}
     </div>
   );
 }
 
-interface MobileCategoriesProps {
-  categories: Category[];
-  error: string;
-  className?: string;
-}
-
-function MobileCategories({
-  categories,
-  error,
-  className,
-}: MobileCategoriesProps) {
+function CategoryBox({ category, isActive }: { category: Category, isActive: boolean }) {
   return (
-    <div className={`mb-4 w-full ${className}`}>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-      {categories.length === 0 ? (
-        <p className="text-gray-500">No categories available</p>
-      ) : (
-        <Swiper
-          spaceBetween={10}
-          slidesPerView={3}
-          grabCursor={true}
-          loop={false}
-        >
-          {categories.map((category) => (
-            <SwiperSlide key={category._id} className="swiper-slide-custom">
-              <CategoryBox category={category} />
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      )}
-    </div>
-  );
-}
-
-function CategoryBox({ category }: { category: Category }) {
-  // console.log("Rendering CategoryBox for:", category);
-  return (
-    <Link href={`/products?category=${category.slug}`}>
+    <Link 
+      href={`/products?category=${category.slug}`} 
+      className="w-full h-full flex items-center justify-center"
+    >
       <div
-        className={`${category.color} flex items-center justify-center rounded-lg h-24 text-white font-semibold cursor-pointer hover:opacity-90 transition-opacity min-h-[96px] shadow-md`}
+        className={
+          `${category.color} rounded-xl text-white font-semibold cursor-pointer flex items-center justify-center transition-all duration-300 ease-in-out shadow-sm` +
+          (isActive ? " w-64 h-28" : " w-56 h-24")
+        }
       >
-        {category.name}
+        <span className="px-2 text-base md:text-lg text-center break-words hyphens-auto">
+          {category.name}
+        </span>
       </div>
     </Link>
   );
