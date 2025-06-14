@@ -121,7 +121,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="nl" suppressHydrationWarning>
-      <body className={`${inter.className} flex flex-col min-h-screen bg-white text-gray-900 transition-colors`}>
+      <body className={`${inter.className} flex flex-col min-h-screen bg-white text-gray-900 transition-colors overflow-y-scrollbar-none`}>
         <Providers>
           <div className="flex flex-col flex-grow">
             <div className="pt-16 pb-16">

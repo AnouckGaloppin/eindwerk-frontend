@@ -169,7 +169,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 pb-24">
+    <div className="min-h-[calc(100vh-128px)] flex items-center justify-center p-4">
       {/* Toast notification */}
       {toast && (
         <div
@@ -209,7 +209,7 @@ export default function ProfilePage() {
                 required
               />
             </div>
-            <div className="flex justify-end space-x-3">
+            <div className="flex justify-end space-x-2">
               <button
                 onClick={() => {
                   setShowModal(false);
@@ -231,6 +231,7 @@ export default function ProfilePage() {
         </div>
       )}
 
+      {/* QR Code Modal */}
       {qrModal && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-2xl w-full max-w-sm">
@@ -263,7 +264,7 @@ export default function ProfilePage() {
         </div>
       )}
 
-      <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl border border-gray-100 p-8">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
           Profiel Bewerken
         </h2>
@@ -319,7 +320,7 @@ export default function ProfilePage() {
           </div>
           <button
             type="submit"
-            className="w-full bg-indigo-500 text-white font-semibold px-6 py-3 rounded-lg shadow hover:bg-indigo-600 transition"
+            className="w-full bg-gradient-to-r from-indigo-500 to-teal-500 text-white font-semibold px-6 py-3 rounded-lg shadow hover:from-indigo-600 hover:to-teal-600 transition"
           >
             Wijzigingen opslaan
           </button>
