@@ -97,7 +97,7 @@ export default function EditUser() {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 pt-20 pb-24">
+    <div className="min-h-screen flex items-center justify-center p-4 pb-24">
       {/* Toast notification */}
       {toast && (
         <div
