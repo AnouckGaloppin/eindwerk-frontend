@@ -154,49 +154,57 @@ export default function AdminUsers() {
   }
 
   return (
-    <div className="container mx-auto p-4 pt-20 pb-24">
-      <h1 className="text-2xl font-bold mb-4">Gebruikersbeheer (Admin)</h1>
-      <Link
-        href="/admin/users/create"
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-4 inline-block"
-      >
-        Nieuwe Gebruiker
-      </Link>
-      <table className="w-full border-collapse">
-        <thead>
-          <tr>
-            {/* <th>iD</th> */}
-            <th className="border p-2">Gebruikersnaam</th>
-            <th className="border p-2">Email</th>
-            <th className="border p-2">Rol</th>
-            <th className="border p-2">Acties</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.email}>
-              {/* <td>{user.id}</td> */}
-              <td className="border p-2">{user.username}</td>
-              <td className="border p-2">{user.email}</td>
-              <td className="border p-2">{user.role}</td>
-              <td className="border p-2 flex">
-                <Link
-                  href={`/admin/users/edit/${user.id}`}
-                  className="text-blue-500 mr-2"
-                >
-                  <Pencil />
-                </Link>
-                <button
-                  onClick={() => handleDelete(user.id)}
-                  className="text-red-500"
-                >
-                  <Trash />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4 pb-24">
+      <div className="w-full max-w-4xl bg-white rounded-xl shadow-2xl border border-gray-100 p-8">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+          Gebruikersbeheer <span className="text-base font-normal text-gray-500">(Admin)</span>
+        </h1>
+        <div className="flex justify-end mb-4">
+          <Link
+            href="/admin/users/create"
+            className="bg-indigo-500 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-600 transition font-semibold"
+          >
+            Nieuwe Gebruiker
+          </Link>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse rounded-lg overflow-hidden">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="border-b p-3 text-left font-semibold text-gray-700">Gebruikersnaam</th>
+                <th className="border-b p-3 text-left font-semibold text-gray-700">Email</th>
+                <th className="border-b p-3 text-left font-semibold text-gray-700">Rol</th>
+                <th className="border-b p-3 text-left font-semibold text-gray-700">Acties</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user.email} className="even:bg-gray-50 hover:bg-indigo-50 transition">
+                  <td className="p-3 align-middle">{user.username}</td>
+                  <td className="p-3 align-middle">{user.email}</td>
+                  <td className="p-3 align-middle capitalize">{user.role}</td>
+                  <td className="p-3 align-middle flex gap-2">
+                    <Link
+                      href={`/admin/users/edit/${user.id}`}
+                      className="inline-flex items-center justify-center bg-blue-100 text-blue-600 rounded-full p-2 hover:bg-blue-200 transition"
+                      title="Bewerken"
+                    >
+                      <Pencil className="w-5 h-5" />
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(user.id)}
+                      className="inline-flex items-center justify-center bg-red-100 text-red-600 rounded-full p-2 hover:bg-red-200 transition"
+                      title="Verwijderen"
+                    >
+                      <Trash className="w-5 h-5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
