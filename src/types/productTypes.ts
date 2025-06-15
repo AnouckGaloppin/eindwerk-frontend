@@ -21,7 +21,11 @@ export interface Product {
   price_per_store: PriceData;
   unit: string;
   quantity: number;
-  categories: string[];
+  nutriscore?: string;
+  categories: Array<{
+    id: string;
+    name: string;
+  }>;
 }
 
 export type Products = Product[];

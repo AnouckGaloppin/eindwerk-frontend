@@ -52,11 +52,11 @@ const ProductList: React.FC<ProductListProps> = ({
     const shoppingListItem = shoppingListItems.find(item => getStringId(item.product_id) === productId);
     if (shoppingListItem) {
       updateItem({ 
-        id: getStringId(shoppingListItem._id), 
-        data: { 
+        id: shoppingListItem._id,
+        data: {
           quantity: newQuantity,
           unit: shoppingListItem.unit
-        } 
+        }
       });
     } else {
       const product = products.find(p => getStringId(p._id) === productId);
@@ -68,6 +68,18 @@ const ProductList: React.FC<ProductListProps> = ({
         });
       }
     }
+  };
+
+  const handleIncrement = (product: Product) => {
+    const productId = getStringId(product._id);
+    const shoppingListItem = shoppingList.find(item => getStringId(item.product._id) === productId);
+    handleQuantityChange(productId, (shoppingListItem?.quantity || 0) + 0.1);
+  };
+
+  const handleDecrement = (product: Product) => {
+    const productId = getStringId(product._id);
+    const shoppingListItem = shoppingList.find(item => getStringId(item.product._id) === productId);
+    handleQuantityChange(productId, Math.max(0, (shoppingListItem?.quantity || 0) - 0.1));
   };
 
   if (isLoading) {
@@ -109,59 +121,70 @@ const ProductList: React.FC<ProductListProps> = ({
         console.log('Product price:', price);
         
         return (
-          <div key={productId} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="relative">
-              <img 
-                src={product.img} 
-                alt={product.name}
-                className="w-full h-48 object-cover"
-              />
-              <button
-                onClick={() => onToggleFavourite(productId)}
-                className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white"
-              >
-                <Heart 
-                  className={`w-6 h-6 ${isFavourite ? 'text-red-500 fill-current' : 'text-gray-400'}`}
+          <Link href={`/products/${productId}`} key={productId}>
+            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+              <div className="relative">
+                <img 
+                  src={product.img} 
+                  alt={product.name}
+                  className="w-full h-48 object-cover"
                 />
-              </button>
-            </div>
-            
-            <div className="p-4">
-              <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
-              <p className="text-sm text-gray-600">{product.brand}</p>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onToggleFavourite(productId);
+                  }}
+                  className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white"
+                >
+                  <Heart 
+                    className={`w-6 h-6 ${isFavourite ? 'text-red-500 fill-current' : 'text-gray-400'}`}
+                  />
+                </button>
+              </div>
               
-              <div className="mt-4 flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handleQuantityChange(productId, Math.max(0, (shoppingListItem?.quantity || 0) - 0.01))}
-                    className="p-1 hover:bg-gray-100 rounded"
-                  >
-                    -
-                  </button>
-                  
-                  <span className="mx-2">{formatQuantity(shoppingListItem?.quantity || 0)}</span>
-                  
-                  <button
-                    onClick={() => handleQuantityChange(productId, (shoppingListItem?.quantity || 0) + 0.01)}
-                    className="p-1 hover:bg-gray-100 rounded"
-                  >
-                    +
-                  </button>
-                  
-                  <span className="text-sm text-gray-500">
-                    {product.unit}
-                  </span>
-                </div>
+              <div className="p-4">
+                <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
+                <p className="text-sm text-gray-600">{product.brand}</p>
                 
-                <div className="text-right">
-                  <p className="text-sm text-gray-500">Prijs per {product.unit}</p>
-                  <p className="text-lg font-semibold text-gray-900">
-                    €{formatPrice(getLowestPrice(product))}
-                  </p>
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleQuantityChange(productId, Math.max(0, (shoppingListItem?.quantity || 0) - (product.unit === 'piece' ? 1 : 0.1)));
+                      }}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      -
+                    </button>
+                    
+                    <span className="mx-2">{formatQuantity(shoppingListItem?.quantity || 0)}</span>
+                    
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleQuantityChange(productId, (shoppingListItem?.quantity || 0) + (product.unit === 'piece' ? 1 : 0.1));
+                      }}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      +
+                    </button>
+                    
+                    <span className="text-sm text-gray-500">
+                      {product.unit}
+                    </span>
+                  </div>
+                  
+                  <div className="text-right">
+                    <p className="text-sm text-gray-500">Prijs per {product.unit}</p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      €{formatPrice(getLowestPrice(product))}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         );
       })}
     </div>

@@ -53,15 +53,36 @@ export function useShoppingList() {
       quantity: number;
       unit: string;
     }) => {
-      const response = await api.post("/api/shopping-list", {
+      const requestData = {
         product_id: productId,
         quantity,
         unit,
-      });
-      return response.data;
+      };
+      console.log('Adding item to shopping list - Request data:', requestData);
+      
+      try {
+        const response = await api.post("/api/shopping-list", requestData);
+        console.log('Add item response:', response.data);
+        return response.data;
+      } catch (error: any) {
+        console.error('Add item error details:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message,
+          requestData,
+          errorResponse: error.response,
+          errorConfig: error.config
+        });
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
+    },
+    onError: (error: any) => {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to add item';
+      console.error("Error adding shopping list item:", errorMessage);
+      throw new Error(errorMessage);
     },
   });
 
@@ -74,12 +95,28 @@ export function useShoppingList() {
       data: Partial<ShoppingListItem>;
     }) => {
       console.log('Updating item:', { id, data });
-      const response = await api.put(`/api/shopping-list/${id}`, data);
-      console.log('Update response:', response.data);
-      return response.data;
+      try {
+        const response = await api.put(`/api/shopping-list/${id}`, data);
+        console.log('Update response:', response.data);
+        return response.data;
+      } catch (error: any) {
+        console.error('Update error details:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message,
+          itemId: id,
+          updateData: data
+        });
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
+    },
+    onError: (error: any) => {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to update item';
+      console.error("Error updating shopping list item:", errorMessage);
+      throw new Error(errorMessage);
     },
   });
 

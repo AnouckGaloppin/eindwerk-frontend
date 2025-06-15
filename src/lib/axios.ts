@@ -21,7 +21,12 @@ const api = axios.create({
 // Add request interceptor for logging
 api.interceptors.request.use(
   (config) => {
-    console.log('Making request to:', config.url);
+    console.log('Making request:', {
+      url: config.url,
+      method: config.method,
+      data: config.data,
+      headers: config.headers
+    });
     return config;
   },
   (error) => {
@@ -36,7 +41,7 @@ api.interceptors.response.use(
     console.log('Response received:', {
       url: response.config.url,
       status: response.status,
-      data: response.data,
+      data: response.data
     });
     return response;
   },
@@ -45,7 +50,12 @@ api.interceptors.response.use(
       url: error.config?.url,
       status: error.response?.status,
       data: error.response?.data,
-      message: error.message
+      message: error.message,
+      config: {
+        method: error.config?.method,
+        headers: error.config?.headers,
+        data: error.config?.data
+      }
     });
     return Promise.reject(error);
   }
