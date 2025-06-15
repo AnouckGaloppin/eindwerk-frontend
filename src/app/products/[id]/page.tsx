@@ -4,14 +4,13 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/axios";
-import type { Product, StorePrice } from "@/types/productTypes";
-import type { ShoppingListItem } from "@/types/shoppingTypes";
+import type { Product } from "@/types/productTypes";
 import { useShoppingList } from "@/features/shoppingList/useShoppingList";
 import { useFavourites, useToggleFavourite } from "@/features/favourites/useFavourites";
 import { getStringId, formatQuantity } from "@/lib/utils";
-import { Heart, Minus, Plus, ShoppingCart } from "lucide-react";
-import { Category } from '@/types/productTypes';
+import { Minus, Plus } from "lucide-react";
 import { toast } from 'react-toastify';
+import { AxiosError } from "axios";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -19,8 +18,8 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState<number>(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const { data: favourites = [] } = useFavourites();
-  const toggleFavourite = useToggleFavourite();
-  const { items: shoppingList = [], isLoading: isLoadingShoppingList, addItem, updateItem, deleteItem } = useShoppingList();
+  // const toggleFavourite = useToggleFavourite();
+  const { items: shoppingList = [], isLoading, addItem, updateItem, deleteItem } = useShoppingList();
 
   const { data: product, isLoading: isLoadingProduct, error: productError } = useQuery<Product>({
     queryKey: ["product", getStringId(productId)],
@@ -30,7 +29,8 @@ export default function ProductDetailPage() {
         const response = await api.get(`/api/products/${getStringId(productId)}`);
         console.log('Product response:', response.data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        if (error instanceof AxiosError) {
         console.error('Error fetching product:', {
           id: getStringId(productId),
           status: error.response?.status,
@@ -42,8 +42,10 @@ export default function ProductDetailPage() {
         });
         throw error;
       }
-    },
-  });
+    }
+  },
+});
+
 
   const existingItem = product ? shoppingList.find(
     (item) => {
@@ -87,7 +89,7 @@ export default function ProductDetailPage() {
     }
   }, [existingItem]);
 
-  const { data: categoriesResponse, isLoading: isCategoriesLoading } = useQuery({
+  const { data, isLoading: isCategoriesLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
       const response = await api.get('/api/categories');
@@ -97,23 +99,23 @@ export default function ProductDetailPage() {
     enabled: !!product?.categories?.length
   });
 
-  const getCategoryNames = () => {
-    if (!product?.categories?.length) return 'None';
-    return product.categories.map(cat => cat.name).join('\n');
-  };
+  // const getCategoryNames = () => {
+  //   if (!product?.categories?.length) return 'None';
+  //   return product.categories.map(cat => cat.name).join('\n');
+  // };
 
   if (isLoadingProduct) return <div className="p-4 text-center">Loading...</div>;
   if (productError) return <div className="p-4 text-center text-red-500">Error loading product: {productError.message}</div>;
   if (!product) return <div className="p-4 text-center">Product not found</div>;
 
-  const isFavourite = favourites.some((fav) => getStringId(fav.product._id) === productId);
+  // const isFavourite = favourites.some((fav) => getStringId(fav.product._id) === productId);
 
-  const getLowestPrice = (product: Product): string => {
-    if (!product.price_per_store || Object.keys(product.price_per_store).length === 0) return "N/A";
-    const prices = Object.values(product.price_per_store).map(store => parseFloat(store.price_per_item));
-    const lowestPrice = Math.min(...prices);
-    return `€${lowestPrice.toFixed(2)}`;
-  };
+  // const getLowestPrice = (product: Product): string => {
+  //   if (!product.price_per_store || Object.keys(product.price_per_store).length === 0) return "N/A";
+  //   const prices = Object.values(product.price_per_store).map(store => parseFloat(store.price_per_item));
+  //   const lowestPrice = Math.min(...prices);
+  //   return `€${lowestPrice.toFixed(2)}`;
+  // };
 
   const handleAddToShoppingList = async () => {
     if (!product) return;
@@ -155,7 +157,8 @@ export default function ProductDetailPage() {
           unit: product.unit || 'piece'
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
       console.error('Error in handleAddToShoppingList:', error);
       toast.error(error.response?.data?.message || 'Failed to update shopping list');
     }
@@ -230,9 +233,6 @@ export default function ProductDetailPage() {
     const decrement = product?.unit === 'piece' ? 1 : 0.1;
     handleQuantityChange(Math.max(0, quantity - decrement));
   };
-
-  const isLoading = isLoadingProduct || isCategoriesLoading;
-  const error = productError;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -343,3 +343,4 @@ export default function ProductDetailPage() {
     </div>
   );
 } 
+}
