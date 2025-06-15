@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useShoppingList } from "./useShoppingList";
 // import { useSwipeable } from "react-swipeable";
 // import { motion, AnimatePresence } from "framer-motion";
