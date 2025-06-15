@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 // import { useMediaQuery } from "@/app/hooks";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Swiper, SwiperSlide, SwiperRef } from "swiper/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import "swiper/css";
 import api from "@/lib/axios";
@@ -11,6 +11,7 @@ import type { Category } from "@/types/productTypes";
 import { Loader } from "lucide-react";
 import './Categories.css';
 // import { div } from "framer-motion/client";
+import { AxiosError } from "axios";
 
 // const staticCategories: Category[] = [
 //   { _id: "1", name: "Fruit", slug: "fruit", color: "bg-amber-500" },
@@ -50,10 +51,11 @@ export default function Categories({ className }: CategoriesProps) {
   const [isLoading, setIsLoading] = useState(true);
   const searchParams = useSearchParams();
   const currentCategory = searchParams.get('category');
-  const swiperRef = useRef<any>(null);
+  const swiperRef = useRef<SwiperRef>(null);
   // const slidesPerView = 5;
   // const router = useRouter();
-  const [activeIndex, setActiveIndex] = useState(0);
+  // const [activeIndex, setActiveIndex] = useState(0);
+
 
   useEffect(() => {
     setHasMounted(true);
@@ -67,7 +69,7 @@ export default function Categories({ className }: CategoriesProps) {
           throw new Error("Expected categories to be an array");
         }
         const mappedCategories = fetchedCategories.map(
-          (cat: any, index: number) => {
+          (cat: Category, index: number) => {
             const categoryId = cat._id || `fallback-${index}`;
             return {
               _id: categoryId,
@@ -88,13 +90,13 @@ export default function Categories({ className }: CategoriesProps) {
       //   }
       // }
 
-      } catch (error: any) {
+      } catch (error: unknown) {
+        if (error instanceof AxiosError) {
         // console.error("Error fetching categories:", error.message || error);
         setError("Failed to load categories, using defaults");
-      } finally {
-        setIsLoading(false);
       }
     };
+    }
     fetchCategories();
   }, []);
 
