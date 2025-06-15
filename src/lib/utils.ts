@@ -6,6 +6,9 @@ export const formatPrice = (price: number): string => {
 };
 
 export const formatQuantity = (quantity: number): string => {
+  if (typeof quantity !== 'number' || isNaN(quantity)) {
+    return '0.00';
+  }
   return quantity.toFixed(2);
 };
 

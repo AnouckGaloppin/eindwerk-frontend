@@ -24,7 +24,7 @@ export default function ProductsPage() {
     data: products = [],
     isLoading: isProductsLoading,
     error: productsError,
-  } = useProducts(category, search);
+  } = useProducts();
   const {
     items: shoppingList = [],
     isLoading: shoppingListLoading,

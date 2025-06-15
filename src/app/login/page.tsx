@@ -3,193 +3,130 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "react-toastify";
 import api from "@/lib/axios";
-import { useAuth } from "@/lib/auth-context";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [twoFACode, set2FACode] = useState("");
-  const [twoFARecoveryCode, set2FARecoveryCode] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [show2FA, setShow2FA] = useState(false);
   const router = useRouter();
-  const { refreshUser, user } = useAuth();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setMessage("");
-
     try {
       await api.get("/sanctum/csrf-cookie");
-      const response = await api.post("/login", {
-        email,
-        password,
-      });
+      const response = await api.post("/login", formData);
 
-      if (response.status === 200) {
-        if (response.data.two_factor) {
-          setShow2FA(true);
-          setMessage("Please enter your 2-factor authentication code");
-        } else {
-          await refreshUser();
-          setMessage("Login successful");
-          
-          // Get the latest user data after refresh
-          const userResponse = await api.get("/api/user");
-          const userData = userResponse.data;
-          
-          if (userData?.role === "admin") {
-            router.push("/admin/users");
-          } else {
-            router.push("/");
-          }
-        }
+      if (response.status !== 200) {
+        throw new Error("Login failed");
       }
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "An unexpected error occurred"
-      );
+
+      toast.success("Login successful");
+      router.push("/");
+    } catch (error) {
+      toast.error("Login failed. Please check your credentials.");
+      console.error("Error logging in:", error);
     }
   };
 
-  const handle2FASubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await api.post("two-factor-challenge", {
-        code: twoFACode,
-      });
-
-      if (response.status === 204) {
-        refreshUser();
-        setMessage("Login successful using 2FA code");
-        router.push("/");
-      }
-    } catch (err: any) {
-      setError("Invalid 2FA code");
-    }
-  };
-
-  const handle2FARecoverySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await api.post("two-factor-challenge", {
-        recovery_code: twoFARecoveryCode,
-      });
-
-      if (response.status === 204) {
-        refreshUser();
-        setMessage("Login successful using recovery code");
-        router.push("/");
-      }
-    } catch (err: any) {
-      setError("Invalid recovery code");
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   return (
-    <div className="min-h-[calc(100vh-128px)] flex items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-
-        {message && (
-          <p className="text-green-500 mb-4 text-center">{message}</p>
-        )}
-        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-
-        {!show2FA ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to your account
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Or{" "}
+            <Link
+              href="/register"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              create a new account
+            </Link>
+          </p>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              {/* <label className="block text-sm font-medium text-gray-700">
-                Email
-              </label> */}
+              <label htmlFor="email" className="sr-only">
+                Email address
+              </label>
               <input
+                id="email"
+                name="email"
                 type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                autoComplete="email"
                 required
+                value={formData.email}
+                onChange={handleChange}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Email address"
               />
             </div>
             <div>
-              {/* <label className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="sr-only">
                 Password
-              </label> */}
+              </label>
               <input
+                id="password"
+                name="password"
                 type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                autoComplete="current-password"
                 required
+                value={formData.password}
+                onChange={handleChange}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Password"
               />
             </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              />
+              <label
+                htmlFor="remember-me"
+                className="ml-2 block text-sm text-gray-900"
+              >
+                Remember me
+              </label>
+            </div>
+
+            <div className="text-sm">
+              <Link
+                href="/forgot-password"
+                className="font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+          </div>
+
+          <div>
             <button
               type="submit"
-              className="bg-gradient-to-r from-indigo-500 to-teal-500 text-white w-full py-2 rounded-md hover:from-indigo-600 hover:to-teal-600 transition-colors duration-200"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Login
+              Sign in
             </button>
-          </form>
-        ) : (
-          <div className="space-y-4">
-            <form onSubmit={handle2FASubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  2FA Code
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter 2FA code"
-                  value={twoFACode}
-                  onChange={(e) => set2FACode(e.target.value)}
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-gradient-to-r from-indigo-500 to-teal-500 text-white w-full py-2 rounded-md hover:from-indigo-600 hover:to-teal-600 transition-colors duration-200"
-              >
-                Verify 2FA Code
-              </button>
-            </form>
-
-            <form onSubmit={handle2FARecoverySubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Recovery Code
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter recovery code"
-                  value={twoFARecoveryCode}
-                  onChange={(e) => set2FARecoveryCode(e.target.value)}
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-gradient-to-r from-indigo-500 to-teal-500 text-white w-full py-2 rounded-md hover:from-indigo-600 hover:to-teal-600 transition-colors duration-200"
-              >
-                Use Recovery Code
-              </button>
-            </form>
           </div>
-        )}
-
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Don't have an account?{" "}
-          <Link href="/register" className="text-indigo-500 hover:underline">
-            Register
-          </Link>
-        </p>
+        </form>
       </div>
     </div>
   );

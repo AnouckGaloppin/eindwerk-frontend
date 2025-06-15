@@ -12,6 +12,14 @@ type FavouriteItemProps = {
   isMobile?: boolean;
 };
 
+// Helper function to get string ID
+const getStringId = (id: string | { $oid: string }): string => {
+  if (typeof id === 'object' && id !== null && '$oid' in id) {
+    return id.$oid;
+  }
+  return id;
+};
+
 export function FavouriteItem({
   favourite,
   // onDelete,
@@ -27,13 +35,16 @@ export function FavouriteItem({
   const toggleFavourite = useToggleFavourite();
   // const { favourites, toggleFavourite } = useFavouritesContext();
   const product = favourite.product;
-  const productId = favourite.product?.id;
+  const productId = product?._id ? getStringId(product._id) : null;
 
   if (!productId) {
     console.error("Missing product ID in favourite:", favourite);
     return null; // or handle the error as needed
   }
-  const isFavourite = favourites.some((fav) => fav.product?.id === productId);
+  const isFavourite = favourites.some((fav) => {
+    const favProductId = fav.product?._id ? getStringId(fav.product._id) : null;
+    return favProductId === productId;
+  });
 
   const handleToggle = () => {
     toggleFavourite.mutate({ product_id: productId });

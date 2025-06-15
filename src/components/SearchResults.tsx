@@ -1,8 +1,13 @@
+// "use client";
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { X } from 'lucide-react';
 import type { Product, StorePrice } from '@/types/productTypes';
+// import api from '@/lib/axios';
+// import { getStringId } from '@/lib/utils';
+// import router from 'next/router';
 
 type SearchResultsProps = {
   results: Product[];
@@ -67,19 +72,20 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         <ul className="max-h-80 overflow-y-auto">
           {results.map((product, index) => {
             const lowestPrice = getLowestPrice(product.price_per_store);
-            const productId = typeof product._id === 'object' ? product._id.$oid : product._id;
+            const productId = product.id || (typeof product._id === 'object' && product._id !== null && '$oid' in product._id 
+              ? product._id.$oid 
+              : String(product._id));
             const uniqueKey = productId || `product-${index}`;
-            const productSlug = product.name.toLowerCase().replace(/\s+/g, '-');
             
             return (
               <li key={uniqueKey} className="border-b border-gray-200 last:border-b-0">
                 <Link
-                  href={`/products/${productSlug}`}
+                  href={`/products/${productId}`}
                   className="flex items-center p-3 hover:bg-gray-50 transition-colors"
                   onClick={(e) => {
                     e.preventDefault();
                     onResultClick();
-                    window.location.href = `/products/${productSlug}`;
+                    window.location.href = `/products/${productId}`;
                   }}
                 >
                   <div className="w-12 h-12 relative flex-shrink-0 bg-gray-100 rounded overflow-hidden">
@@ -115,7 +121,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         </ul>
       ) : (
         <div className="p-4 text-center text-gray-500">
-          No products found matching "{searchQuery}"
+          No products found matching {searchQuery}
         </div>
       )}
       

@@ -1,5 +1,5 @@
 import ShoppingList from "@/features/shoppingList/ShoppingList";
-import { Query, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Header from "@/components/Header";
 
 const queryClient = new QueryClient();

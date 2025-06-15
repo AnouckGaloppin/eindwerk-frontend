@@ -1,138 +1,90 @@
 import { useState } from "react";
 import { useShoppingList } from "./useShoppingList";
-import { useSwipeable } from "react-swipeable";
-import { motion, AnimatePresence } from "framer-motion";
+// import { useSwipeable } from "react-swipeable";
+// import { motion, AnimatePresence } from "framer-motion";
 import type { ShoppingListItem as ShoppingListItemType } from "@/types/shoppingTypes";
-import ShoppingListItem from "@/components/ShoppingListItem";
+import { Trash, Plus, Minus } from "lucide-react";
+import Image from "next/image";
 
 interface ShoppingListItemProps {
-  item: ShoppingListItemType;
-  onQuantityChange: (item: ShoppingListItemType, newQuantity: string) => void;
-  onDelete: (itemId: string) => void;
+  product: ShoppingListItemType;
+  onDelete: (id: string) => void;
+  onUpdateQuantity: (id: string, quantity: number) => void;
 }
 
-function ShoppingListItemComponent({
-  item,
-  onQuantityChange,
-  onDelete,
-}: ShoppingListItemProps) {
-  const [editingItem, setEditingItem] = useState<string | null>(null);
-  const [quantity, setQuantity] = useState<string>(item.quantity.toString());
-
-  const getItemId = () => {
-    return item._id;
-  };
-
+function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListItemProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
-    >
-      <div className="flex items-center p-4">
-        {item.product?.img && (
-          <img
-            src={item.product.img}
-            alt={item.product?.name || "Product image"}
-            className="w-16 h-16 object-cover rounded-md mr-4"
-          />
-        )}
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {item.product?.name || "Unknown Product"}
-          </h3>
-          <div className="flex items-center space-x-2 mt-1">
-            <input
-              type="number"
-              value={editingItem === item._id ? quantity : item.quantity}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setQuantity(e.target.value);
-                onQuantityChange(item, e.target.value);
-              }}
-              onFocus={() => {
-                setEditingItem(item._id);
-                setQuantity(item.quantity.toString());
-              }}
-              onBlur={() => setEditingItem(null)}
-              className="w-20 px-2 py-1 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-              min="0.01"
-              step="0.1"
+    <li className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm mb-2">
+      <div className="flex items-center space-x-4">
+        {product.product?.img && (
+          <div className="relative w-16 h-16">
+            <Image
+              src={product.product.img}
+              alt={product.product.name}
+              fill
+              className="object-cover rounded"
             />
-            <span className="text-gray-600 dark:text-gray-400">{item.unit}</span>
           </div>
+        )}
+        <div>
+          <h3 className="font-medium text-gray-900">{product.product?.name}</h3>
+          <p className="text-sm text-gray-500">{product.unit}</p>
+        </div>
+      </div>
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => onUpdateQuantity(product._id, Math.max(0, product.quantity - 1))}
+            className="p-1 rounded-full hover:bg-gray-100"
+          >
+            <Minus className="w-4 h-4" />
+          </button>
+          <span className="w-8 text-center">{product.quantity}</span>
+          <button
+            onClick={() => onUpdateQuantity(product._id, product.quantity + 1)}
+            className="p-1 rounded-full hover:bg-gray-100"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
         </div>
         <button
-          onClick={() => onDelete(getItemId())}
-          className="hidden md:block p-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-          aria-label="Delete item from shopping list"
+          onClick={() => onDelete(product._id)}
+          className="p-2 text-red-600 hover:bg-red-50 rounded-full"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-            />
-          </svg>
+          <Trash className="w-5 h-5" />
         </button>
       </div>
-    </motion.div>
+    </li>
   );
 }
 
 export default function ShoppingList() {
-  const { items, isLoading, error, deleteItem } = useShoppingList();
+  const { items, isLoading, error, deleteItem, updateItem } = useShoppingList();
 
-  if (isLoading) {
-    return <div className="text-gray-900 dark:text-white">Loading...</div>;
-  }
+  const handleUpdateQuantity = (id: string, quantity: number) => {
+    updateItem({ id, data: { quantity } });
+  };
 
-  if (error) {
-    return <div className="text-red-500 dark:text-red-400">Error: {error.message}</div>;
-  }
-
-  // Debug log to see the items structure
-  console.log('Shopping list items:', JSON.stringify(items, null, 2));
-
-  // Filter out items without IDs or products
-  const validItems = items.filter(item => {
-    if (!item._id) {
-      console.warn('Skipping item without ID:', item);
-      return false;
-    }
-    if (!item.product) {
-      console.warn('Skipping item without product:', item);
-      return false;
-    }
-    return true;
-  });
+  if (isLoading) return <div className="p-4">Loading...</div>;
+  if (error) return <div className="p-4 text-red-500">Error: {error.message}</div>;
 
   return (
-    <div className="space-y-4">
-      {validItems.map((item: ShoppingListItemType, index: number) => {
-        // Debug log for each item
-        console.log('Processing item:', {
-          id: item._id,
-          product: item.product,
-          quantity: item.quantity,
-          unit: item.unit
-        });
-        
-        return (
-          <ShoppingListItem
-            key={item._id}
-            product={item}
-            onDelete={deleteItem}
-          />
-        );
-      })}
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Shopping List</h1>
+      {items.length === 0 ? (
+        <p className="text-gray-500">Your shopping list is empty</p>
+      ) : (
+        <ul className="space-y-2">
+          {items.map((item) => (
+            <ShoppingListItem
+              key={item._id}
+              product={item}
+              onDelete={deleteItem}
+              onUpdateQuantity={handleUpdateQuantity}
+            />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

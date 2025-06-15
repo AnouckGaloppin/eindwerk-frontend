@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import api from "./axios";
 import { useRouter } from "next/navigation";
 import type { User } from "@/types/userTypes";
+import { AxiosError } from "axios";
 
 interface AuthContextType {
   user: User | null;
@@ -69,14 +70,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
         localStorage.removeItem('token');
       }
-    } catch (err: any) {
-      console.error("Error refreshing user:", err);
-      setUser(null);
-      localStorage.removeItem('token');
-      if (err.response?.status === 403) {
-        router.push("/verify");
-      } else {
-        router.push("/login");
+    } catch (err: unknown) {
+      if(err instanceof AxiosError) {
+        console.error("Error refreshing user:", err);
+        setUser(null);
+        localStorage.removeItem('token');
+        if (err.response?.status === 403) {
+          router.push("/verify");
+        } else {
+          router.push("/login");
+        }
       }
     } finally {
       setLoading(false);
@@ -130,10 +133,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-}
+};

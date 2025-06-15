@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Plus, Minus } from 'lucide-react';
+import { Heart, Plus } from 'lucide-react';
 import { Product } from '@/types/productTypes';
 import { ShoppingListItem } from '@/types/shoppingTypes';
 import { Favourite } from "@/types/favouritesTypes";
@@ -15,10 +15,13 @@ const getStringId = (id: string | { $oid: string }): string => {
 
 interface ProductListProps {
   products: Product[];
+  shoppingList: ShoppingListItem[];
   favourites: Favourite[];
+  onAddOrUpdate: (product: Product, quantity: number) => Promise<void>;
+  onToggleFavourite: (productId: string) => void;
+  onQuantityChange: (itemId: string, quantity: number) => void;
   isLoading?: boolean;
   error?: string | null;
-  onToggleFavourite: (productId: string) => void;
 }
 
 const ProductList: React.FC<ProductListProps> = ({

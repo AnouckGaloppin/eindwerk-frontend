@@ -3,29 +3,39 @@
 import { useState, useEffect } from "react";
 import { useFavourites, useToggleFavourite } from "./useFavourites";
 // import { useSwipeable } from "react-swipeable";
-// import { Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import type { Favourite } from "@/types/favouritesTypes";
 import { FavouriteItem } from "@/components/FavouriteItem";
-import axios from "axios";
-import { button } from "framer-motion/client";
+// import axios from "axios";
+// import { button } from "framer-motion/client";
 import api from "@/lib/axios";
 import { useQueryClient } from "@tanstack/react-query";
 // import { li } from "framer-motion/client";
+import { AxiosError } from "axios";
+import Image from "next/image";
 
 // const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
+// Helper function to get string ID
+const getStringId = (id: string | { $oid: string }): string => {
+  if (typeof id === 'object' && id !== null && '$oid' in id) {
+    return id.$oid;
+  }
+  return id;
+};
 
 export default function Favourites() {
   const { data: favourites = [], isLoading, error } = useFavourites();
   // const addFavourite = useAddFavourite();
   const toggleFavourite = useToggleFavourite();
   const queryClient = useQueryClient();
-
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
   const addAllFavouritesToShoppingList = async () => {
     try {
-      // Get the product IDs from favourites
-      const productIds = favourites.map((fav: Favourite) => fav.product.id);
+      const productIds = favourites.map((fav: Favourite) => 
+        fav.product._id ? getStringId(fav.product._id) : null
+      ).filter((id): id is string => id !== null);
       
       if (productIds.length === 0) {
         alert("No favourites to add to shopping list");
@@ -41,12 +51,14 @@ export default function Favourites() {
         queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
         alert(response.data.message);
       }
-    } catch (error: any) {
-      console.error("Error adding favourites to shopping list:", error);
-      alert(
-        error.response?.data?.message ||
-          "Error adding favourites to shopping list"
-      );
+    } catch (error: unknown) {
+      if(error instanceof AxiosError) {
+        console.error("Error adding favourites to shopping list:", error);
+        alert(
+          error.response?.data?.message ||
+            "Error adding favourites to shopping list"
+        );
+      }
     }
   };
 
@@ -131,7 +143,7 @@ export default function Favourites() {
         ) : (
           favourites.map((fav: Favourite) => (
             <FavouriteItem
-              key={fav.id}
+              key={getStringId(fav._id)}
               favourite={fav}
               toggleFavourite={toggleFavourite}
               // onDelete={(id) => deleteFavourite.mutate(id)}
@@ -142,7 +154,6 @@ export default function Favourites() {
     </div>
   );
 }
-
 //   ))}
 //   <li
 //     key={favourite.id}
@@ -231,3 +242,4 @@ export default function Favourites() {
 // </div>
 // );
 // }
+

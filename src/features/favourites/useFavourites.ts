@@ -3,7 +3,7 @@
 import api from "@/lib/axios";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Favourite } from "@/types/favouritesTypes";
-import { data } from "framer-motion/client";
+// import { data } from "framer-motion/client";
 
 // const API_FAVOURITES_URL = `Baseurl/favourites";
 
@@ -13,11 +13,11 @@ import { data } from "framer-motion/client";
 // };
 
 export function useFavourites() {
-  return useQuery<Favourite[], Error>({
+  return useQuery<Favourite[]>({
     queryKey: ["favourites"],
     queryFn: async () => {
-      const res = await api.get("/api/favourites");
-      return res.data;
+      const response = await api.get("/api/favourites");
+      return response.data;
     },
   });
 

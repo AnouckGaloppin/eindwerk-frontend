@@ -15,6 +15,7 @@ export interface PriceData {
 
 export interface Product {
   _id: string | MongoDBObjectId;
+  id: string;
   name: string;
   brand: string;
   img?: string;
@@ -36,3 +37,13 @@ export type Category = {
   slug: string;
   color: string;
 };
+
+export interface PriceComparison {
+  product_id: string;
+  product_name: string;
+  cheapest_store: string;
+  cheapest_price_per_item: string;
+  all_prices: {
+    [store: string]: string;
+  };
+}

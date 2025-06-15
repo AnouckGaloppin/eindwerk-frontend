@@ -1,5 +1,5 @@
 import api from "@/lib/axios"; // Importeer de geconfigureerde Axios-instantie
-import { info } from "console";
+// import { info } from "console";
 
 export const compareProductPrices = async (productId: string) => {
   try {

@@ -2,14 +2,13 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useMediaQuery } from "@/app/hooks";
+// import { useMediaQuery } from "@/app/hooks";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import "swiper/css";
 import api from "@/lib/axios";
 import type { Category } from "@/types/productTypes";
 import { Loader } from "lucide-react";
-import clsx from "clsx";
 import './Categories.css';
 // import { div } from "framer-motion/client";
 

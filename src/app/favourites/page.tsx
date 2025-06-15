@@ -4,12 +4,12 @@ import Favourites from "@/features/favourites/Favourites";
 import { useAuth } from "@/lib/auth-context";
 import { useEffect } from "react";
 
-const FavouritesPage = () => {
-  const { user, refreshUser } = useAuth();
+export default function FavouritesPage() {
+  const { refreshUser } = useAuth();
 
   useEffect(() => {
     refreshUser();
-  }, []);
+  }, [refreshUser]);
   
   return (
     <div className="min-h-screen bg-gray-50">
@@ -21,6 +21,4 @@ const FavouritesPage = () => {
       </div>
     </div>
   );
-};
-
-export default FavouritesPage;
+}

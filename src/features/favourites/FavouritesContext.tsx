@@ -1,80 +1,49 @@
 // // src/context/FavoritesContext.tsx
 
-// import { createContext, useContext, useEffect, useState } from "react";
-// import api from "@/lib/axios";
-// // import { error } from "console";
+import { createContext, useContext, useState, ReactNode } from "react";
+import { Product } from "@/types/productTypes";
 
-// type FavouritesContextType = {
-//   favourites: string[];
-//   toggleFavourite: (productId: string) => Promise<void>;
-// };
+interface FavouritesContextType {
+  favourites: Product[];
+  addFavourite: (product: Product) => void;
+  removeFavourite: (productId: string) => void;
+  isFavourite: (productId: string) => boolean;
+}
 
-// const FavouritesContext = createContext<FavouritesContextType | undefined>(
-//   undefined
-// );
+const FavouritesContext = createContext<FavouritesContextType | undefined>(undefined);
 
-// export const FavouritesProvider = ({
-//   children,
-// }: {
-//   children: React.ReactNode;
-// }) => {
-//   const [favourites, setFavourites] = useState<string[]>([]);
+export function FavouritesProvider({ children }: { children: ReactNode }) {
+  const [favourites, setFavourites] = useState<Product[]>([]);
 
-//   const fetchFavourites = async () => {
-//     try {
-//       const res = await api.get("/favourites");
-//       const favouriteIds = res.data.map(
-//         (fav: { product_id: string }) => fav.product_id
-//       );
-//       setFavourites(favouriteIds);
-//     } catch (err: any) {
-//       console.error("Error fetching favourites:", {
-//         message: err.message,
-//         response: err.response?.data,
-//         status: err.response?.status,
-//       });
-//     }
-//   };
+  const addFavourite = (product: Product) => {
+    setFavourites((prev) => [...prev, product]);
+  };
 
-//   useEffect(() => {
-//     fetchFavourites();
-//   }, []);
+  const removeFavourite = (productId: string) => {
+    setFavourites((prev) => prev.filter((p) => p._id !== productId));
+  };
 
-//   const toggleFavourite = async (productId: string) => {
-//     try {
-//       const res = await api.post("/favourites/toggle", {
-//         product_id: productId,
-//       });
-//       console.log("Toggle response:", res.data);
+  const isFavourite = (productId: string) => {
+    return favourites.some((p) => p._id === productId);
+  };
 
-//       if (res.data.status === "added") {
-//         setFavourites((prev) => [...prev, productId]);
-//       } else if (res.data.status === "removed") {
-//         setFavourites((prev) => prev.filter((id) => id !== productId));
-//       }
-//     } catch (err: any) {
-//       console.error("Error toggling favourite:", {
-//         message: err.message,
-//         response: err.response?.data,
-//         status: err.response?.status,
-//       });
-//     }
-//   };
+  return (
+    <FavouritesContext.Provider
+      value={{ favourites, addFavourite, removeFavourite, isFavourite }}
+    >
+      {children}
+    </FavouritesContext.Provider>
+  );
+}
 
-//   return (
-//     <FavouritesContext.Provider value={{ favourites, toggleFavourite }}>
-//       {children}
-//     </FavouritesContext.Provider>
-//   );
-// };
+export function useFavouritesContext() {
+  const context = useContext(FavouritesContext);
+  if (context === undefined) {
+    throw new Error("useFavouritesContext must be used within a FavouritesProvider");
+  }
+  return context;
+}
 
-// export const useFavourites = () => {
-//   const context = useContext(FavouritesContext);
-//   if (context === undefined) {
-//     throw new Error("useFavourites must be used within a FavouritesProvider");
-//   }
-//   return context;
-// };
 // // function setError(arg0: any) {
 // //   throw new Error("Function not implemented.");
 // // }

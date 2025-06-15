@@ -1,11 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
   ShoppingListItem,
-  AddToShoppingListInput,
-  UpdateShoppingListItemInput,
+  // AddToShoppingListInput,
+  // UpdateShoppingListItemInput,
 } from "@/types/shoppingTypes";
 import api from "@/lib/axios";
 import { toast } from 'react-toastify';
+import { AxiosError } from "axios";
+import { Product } from "@/types/productTypes";
 
 // export type ShoppingItem = {
 //   id: string;
@@ -32,11 +34,11 @@ export function useShoppingList() {
       console.log('Raw response from backend:', response.data);
       console.log('Items before processing:', response.data.items);
 
-      const processedItems = response.data.items.map((item: any) => ({
+      const processedItems = response.data.items.map((item: ShoppingListItem) => ({
         ...item,
-        _id: typeof item._id === 'object' ? item._id.$oid : item._id,
-        product_id: typeof item.product_id === 'object' ? item.product_id.$oid : item.product_id,
-        quantity: parseFloat(item.quantity)
+        _id: item._id,
+        product_id: item.product_id,
+        quantity: item.quantity,
       }));
 
       console.log('Processed items:', processedItems);
@@ -65,7 +67,8 @@ export function useShoppingList() {
         const response = await api.post("/api/shopping-list", requestData);
         console.log('Add item response:', response.data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        if(error instanceof AxiosError) {
         console.error('Add item error details:', {
           status: error.response?.status,
           data: error.response?.data,
@@ -75,17 +78,44 @@ export function useShoppingList() {
           errorConfig: error.config
         });
         throw error;
+      } else {
+        throw new Error('Unknown error occurred');
       }
+    }
+  },
+    onMutate: async (newItem) => {
+      await queryClient.cancelQueries({ queryKey: ["shoppingList"] });
+      const previousItems = queryClient.getQueryData<ShoppingListItem[]>(["shoppingList"]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData<ShoppingListItem[]>(["shoppingList"], (old) => {
+        if (!old) return [];
+        const tempItem: ShoppingListItem = {
+          _id: 'temp-id',
+          product_id: newItem.productId,
+          product: { name: 'Loading...' } as Product,
+          quantity: newItem.quantity,
+          unit: newItem.unit,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        return [...old, tempItem];
+      });
+
+      return { previousItems };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
-      toast.success('Item added to shopping list');
-    },
-    onError: (error: any) => {
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to add item';
+    onError: (err: unknown, newItem, context) => {
+      if(err instanceof AxiosError) {
+      if (context?.previousItems) {
+        queryClient.setQueryData(["shoppingList"], context.previousItems);
+      }
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to add item';
       console.error("Error adding shopping list item:", errorMessage);
       toast.error(errorMessage);
-      throw new Error(errorMessage);
+    }
+  },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
     },
   });
 
@@ -102,7 +132,8 @@ export function useShoppingList() {
         const response = await api.put(`/api/shopping-list/${id}`, data);
         console.log('Update response:', response.data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        if(error instanceof AxiosError) {
         console.error('Update error details:', {
           status: error.response?.status,
           data: error.response?.data,
@@ -111,18 +142,46 @@ export function useShoppingList() {
           updateData: data
         });
         throw error;
+      } else {
+        throw new Error('Unknown error occurred');
       }
+    }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
-      toast.success('Item updated successfully');
+    onMutate: async ({ id, data }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["shoppingList"] });
+
+      // Snapshot the previous value
+      const previousItems = queryClient.getQueryData<ShoppingListItem[]>(["shoppingList"]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData<ShoppingListItem[]>(["shoppingList"], (old) => {
+        if (!old) return [];
+        return old.map(item => {
+          if (getStringId(item._id) === getStringId(id)) {
+            return { ...item, ...data };
+          }
+          return item;
+        });
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousItems };
     },
-    onError: (error: any) => {
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to update item';
+    onError: (err: unknown, newItem, context) => {
+      if(err instanceof AxiosError) {
+      if (context?.previousItems) {
+        queryClient.setQueryData(["shoppingList"], context.previousItems);
+      }
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to update item';
       console.error("Error updating shopping list item:", errorMessage);
       toast.error(errorMessage);
-      throw new Error(errorMessage);
+    }
     },
+    onSettled: () => {
+      // Always refetch after error or success to ensure cache is in sync
+      queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
+    }
   });
 
   const deleteItemMutation = useMutation({
@@ -136,7 +195,8 @@ export function useShoppingList() {
           throw new Error('No response data received from delete operation');
         }
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        if(error instanceof AxiosError) {
         console.error('Delete error details:', {
           status: error.response?.status,
           data: error.response?.data,
@@ -144,18 +204,36 @@ export function useShoppingList() {
           id: stringId
         });
         throw error;
+      } else {
+        throw new Error('Unknown error occurred');
       }
+    }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
-      toast.success('Item removed from shopping list');
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ["shoppingList"] });
+      const previousItems = queryClient.getQueryData<ShoppingListItem[]>(["shoppingList"]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData<ShoppingListItem[]>(["shoppingList"], (old) => {
+        if (!old) return [];
+        return old.filter(item => item._id !== id);
+      });
+
+      return { previousItems };
     },
-    onError: (error: any) => {
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to delete item';
+    onError: (err: unknown, id, context) => {
+      if(err instanceof AxiosError) {
+      if (context?.previousItems) {
+        queryClient.setQueryData(["shoppingList"], context.previousItems);
+      }
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to delete item';
       console.error("Error deleting shopping list item:", errorMessage);
       toast.error(errorMessage);
-      throw new Error(errorMessage);
-    },
+    }
+  },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
+    }
   });
 
   return {
@@ -180,8 +258,10 @@ export function useDeleteItem() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
+      if(error instanceof AxiosError) {
       console.error("Error deleting shopping list item:", error);
-    },
-  });
+    }
+  }
+});
 }

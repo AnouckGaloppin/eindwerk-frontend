@@ -5,7 +5,7 @@ import Providers from "./providers";
 // import Providers from "./providers";
 import { ReactNode } from "react";
 import Link from "next/link";
-import Header from "@/components/Header";
+// import Header from "@/components/Header";
 // import { ThemeToggle } from "@/components/ThemeToggle";
 // import { AuthProvider } from "@/lib/auth-context";
 // import ClientProvider from "./ClientProvider";
@@ -23,7 +23,7 @@ export function NavItem({
   label,
   href,
   children,
-  className,
+  // className,
 }: {
   children: ReactNode;
   href: string;

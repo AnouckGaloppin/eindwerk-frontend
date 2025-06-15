@@ -5,61 +5,65 @@ import axios from "axios";
 // const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.ddev.site";
 
 const api = axios.create({
-  baseURL: "http://localhost:63167",
+  baseURL: "http://localhost:61469",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
     // "X-Requested-With": "XMLHttpRequest",
   },
-  // TODO: Re-enable CSRF protection later
   withXSRFToken: true,
   xsrfCookieName: "XSRF-TOKEN",
   xsrfHeaderName: "X-XSRF-TOKEN",
 });
 
 // Add request interceptor for logging
-api.interceptors.request.use(
-  (config) => {
-    console.log('Making request:', {
-      url: config.url,
-      method: config.method,
-      data: config.data,
-      headers: config.headers
-    });
-    return config;
-  },
-  (error) => {
-    console.error('Request error:', error);
-    return Promise.reject(error);
-  }
-);
+// api.interceptors.request.use(
+//   (config) => {
+//     console.log('Making request:', {
+//       url: config.url,
+//       method: config.method,
+//       data: config.data,
+//       headers: config.headers
+//     });
+//     return config;
+//   },
+//   (error) => {
+//     console.error('Request error:', error);
+//     return Promise.reject(error);
+//   }
+// );
 
-// Add response interceptor for logging
-api.interceptors.response.use(
-  (response) => {
-    console.log('Response received:', {
-      url: response.config.url,
-      status: response.status,
-      data: response.data
-    });
-    return response;
-  },
-  (error) => {
-    console.error('Response error:', {
-      url: error.config?.url,
-      status: error.response?.status,
-      data: error.response?.data,
-      message: error.message,
-      config: {
-        method: error.config?.method,
-        headers: error.config?.headers,
-        data: error.config?.data
-      }
-    });
-    return Promise.reject(error);
-  }
-);
+// // Add response interceptor for logging
+// api.interceptors.response.use(
+//   (response) => {
+//     console.log('Response received:', {
+//       url: response.config.url,
+//       status: response.status,
+//       data: response.data
+//     });
+//     return response;
+//   },
+//   (error) => {
+//     console.error('Response error:', {
+//       url: error.config?.url,
+//       method: error.config?.method,
+//       status: error.response?.status,
+//       statusText: error.response?.statusText,
+//       data: error.response?.data,
+//       headers: error.response?.headers,
+//       message: error.message,
+//       stack: error.stack,
+//       config: {
+//         baseURL: error.config?.baseURL,
+//         headers: error.config?.headers,
+//         params: error.config?.params,
+//         data: error.config?.data
+//       }
+//     });
+//     return Promise.reject(error);
+//   }
+// );
 
 // TODO: Re-enable authentication later
 // api.interceptors.request.use(
