@@ -49,12 +49,13 @@ const ProductList: React.FC<ProductListProps> = ({
   };
 
   const handleQuantityChange = (productId: string, newQuantity: number) => {
+    const formattedQuantity = parseFloat(formatQuantity(newQuantity));
     const shoppingListItem = shoppingListItems.find(item => getStringId(item.product_id) === productId);
     if (shoppingListItem) {
       updateItem({ 
         id: shoppingListItem._id,
         data: {
-          quantity: newQuantity,
+          quantity: formattedQuantity,
           unit: shoppingListItem.unit
         }
       });
@@ -63,7 +64,7 @@ const ProductList: React.FC<ProductListProps> = ({
       if (product) {
         addItem({
           productId,
-          quantity: newQuantity,
+          quantity: formattedQuantity,
           unit: product.unit
         });
       }

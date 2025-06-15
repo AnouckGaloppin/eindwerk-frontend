@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import api from "@/lib/axios";
+import { toast } from 'react-toastify';
 
 export default function EditUser() {
   const [form, setForm] = useState({
@@ -17,10 +18,6 @@ export default function EditUser() {
   const router = useRouter();
   const { id } = useParams();
   const { user, loading: authLoading } = useAuth();
-  const [toast, setToast] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
 
   // if (loading) return <p>Laden...</p>;
   // if (!user || user.role !== "admin") {
@@ -68,24 +65,13 @@ export default function EditUser() {
     try {
       await api.get("/sanctum/csrf-cookie");
       await api.put(`/api/admin/users/${id}`, form);
-      setToast({ message: "Gebruiker succesvol bijgewerkt", type: "success" });
+      toast.success("Gebruiker succesvol bijgewerkt");
       setTimeout(() => router.push("/admin/users"), 1500);
     } catch (error: any) {
-      setToast({
-        message: "Fout bij het bijwerken van de gebruiker",
-        type: "error",
-      });
+      toast.error("Fout bij het bijwerken van de gebruiker");
       console.error("Error updating user:", error);
     }
   };
-
-  // Toast auto-dismiss effect
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
 
   if (authLoading) return <p className="text-gray-500">Laden...</p>;
 
@@ -98,20 +84,6 @@ export default function EditUser() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 pb-24">
-      {/* Toast notification */}
-      {toast && (
-        <div
-          className={`fixed inset-0 z-[60] flex items-center justify-center pointer-events-none`}
-        >
-          <div
-            className={`px-6 py-3 rounded-lg shadow-lg text-white font-semibold transition-all duration-300 pointer-events-auto ${
-              toast.type === "success" ? "bg-teal-500" : "bg-red-500"
-            }`}
-          >
-            {toast.message}
-          </div>
-        </div>
-      )}
       <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl border border-gray-100 p-8">
         <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
           Gebruiker Bewerken{" "}

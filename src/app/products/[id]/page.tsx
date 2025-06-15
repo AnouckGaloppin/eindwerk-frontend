@@ -8,7 +8,7 @@ import type { Product, StorePrice } from "@/types/productTypes";
 import type { ShoppingListItem } from "@/types/shoppingTypes";
 import { useShoppingList } from "@/features/shoppingList/useShoppingList";
 import { useFavourites, useToggleFavourite } from "@/features/favourites/useFavourites";
-import { getStringId } from "@/lib/utils";
+import { getStringId, formatQuantity } from "@/lib/utils";
 import { Heart, Minus, Plus, ShoppingCart } from "lucide-react";
 import { Category } from '@/types/productTypes';
 
@@ -116,7 +116,8 @@ export default function ProductDetailPage() {
   };
 
   const handleQuantityChange = (value: number) => {
-    setQuantity(value);
+    const formattedValue = parseFloat(formatQuantity(value));
+    setQuantity(formattedValue);
   };
 
   const handleInputFocus = () => {
@@ -130,6 +131,8 @@ export default function ProductDetailPage() {
     setIsInputFocused(false);
     if (isNaN(quantity)) {
       setQuantity(0);
+    } else {
+      setQuantity(parseFloat(formatQuantity(quantity)));
     }
   };
 
@@ -225,7 +228,7 @@ export default function ProductDetailPage() {
                   <input
                     type="number"
                     id="quantity"
-                    value={isInputFocused && isNaN(quantity) ? '' : quantity}
+                    value={isInputFocused && isNaN(quantity) ? '' : formatQuantity(quantity)}
                     onChange={handleInputChange}
                     onFocus={handleInputFocus}
                     onBlur={handleInputBlur}

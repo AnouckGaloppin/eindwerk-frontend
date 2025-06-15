@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import { useShoppingList } from "@/features/shoppingList/useShoppingList";
-import { getStringId } from "@/lib/utils";
+import { getStringId, formatQuantity } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
+import { toast } from 'react-toastify';
 
 interface Props {
   product: {
@@ -36,18 +37,21 @@ export default function ShoppingListItem({ product, onDelete }: Props) {
       await deleteItem(itemId);
       setSwiping(false);
     } catch (error: any) {
-      setError(
-        error.response?.data?.message || error.message || "Failed to delete from shopping list"
-      );
+      const errorMessage = error.response?.data?.message || error.message || "Failed to delete from shopping list";
+      toast.error(errorMessage);
       setSwiping(false);
     }
   };
 
   const handleQuantityChange = (newQuantity: string) => {
     const parsedQuantity = parseFloat(newQuantity);
-    if (isNaN(parsedQuantity) || parsedQuantity < 0.01) return;
+    if (isNaN(parsedQuantity) || parsedQuantity < 0.01) {
+      toast.error('Quantity must be at least 0.01');
+      return;
+    }
 
-    setQuantity(newQuantity);
+    const formattedQuantity = formatQuantity(parsedQuantity);
+    setQuantity(formattedQuantity);
     updateItem({
       id: itemId,
       data: {
@@ -110,6 +114,14 @@ export default function ShoppingListItem({ product, onDelete }: Props) {
             className="w-20 px-2 py-1 border rounded text-center"
             min="0.01"
             step="0.01"
+            onBlur={(e) => {
+              const value = parseFloat(e.target.value);
+              if (!isNaN(value)) {
+                const formattedValue = formatQuantity(value);
+                setQuantity(formattedValue);
+                handleQuantityChange(formattedValue);
+              }
+            }}
           />
           <span className="text-gray-500">{product.unit}</span>
           <button

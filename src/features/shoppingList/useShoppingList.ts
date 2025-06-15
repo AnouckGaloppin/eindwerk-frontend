@@ -5,6 +5,7 @@ import type {
   UpdateShoppingListItemInput,
 } from "@/types/shoppingTypes";
 import api from "@/lib/axios";
+import { toast } from 'react-toastify';
 
 // export type ShoppingItem = {
 //   id: string;
@@ -78,10 +79,12 @@ export function useShoppingList() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
+      toast.success('Item added to shopping list');
     },
     onError: (error: any) => {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to add item';
       console.error("Error adding shopping list item:", errorMessage);
+      toast.error(errorMessage);
       throw new Error(errorMessage);
     },
   });
@@ -112,10 +115,12 @@ export function useShoppingList() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
+      toast.success('Item updated successfully');
     },
     onError: (error: any) => {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to update item';
       console.error("Error updating shopping list item:", errorMessage);
+      toast.error(errorMessage);
       throw new Error(errorMessage);
     },
   });
@@ -143,10 +148,12 @@ export function useShoppingList() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
+      toast.success('Item removed from shopping list');
     },
     onError: (error: any) => {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to delete item';
       console.error("Error deleting shopping list item:", errorMessage);
+      toast.error(errorMessage);
       throw new Error(errorMessage);
     },
   });

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import api from "@/lib/axios";
 import React from "react";
+import { toast } from 'react-toastify';
 
 export default function CreateUser() {
   const [form, setForm] = useState({
@@ -16,10 +17,6 @@ export default function CreateUser() {
   const [error, setError] = useState(null);
   const router = useRouter();
   const { user, loading } = useAuth();
-  const [toast, setToast] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,24 +24,13 @@ export default function CreateUser() {
       setError(null);
       await api.get("/sanctum/csrf-cookie");
       await api.post("/api/admin/users", form);
-      setToast({ message: "Gebruiker succesvol aangemaakt", type: "success" });
+      toast.success("Gebruiker succesvol aangemaakt");
       setTimeout(() => router.push("/admin/users"), 1500);
     } catch (error) {
-      setToast({
-        message: "Fout bij het aanmaken van de gebruiker",
-        type: "error",
-      });
+      toast.error("Fout bij het aanmaken van de gebruiker");
       console.error("Error creating user:", error);
     }
   };
-
-  // Toast auto-dismiss effect
-  React.useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
 
   if (loading) return <p>Laden...</p>;
   if (!user || user.role !== "admin") {
@@ -53,20 +39,6 @@ export default function CreateUser() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 pt-20 pb-24">
-      {/* Toast notification */}
-      {toast && (
-        <div
-          className={`fixed inset-0 z-[60] flex items-center justify-center pointer-events-none`}
-        >
-          <div
-            className={`px-6 py-3 rounded-lg shadow-lg text-white font-semibold transition-all duration-300 pointer-events-auto ${
-              toast.type === "success" ? "bg-teal-500" : "bg-red-500"
-            }`}
-          >
-            {toast.message}
-          </div>
-        </div>
-      )}
       <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl border border-gray-100 p-8">
         <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
           Nieuwe Gebruiker{" "}

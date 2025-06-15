@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import { useAuth } from "@/lib/auth-context";
 import { div } from "framer-motion/client";
+import { toast } from 'react-toastify';
 
 export default function ProfilePage() {
   const { user, refreshUser } = useAuth();
