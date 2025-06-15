@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 
 export default function EditUserPage({ params }: { params: { id: string } }) {
   const router = useRouter();
