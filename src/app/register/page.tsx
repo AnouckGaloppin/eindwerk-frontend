@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/axios";
-import { p } from "framer-motion/client";
+import { AxiosError } from "axios";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -77,7 +77,8 @@ export default function RegisterPage() {
         router.push("/verify");
       }
       // useRouter().push("/login");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
       // console.log(err);
       const errors = err.response?.data?.errors;
       setMessage(
@@ -155,4 +156,5 @@ export default function RegisterPage() {
       </form>
     </div>
   );
+};
 }
