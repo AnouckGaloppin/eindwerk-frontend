@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { compareShoppingList } from "./compare"; // Importeer vanuit de feature-map
-import { p } from "framer-motion/client";
+import type { PriceComparison, StorePrice } from "@/types/productTypes";
 
 export default function PriceComparison({
   productIds,
 }: {
   productIds: string[];
 }) {
-  const [comparisonData, setComparisonData] = useState([]);
+  const [comparisonData, setComparisonData] = useState<PriceComparison[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
@@ -64,7 +64,7 @@ export default function PriceComparison({
           )}
           {!loading && !error && comparisonData.length > 0 && (
             <div className="space-y-4">
-              {comparisonData.map((item: any) => (
+              {comparisonData.map((item: PriceComparison) => (
                 <div key={item.product_id} className="border rounded-lg p-4 bg-gray-50">
                   <h3 className="font-semibold text-lg mb-2">{item.product_name}</h3>
                   <div className="space-y-2">
@@ -75,11 +75,11 @@ export default function PriceComparison({
                         <span className="ml-2">€{item.cheapest_price_per_item}</span>
                       </div>
                     </div>
-                    {item.all_prices.length > 1 && (
+                    {Object.keys(item.all_prices).length > 1 && (
                       <div className="space-y-1">
-                        {item.all_prices.map((price: any, idx: number) => (
+                        {Object.entries(item.all_prices).map(([store, price]: [string, StorePrice], idx: number) => (
                           <div key={idx} className="flex justify-between items-center text-sm">
-                            <span className="text-gray-600">{price.store}</span>
+                            <span className="text-gray-600">{store}</span>
                             <div className="text-right">
                               <span>€{price.price_per_item}</span>
                               {price.price_per_unit && (

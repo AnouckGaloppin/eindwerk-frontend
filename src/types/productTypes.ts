@@ -43,7 +43,5 @@ export interface PriceComparison {
   product_name: string;
   cheapest_store: string;
   cheapest_price_per_item: string;
-  all_prices: {
-    [store: string]: string;
-  };
+  all_prices: PriceData;
 }
