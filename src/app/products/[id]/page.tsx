@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/axios";
@@ -11,42 +11,81 @@ import { useFavourites, useToggleFavourite } from "@/features/favourites/useFavo
 import { getStringId, formatQuantity } from "@/lib/utils";
 import { Heart, Minus, Plus, ShoppingCart } from "lucide-react";
 import { Category } from '@/types/productTypes';
+import { toast } from 'react-toastify';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id as string;
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState<number>(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const { data: favourites = [] } = useFavourites();
   const toggleFavourite = useToggleFavourite();
-  const { data: shoppingList = [], isLoading: isLoadingShoppingList } = useQuery<ShoppingListItem[]>({
-    queryKey: ["shoppingList"],
-    queryFn: async () => {
-      const response = await api.get("/api/shopping-list");
-      return response.data.items;
-    },
-  });
-
-  const { addItem, updateItem } = useShoppingList();
-
-  const existingItem = shoppingList.find(
-    (item) => getStringId(item.product_id) === productId
-  );
+  const { items: shoppingList = [], isLoading: isLoadingShoppingList, addItem, updateItem, deleteItem } = useShoppingList();
 
   const { data: product, isLoading: isLoadingProduct, error: productError } = useQuery<Product>({
-    queryKey: ["product", productId],
+    queryKey: ["product", getStringId(productId)],
     queryFn: async () => {
-      console.log('Fetching product with ID:', productId);
+      console.log('Fetching product with ID:', getStringId(productId));
       try {
-        const response = await api.get(`/api/products/${productId}`);
+        const response = await api.get(`/api/products/${getStringId(productId)}`);
         console.log('Product response:', response.data);
         return response.data;
       } catch (error: any) {
-        console.error('Error fetching product:', error.response?.data || error.message);
+        console.error('Error fetching product:', {
+          id: getStringId(productId),
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          message: error.message,
+          url: error.config?.url,
+          method: error.config?.method
+        });
         throw error;
       }
     },
   });
+
+  const existingItem = product ? shoppingList.find(
+    (item) => {
+      const itemProductId = getStringId(item.product_id);
+      const currentProductId = getStringId(product._id);
+      console.log('Checking item match:', {
+        itemProductId,
+        currentProductId,
+        matches: itemProductId === currentProductId
+      });
+      return itemProductId === currentProductId;
+    }
+  ) : undefined;
+
+  // Add debug logging for quantity and existingItem
+  useEffect(() => {
+    console.log('Quantity debug:', {
+      rawQuantity: quantity,
+      formattedQuantity: formatQuantity(quantity),
+      isZero: quantity === 0,
+      isInputFocused,
+      existingItem
+    });
+  }, [quantity, isInputFocused, existingItem]);
+
+  // Initialize quantity from existing item
+  useEffect(() => {
+    if (existingItem) {
+      // Parse the quantity from the database, ensuring it's a valid number
+      const itemQuantity = parseFloat(existingItem.quantity.toString());
+      const validQuantity = !isNaN(itemQuantity) ? itemQuantity : 0;
+      
+      console.log('Initializing quantity from existing item:', {
+        existingItemQuantity: existingItem.quantity,
+        parsedQuantity: validQuantity
+      });
+      
+      setQuantity(validQuantity);
+    } else {
+      setQuantity(0);
+    }
+  }, [existingItem]);
 
   const { data: categoriesResponse, isLoading: isCategoriesLoading } = useQuery({
     queryKey: ['categories'],
@@ -79,9 +118,16 @@ export default function ProductDetailPage() {
   const handleAddToShoppingList = async () => {
     if (!product) return;
 
+    const actualProductId = getStringId(product._id);
+    // Get the quantity from the database
+    const dbQuantity = typeof product.quantity === 'string' 
+      ? parseFloat(product.quantity)
+      : (typeof product.quantity === 'number' ? product.quantity : 0);
+    
     console.log('Adding to shopping list:', {
-      productId,
-      quantity,
+      productId: actualProductId,
+      dbQuantity,
+      rawQuantity: product.quantity,
       unit: product.unit
     });
 
@@ -92,52 +138,86 @@ export default function ProductDetailPage() {
         await updateItem({
           id: getStringId(existingItem._id),
           data: {
-            quantity: Number(existingItem.quantity) + Number(quantity),
+            quantity: dbQuantity || (product.unit === 'piece' ? 1 : 0.1),
             unit: product.unit || 'piece'
           }
         });
       } else {
         // Add new item
         console.log('Adding new item with:', {
-          productId,
-          quantity: Number(quantity),
+          productId: actualProductId,
+          quantity: dbQuantity || (product.unit === 'piece' ? 1 : 0.1),
           unit: product.unit || 'piece'
         });
         await addItem({
-          productId,
-          quantity: Number(quantity),
+          productId: actualProductId,
+          quantity: dbQuantity || (product.unit === 'piece' ? 1 : 0.1),
           unit: product.unit || 'piece'
         });
       }
     } catch (error: any) {
       console.error('Error in handleAddToShoppingList:', error);
-      // You might want to show an error message to the user here
+      toast.error(error.response?.data?.message || 'Failed to update shopping list');
     }
   };
 
   const handleQuantityChange = (value: number) => {
-    const formattedValue = parseFloat(formatQuantity(value));
-    setQuantity(formattedValue);
+    if (isNaN(value)) {
+      setQuantity(0);
+      return;
+    }
+    const newValue = Math.max(0, value);
+    setQuantity(newValue);
+
+    // If item exists in shopping list
+    if (existingItem) {
+      // If quantity is zero, remove the item
+      if (newValue === 0) {
+        try {
+          console.log('Removing item from shopping list:', {
+            itemId: getStringId(existingItem._id)
+          });
+          deleteItem(getStringId(existingItem._id));
+        } catch (error: unknown) {
+          console.error('Error removing item:', error);
+          toast.error('Failed to remove item from shopping list');
+        }
+      } else {
+        // Update quantity if it's not 0
+        try {
+          console.log('Updating existing item:', {
+            itemId: getStringId(existingItem._id),
+            newValue,
+            existingItem
+          });
+          updateItem({
+            id: getStringId(existingItem._id),
+            data: {
+              quantity: newValue,
+              unit: product?.unit || 'piece'
+            }
+          });
+        } catch (error: unknown) {
+          console.error('Error updating quantity:', error);
+          toast.error('Failed to update quantity');
+        }
+      }
+    }
   };
 
   const handleInputFocus = () => {
     setIsInputFocused(true);
-    if (quantity === 0) {
-      setQuantity(NaN);
-    }
   };
 
   const handleInputBlur = () => {
     setIsInputFocused(false);
     if (isNaN(quantity)) {
       setQuantity(0);
-    } else {
-      setQuantity(parseFloat(formatQuantity(quantity)));
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value === '' ? NaN : parseFloat(e.target.value);
+    const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
     handleQuantityChange(value);
   };
 
@@ -148,7 +228,7 @@ export default function ProductDetailPage() {
 
   const handleDecrement = () => {
     const decrement = product?.unit === 'piece' ? 1 : 0.1;
-    handleQuantityChange(quantity - decrement);
+    handleQuantityChange(Math.max(0, quantity - decrement));
   };
 
   const isLoading = isLoadingProduct || isCategoriesLoading;
@@ -213,46 +293,49 @@ export default function ProductDetailPage() {
                 )}
               </div>
 
-              {/* Quantity Input */}
-              <div className="mt-8">
-                <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
-                  Quantity
-                </label>
-                <div className="flex items-center space-x-4">
+              {/* Quantity Controls */}
+              <div className="flex items-center space-x-4">
+                {existingItem && existingItem.quantity > 0 ? (
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={handleDecrement}
+                      className="p-2 rounded-full hover:bg-gray-100"
+                    >
+                      <Minus className="w-5 h-5" />
+                    </button>
+                    
+                    <input
+                      type="number"
+                      value={formatQuantity(quantity)}
+                      onChange={handleInputChange}
+                      onFocus={handleInputFocus}
+                      onBlur={handleInputBlur}
+                      className="w-20 text-center px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      min="0"
+                      step={product.unit === 'piece' ? 1 : 0.1}
+                    />
+                    
+                    <button
+                      onClick={handleIncrement}
+                      className="p-2 rounded-full hover:bg-gray-100"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+                    
+                    <span className="text-sm text-gray-500">
+                      {product.unit}
+                    </span>
+                  </div>
+                ) : (
                   <button
-                    onClick={() => handleQuantityChange(Math.max(0, quantity - (product.unit === 'piece' ? 1 : 0.1)))}
-                    className="p-2 rounded-md border border-gray-300 hover:bg-gray-50"
+                    onClick={handleAddToShoppingList}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                   >
-                    -
+                    <Plus className="w-5 h-5" />
+                    <span>Add to Shopping List</span>
                   </button>
-                  <input
-                    type="number"
-                    id="quantity"
-                    value={isInputFocused && isNaN(quantity) ? '' : formatQuantity(quantity)}
-                    onChange={handleInputChange}
-                    onFocus={handleInputFocus}
-                    onBlur={handleInputBlur}
-                    step={product.unit === 'piece' ? 1 : 0.1}
-                    min="0"
-                    className="w-16 text-center px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  />
-                  <button
-                    onClick={() => handleQuantityChange(quantity + (product.unit === 'piece' ? 1 : 0.1))}
-                    className="p-2 rounded-md border border-gray-300 hover:bg-gray-50"
-                  >
-                    +
-                  </button>
-                  <span className="text-sm text-gray-500">{product.unit}</span>
-                </div>
+                )}
               </div>
-
-              {/* Add to Shopping List Button */}
-              <button
-                onClick={handleAddToShoppingList}
-                className="mt-8 w-full bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 transition-colors"
-              >
-                Add to Shopping List
-              </button>
             </div>
           </div>
         </div>
