@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import api from "@/lib/axios";
+// import api from "@/lib/axios";
 import { useAuth } from "@/lib/auth-context";
 
 export default function Verify() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { user, refreshUser } = useAuth();
+  const { refreshUser } = useAuth();
 
   const handleClick = async () => {
     setLoading(true);
