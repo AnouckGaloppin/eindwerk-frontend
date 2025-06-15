@@ -4,6 +4,7 @@ import { useShoppingList } from "@/features/shoppingList/useShoppingList";
 import { getStringId, formatQuantity } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 import { toast } from 'react-toastify';
+import { AxiosError } from "axios";
 
 interface Props {
   product: {
@@ -24,8 +25,8 @@ interface Props {
   onDelete: (id: string) => void;
 }
 
-export default function ShoppingListItem({ product, onDelete }: Props) {
-  const [error, setError] = useState<string | null>(null);
+export default function ShoppingListItem({ product }: Props) {
+  const [error] = useState<string | null>(null);
   const [swiping, setSwiping] = useState(false);
   const [quantity, setQuantity] = useState<string>(product.quantity.toString());
   const { updateItem, deleteItem } = useShoppingList();
@@ -36,7 +37,8 @@ export default function ShoppingListItem({ product, onDelete }: Props) {
     try {
       await deleteItem(itemId);
       setSwiping(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
       const errorMessage = error.response?.data?.message || error.message || "Failed to delete from shopping list";
       toast.error(errorMessage);
       setSwiping(false);
@@ -134,4 +136,5 @@ export default function ShoppingListItem({ product, onDelete }: Props) {
       </div>
     </div>
   );
+}
 }
