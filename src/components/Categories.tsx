@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 // import { useMediaQuery } from "@/app/hooks";
 import { Swiper, SwiperSlide, SwiperRef } from "swiper/react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import "swiper/css";
 import api from "@/lib/axios";
 import type { Category } from "@/types/productTypes";
@@ -48,7 +48,7 @@ export default function Categories({ className }: CategoriesProps) {
   const [hasMounted, setHasMounted] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading] = useState(true);
   const searchParams = useSearchParams();
   const currentCategory = searchParams.get('category');
   const swiperRef = useRef<SwiperRef>(null);
