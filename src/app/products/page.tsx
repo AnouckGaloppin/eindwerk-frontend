@@ -14,11 +14,11 @@ import type { Product } from "@/types/productTypes";
 import { useState } from "react";
 
 export default function ProductsPage() {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const searchParams = useSearchParams();
-  const category = searchParams.get("category") ?? undefined;
-  const search = searchParams.get("search") ?? undefined;
-  const [error, setError] = useState<string | null>(null);
+  // const category = searchParams.get("category") ?? undefined;
+  // const search = searchParams.get("search") ?? undefined;
+  const [error] = useState<string | null>(null);
 
   const {
     data: products = [],
@@ -27,14 +27,14 @@ export default function ProductsPage() {
   } = useProducts();
   const {
     items: shoppingList = [],
-    isLoading: shoppingListLoading,
+    isLoading,
     error: shoppingListError,
     addItem,
     updateItem,
   } = useShoppingList();
   const {
     data: favourites = [],
-    isLoading: favLoading,
+    isLoading,
     error: favError,
   } = useFavourites();
   const toggleFavouriteMutation = useToggleFavourite();
@@ -72,19 +72,19 @@ export default function ProductsPage() {
     }
   };
 
-  const handleQuantityChange = (itemId: string, newQuantity: string) => {
-    const numQuantity = parseFloat(newQuantity);
-    if (!isNaN(numQuantity) && numQuantity > 0) {
-      updateItem({
-        id: itemId,
-        data: {
-          quantity: numQuantity
-        }
-      });
-    }
-  };
+  // const handleQuantityChange = (itemId: string, newQuantity: string) => {
+  //   const numQuantity = parseFloat(newQuantity);
+  //   if (!isNaN(numQuantity) && numQuantity > 0) {
+  //     updateItem({
+  //       id: itemId,
+  //       data: {
+  //         quantity: numQuantity
+  //       }
+  //     });
+  //   }
+  // };
 
-  const errorMessage = error || productsError?.message || shoppingListError?.message || favError?.message;
+  // const errorMessage = error || productsError?.message || shoppingListError?.message || favError?.message;
 
   return (
     <div className="min-h-screen bg-gray-50">
