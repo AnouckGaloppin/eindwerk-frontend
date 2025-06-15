@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+// import { useState, useEffect } from "react";
 import { useFavourites, useToggleFavourite } from "./useFavourites";
 // import { useSwipeable } from "react-swipeable";
-import { Heart } from "lucide-react";
+// import { Heart } from "lucide-react";
 import type { Favourite } from "@/types/favouritesTypes";
 import { FavouriteItem } from "@/components/FavouriteItem";
 // import axios from "axios";
@@ -12,7 +12,7 @@ import api from "@/lib/axios";
 import { useQueryClient } from "@tanstack/react-query";
 // import { li } from "framer-motion/client";
 import { AxiosError } from "axios";
-import Image from "next/image";
+// import Image from "next/image";
 
 // const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
@@ -29,7 +29,7 @@ export default function Favourites() {
   // const addFavourite = useAddFavourite();
   const toggleFavourite = useToggleFavourite();
   const queryClient = useQueryClient();
-  const [isMobile, setIsMobile] = useState<boolean>(false);
+  // const [isMobile, setIsMobile] = useState<boolean>(false);
 
   const addAllFavouritesToShoppingList = async () => {
     try {
@@ -62,11 +62,11 @@ export default function Favourites() {
     }
   };
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setIsMobile(window.innerWidth < 768);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     setIsMobile(window.innerWidth < 768);
+  //   }
+  // }, []);
 
   if (isLoading) return <div className="p-4 text-gray-900 dark:text-white">Loading...</div>;
   if (error)
