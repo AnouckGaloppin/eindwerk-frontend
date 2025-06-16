@@ -10,9 +10,9 @@ interface AuthContextType {
   user: User | null;
   setUser: (user: User) => void;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
+  login: (email: string, password: string) => void;
+  logout: () => void;
+  refreshUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

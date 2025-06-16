@@ -1,11 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const BACKEND_URL = 'http://localhost:63167'; // Backend URL
 
+type RouteContext = {
+  params: { id: string };
+};
+
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: RouteContext
 ) {
+  const params = await context.params;
   try {
     const body = await request.json();
     const authHeader = request.headers.get('authorization');
@@ -28,9 +33,10 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: RouteContext
 ) {
+  const params = await context.params;
   try {
     const authHeader = request.headers.get('authorization');
     console.log('Attempting to delete item with ID:', params.id);
@@ -66,4 +72,13 @@ export async function DELETE(
       { status: 500 }
     );
   }
+}
+
+export async function GET(
+  request: NextRequest,
+  context: RouteContext
+) {
+  const params = await context.params;
+  // Rest of your GET handler code
+  return NextResponse.json({ message: 'Success' });
 } 

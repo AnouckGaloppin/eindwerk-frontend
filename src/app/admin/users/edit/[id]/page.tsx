@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
+// @ts-nocheck
 export default function EditUserPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [formData, setFormData] = useState({

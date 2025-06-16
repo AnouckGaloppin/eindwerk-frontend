@@ -7,11 +7,20 @@ import { useQuery } from "@tanstack/react-query";
 import { Product } from "@/types/productTypes";
 import api from "@/lib/axios";
 
-export function useProducts() {
+interface UseProductsOptions {
+  category?: string;
+  search?: string;
+}
+
+export function useProducts({ category, search }: UseProductsOptions = {}) {
   return useQuery<Product[]>({
-    queryKey: ["products"],
+    queryKey: ["products", category, search],
     queryFn: async () => {
-      const response = await api.get("/api/products");
+      const params = new URLSearchParams();
+      if (category) params.append('category', category);
+      if (search) params.append('search', search);
+      
+      const response = await api.get(`/api/products?${params.toString()}`);
       return response.data.products;
     },
   });

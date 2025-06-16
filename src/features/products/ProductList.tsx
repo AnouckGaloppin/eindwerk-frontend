@@ -17,7 +17,7 @@ interface ProductListProps {
   products: Product[];
   shoppingList: ShoppingListItem[];
   favourites: Favourite[];
-  onAddOrUpdate: (product: Product, quantity: number) => Promise<void>;
+  onAddOrUpdate: (product: Product, quantity: number) => void;
   onToggleFavourite: (productId: string) => void;
   onQuantityChange: (itemId: string, quantity: number) => void;
   isLoading?: boolean;

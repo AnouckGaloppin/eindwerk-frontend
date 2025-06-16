@@ -1,12 +1,16 @@
-import { ShoppingListItem } from "@/types/productTypes";
+import type { ShoppingListItem as ShoppingListItemType } from "@/types/productTypes";
 
 interface ShoppingListItemProps {
-  item: ShoppingListItem;
+  item: ShoppingListItemType;
   onUpdateQuantity: (id: string, quantity: number) => void;
   onDelete: (id: string) => void;
 }
 
 export default function ShoppingListItem({ item, onUpdateQuantity, onDelete }: ShoppingListItemProps) {
+  if (!item.product) {
+    return <div>Loading product details...</div>;
+  }
+
   return (
     <div className="border p-4 rounded-lg">
       <h3 className="text-lg font-semibold">{item.product.name}</h3>

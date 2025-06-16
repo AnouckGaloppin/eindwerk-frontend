@@ -45,3 +45,18 @@ export interface PriceComparison {
   cheapest_price_per_item: string;
   all_prices: PriceData;
 }
+
+export interface ShoppingListItem {
+  _id: string;
+  user_id: string;
+  product_id: string;
+  quantity: number;
+  unit: string;
+  checked: boolean;
+  updated_at: string;
+  created_at: string;
+  product?: {
+    name: string;
+    price: number;
+  };
+}

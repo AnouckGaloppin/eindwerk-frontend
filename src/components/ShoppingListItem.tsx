@@ -33,7 +33,7 @@ export default function ShoppingListItem({ product }: Props) {
 
   const itemId = getStringId(product._id);
 
-  const handleDeleteFromShoppingList = async () => {
+  async function handleDeleteFromShoppingList(){
     try {
       await deleteItem(itemId);
       setSwiping(false);
