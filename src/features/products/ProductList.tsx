@@ -164,7 +164,7 @@ const ProductList: React.FC<ProductListProps> = ({
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {products.map((product) => {
         const productId = getStringId(product._id);
-        const isFavourite = favourites.some(fav => getStringId(fav.product._id) === productId);
+        const isFavourite = favourites.some(fav => getStringId(fav.product?._id) === productId);
         const shoppingListItem = shoppingListItems.find(item => getStringId(item.product_id) === productId);
         const quantity = shoppingListItem?.quantity || 0;
 
