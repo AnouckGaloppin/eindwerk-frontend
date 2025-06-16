@@ -9,7 +9,7 @@ export default function FavouritesPage() {
 
   useEffect(() => {
     refreshUser();
-  }, [refreshUser]);
+  }, []);
   
   return (
     <div className="min-h-screen bg-gray-50">
