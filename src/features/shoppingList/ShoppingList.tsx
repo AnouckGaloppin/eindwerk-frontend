@@ -38,7 +38,7 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
           >
             <Minus className="w-4 h-4" />
           </button>
-          <span className="w-8 text-center">{product.quantity}</span>
+          <span className="w-8 text-center">{product.quantity.toFixed(2)}</span>
           <button
             onClick={() => onUpdateQuantity(product._id, product.quantity + 1)}
             className="p-1 rounded-full hover:bg-gray-100"
