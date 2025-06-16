@@ -143,7 +143,7 @@ export default function Favourites() {
         ) : (
           favourites.map((fav: Favourite) => (
             <FavouriteItem
-              key={getStringId(fav._id)}
+              key={getStringId(fav.id)}
               favourite={fav}
               toggleFavourite={toggleFavourite}
               // onDelete={(id) => deleteFavourite.mutate(id)}

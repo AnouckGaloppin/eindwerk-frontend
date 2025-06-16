@@ -1,6 +1,6 @@
 import { Product } from './productTypes';
 
 export type Favourite = {
-  _id: string;
+  id: string;
   product: Product;
 };
