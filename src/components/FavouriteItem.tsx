@@ -35,7 +35,7 @@ export function FavouriteItem({
   const toggleFavourite = useToggleFavourite();
   // const { favourites, toggleFavourite } = useFavouritesContext();
   const product = favourite.product;
-  const productId = product?._id ? getStringId(product._id) : null;
+  const productId = product?.id ?? null;
 
   if (!productId) {
     console.error("Missing product ID in favourite:", favourite);
