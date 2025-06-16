@@ -34,7 +34,7 @@ export default function Favourites() {
   const addAllFavouritesToShoppingList = async () => {
     try {
       const productIds = favourites.map((fav: Favourite) => 
-        fav.product._id ? getStringId(fav.product._id) : null
+        fav.product.id ?? null
       ).filter((id): id is string => id !== null);
       
       if (productIds.length === 0) {
