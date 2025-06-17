@@ -48,7 +48,7 @@ export default function Categories({ className }: CategoriesProps) {
   const [hasMounted, setHasMounted] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState("");
-  const [isLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const searchParams = useSearchParams();
   const currentCategory = searchParams.get('category');
   const swiperRef = useRef<SwiperRef>(null);
@@ -80,6 +80,7 @@ export default function Categories({ className }: CategoriesProps) {
           }
         );
         setCategories(mappedCategories);
+        setIsLoading(false);
         // console.log('Mapped categories:', mappedCategories);
       
       // if (currentCategory) {
@@ -94,6 +95,7 @@ export default function Categories({ className }: CategoriesProps) {
         if (error instanceof AxiosError) {
         // console.error("Error fetching categories:", error.message || error);
         setError("Failed to load categories, using defaults");
+        setIsLoading(false);
       }
     };
     }

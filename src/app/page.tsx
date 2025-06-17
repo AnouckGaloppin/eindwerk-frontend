@@ -17,14 +17,14 @@ export default function HomePage() {
   }, []);
 
   // TODO: Re-enable loading state later
-  if (!user) {
-    return <div className="p-4 text-center text-gray-900">Loading...</div>;
-  }
+  // if (!user) {
+    // return <div className="p-4 text-center text-gray-900">Loading...</div>;
+  // }
 
   return (
     <main className="flex flex-col items-center justify-center min-h-[calc(100vh-128px)] pt-16 pb-16 bg-gray-100">
       <section className="w-full max-w-2xl flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold mb-4 text-center text-gray-900">Welkom {user.username}!</h1>
+        <h1 className="text-2xl font-bold mb-4 text-center text-gray-900">Welkom {user?.username || 'Gast'}!</h1>
         {/* Home content */}
         <Categories />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">

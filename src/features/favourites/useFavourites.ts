@@ -16,7 +16,9 @@ export function useFavourites() {
   return useQuery<Favourite[]>({
     queryKey: ["favourites"],
     queryFn: async () => {
+      console.log("Fetching favourites");
       const response = await api.get("/api/favourites");
+      console.log("Fetched favourites:", response.data);
       return response.data;
     },
   });
@@ -29,12 +31,15 @@ export const useToggleFavourite = () => {
 
   return useMutation({
     mutationFn: async ({ product_id }: { product_id: string }) => {
+      console.log("Toggling favourite for product:", product_id);
       const res = await api.post("/api/favourites/toggle", {
         product_id,
       });
+      console.log("Toggled favourite for product:", res.data);
       return res.data;
     },
     onSuccess: () => {
+      console.log("Invalidating favourites");
       queryClient.invalidateQueries({ queryKey: ["favourites"] });
     },
   });

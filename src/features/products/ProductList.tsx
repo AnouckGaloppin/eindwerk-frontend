@@ -60,7 +60,10 @@ const ProductList: React.FC<ProductListProps> = ({
       formattedQuantity
     });
 
-    const shoppingListItem = shoppingListItems.find(item => getStringId(item.product_id) === productId);
+    const shoppingListItem = shoppingListItems.find(item => {
+      if (!item.product_id) return false;
+      return getStringId(item.product_id) === productId;
+    });
     const product = products.find(p => getStringId(p._id) === productId);
 
     console.log('Found items:', {
@@ -123,7 +126,10 @@ const ProductList: React.FC<ProductListProps> = ({
 
   const handleIncrement = (product: Product) => {
     const productId = getStringId(product._id);
-    const shoppingListItem = shoppingListItems.find(item => getStringId(item.product_id) === productId);
+    const shoppingListItem = shoppingListItems.find(item => {
+      if (!item.product_id) return false;
+      return getStringId(item.product_id) === productId;
+    });
     const currentQuantity = typeof shoppingListItem?.quantity === 'number' && !isNaN(shoppingListItem.quantity)
       ? shoppingListItem.quantity
       : 0;
@@ -132,7 +138,10 @@ const ProductList: React.FC<ProductListProps> = ({
 
   const handleDecrement = (product: Product) => {
     const productId = getStringId(product._id);
-    const shoppingListItem = shoppingListItems.find(item => getStringId(item.product_id) === productId);
+    const shoppingListItem = shoppingListItems.find(item => {
+      if (!item.product_id) return false;
+      return getStringId(item.product_id) === productId;
+    });
     const currentQuantity = typeof shoppingListItem?.quantity === 'number' && !isNaN(shoppingListItem.quantity)
       ? shoppingListItem.quantity
       : 0;
@@ -152,6 +161,15 @@ const ProductList: React.FC<ProductListProps> = ({
   console.log('ProductList received shoppingList:', shoppingListItems);
   console.log('ProductList received favourites:', favourites);
 
+  console.log('🔄 ProductList rendering with:', {
+    productsCount: products.length,
+    favouritesCount: favourites.length,
+    favourites: favourites.map(f => ({
+      id: f.product?._id ? getStringId(f.product._id) : f.product_id,
+      name: f.product?.name
+    }))
+  });
+
   if (!products || products.length === 0) {
     return (
       <div className="text-center py-8">
@@ -164,8 +182,14 @@ const ProductList: React.FC<ProductListProps> = ({
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {products.map((product) => {
         const productId = getStringId(product._id);
-        const isFavourite = favourites.some(fav => getStringId(fav.product?._id) === productId);
-        const shoppingListItem = shoppingListItems.find(item => getStringId(item.product_id) === productId);
+        const isFavourite = favourites.some(fav => {
+          if (!fav.product_id) return false;
+          return getStringId(fav.product_id) === productId;
+        });
+        const shoppingListItem = shoppingListItems.find(item => {
+          if (!item.product_id) return false;
+          return getStringId(item.product_id) === productId;
+        });
         const quantity = shoppingListItem?.quantity || 0;
 
         return (
