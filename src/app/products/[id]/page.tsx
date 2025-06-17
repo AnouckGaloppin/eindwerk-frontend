@@ -226,12 +226,12 @@ export default function ProductDetailPage() {
   };
 
   const handleIncrement = () => {
-    const increment = product?.unit === 'piece' ? 1 : 0.1;
+    const increment = typeof product?.quantity === 'number' ? product.quantity : (product?.unit === 'piece' ? 1 : 0.1);
     handleQuantityChange(quantity + increment);
   };
 
   const handleDecrement = () => {
-    const decrement = product?.unit === 'piece' ? 1 : 0.1;
+    const decrement = typeof product?.quantity === 'number' ? product.quantity : (product?.unit === 'piece' ? 1 : 0.1);
     handleQuantityChange(Math.max(0, quantity - decrement));
   };
 

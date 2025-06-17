@@ -133,7 +133,8 @@ const ProductList: React.FC<ProductListProps> = ({
     const currentQuantity = typeof shoppingListItem?.quantity === 'number' && !isNaN(shoppingListItem.quantity)
       ? shoppingListItem.quantity
       : 0;
-    handleQuantityChange(productId, currentQuantity + (product.unit === 'piece' ? 1 : 0.1));
+    const incrementAmount = typeof product.quantity === 'number' ? product.quantity : (product.unit === 'piece' ? 1 : 0.1);
+    handleQuantityChange(productId, currentQuantity + incrementAmount);
   };
 
   const handleDecrement = (product: Product) => {
@@ -145,7 +146,7 @@ const ProductList: React.FC<ProductListProps> = ({
     const currentQuantity = typeof shoppingListItem?.quantity === 'number' && !isNaN(shoppingListItem.quantity)
       ? shoppingListItem.quantity
       : 0;
-    const decrementAmount = product.unit === 'piece' ? 1 : 0.1;
+    const decrementAmount = typeof product.quantity === 'number' ? product.quantity : (product.unit === 'piece' ? 1 : 0.1);
     handleQuantityChange(productId, Math.max(0, currentQuantity - decrementAmount));
   };
 
