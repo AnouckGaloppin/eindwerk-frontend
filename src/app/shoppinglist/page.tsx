@@ -20,8 +20,8 @@ export default function ShoppingListPage() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <main className="min-h-screen flex justify-center bg-gray-100 pt-20 pb-24">
-        <div className="container mx-auto px-4 py-8">
+      <main className="min-h-screen flex justify-center bg-gray-100 pt-16 pb-24">
+        <div className="container mx-auto px-4">
           <h1 className="text-2xl font-bold mb-6 text-gray-900">Shopping List</h1>
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <div className="lg:col-span-3 bg-white rounded-lg shadow-md p-6">
