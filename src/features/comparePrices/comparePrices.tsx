@@ -237,7 +237,23 @@ export default function PriceComparison({
                         <span className="ml-2">€{calculateTotalPrice(item.cheapest_price_per_item, item.product_id)}</span>
                       </div>
                     </div>
-                    {Object.keys(item.all_prices).length > 1 && (
+                    {Array.isArray(item.all_prices) ? (
+                      <div className="space-y-1">
+                        {item.all_prices.map((price: any, idx: number) => (
+                          <div key={idx} className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">{price.store}</span>
+                            <div className="text-right">
+                              <span>€{calculateTotalPrice(price.price_per_item, item.product_id)}</span>
+                              {price.price_per_unit && (
+                                <span className="text-gray-500 text-xs ml-1">
+                                  ({price.price_per_unit})
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
                       <div className="space-y-1">
                         {Object.entries(item.all_prices).map(([store, price]: [string, StorePrice], idx: number) => (
                           <div key={idx} className="flex justify-between items-center text-sm">
