@@ -13,6 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 // import { li } from "framer-motion/client";
 import { AxiosError } from "axios";
 // import Image from "next/image";
+import { toast } from 'react-toastify';
 
 // const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
@@ -39,7 +40,7 @@ export default function Favourites() {
       }).filter((id): id is string => id !== null);
       
       if (productIds.length === 0) {
-        alert("No favourites to add to shopping list");
+        toast.error("No favourites to add to shopping list");
         return;
       }
 
@@ -50,12 +51,12 @@ export default function Favourites() {
       if (response.data.message) {
         // Invalidate the shopping list query to trigger a refetch
         queryClient.invalidateQueries({ queryKey: ["shoppingList"] });
-        alert(response.data.message);
+        toast.success(response.data.message);
       }
     } catch (error: unknown) {
       if(error instanceof AxiosError) {
         console.error("Error adding favourites to shopping list:", error);
-        alert(
+        toast.error(
           error.response?.data?.message ||
             "Error adding favourites to shopping list"
         );
