@@ -61,44 +61,31 @@ export default function Categories({ className }: CategoriesProps) {
     setHasMounted(true);
     const fetchCategories = async () => {
       try {
-        // console.log('Fetching categories...');
         const response = await api.get("/api/categories");
-        // console.log('Categories API response:', response.data);
         const fetchedCategories = response.data.categories;
+        
         if (!Array.isArray(fetchedCategories)) {
           throw new Error("Expected categories to be an array");
         }
+
         const mappedCategories = fetchedCategories.map(
-          (cat: Category, index: number) => {
-            const categoryId = cat._id || `fallback-${index}`;
-            return {
-              _id: categoryId,
-              name: cat.name || "Unnamed Category",
-              slug: cat.slug || "unknown Slug",
-              color: cat.color || "bg-gray-500",
-            };
-          }
+          (cat: Category, index: number) => ({
+            _id: cat._id || `fallback-${index}`,
+            name: cat.name || "Unnamed Category",
+            slug: cat.slug || "unknown Slug",
+            color: cat.color || "bg-gray-500",
+          })
         );
+
         setCategories(mappedCategories);
         setIsLoading(false);
-        // console.log('Mapped categories:', mappedCategories);
-      
-      // if (currentCategory) {
-      //   const initialIndex = mappedCategories.findIndex((cat)=>cat.slug === currentCategory);
-      //   if (initialIndex !== -1) {
-      //     setActiveIndex(initialIndex);
-      //     // router.push(`/products?category=${currentCategory}`);
-      //   }
-      // }
-
-      } catch (error: unknown) {
-        if (error instanceof AxiosError) {
-        // console.error("Error fetching categories:", error.message || error);
-        setError("Failed to load categories, using defaults");
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setError("Failed to load categories");
         setIsLoading(false);
       }
     };
-    }
+
     fetchCategories();
   }, []);
 
@@ -138,26 +125,37 @@ export default function Categories({ className }: CategoriesProps) {
       {categories.length === 0 ? (
         <p className="text-gray-500">No categories available</p>
       ) : (
-        <div className="w-full max-w-[1200px] flex items-center justify-center overflow-hidden mx-auto min-h-[7rem]">
+        <div className="w-full max-w-[1200px] mx-auto flex justify-center">
           <Swiper
             ref={swiperRef}
-            spaceBetween={20}
+            spaceBetween={8}
             grabCursor={true}
             loop={false}
-            slidesPerView={5}
+            slidesPerView={2}
             centeredSlides={false}
-            className="w-full h-full flex items-center"
+            className="w-[300px] sm:w-[420px] md:w-[720px] lg:w-[1000px]"
             breakpoints={{
-              0: { slidesPerView: 2 },
-              640: { slidesPerView: 3 },
-              1024: { slidesPerView: 5 },
+              0: { 
+                slidesPerView: 2,
+                spaceBetween: 8
+              },
+              640: { 
+                slidesPerView: 3,
+                spaceBetween: 8
+              },
+              768: { 
+                slidesPerView: 4,
+                spaceBetween: 8
+              },
+              1024: { 
+                slidesPerView: 5,
+                spaceBetween: 8
+              }
             }}
           >
             {categories.map((category) => (
-              <SwiperSlide key={category._id} className="h-full flex items-center justify-center">
-                <div className="w-full h-full flex items-center justify-center">
-                  <CategoryBox category={category} isActive={category.slug === currentCategory} />
-                </div>
+              <SwiperSlide key={category._id} className="flex justify-center">
+                <CategoryBox category={category} isActive={category.slug === currentCategory} />
               </SwiperSlide>
             ))}
           </Swiper>
@@ -171,15 +169,15 @@ function CategoryBox({ category, isActive }: { category: Category, isActive: boo
   return (
     <Link 
       href={`/products?category=${category.slug}`} 
-      className="w-full h-full flex items-center justify-center"
+      className="block"
     >
       <div
         className={
-          `${category.color} rounded-xl text-white font-semibold cursor-pointer flex items-center justify-center transition-all duration-300 ease-in-out shadow-sm` +
-          (isActive ? " w-64 h-28" : " w-56 h-24")
+          `${category.color} rounded-lg text-white font-semibold cursor-pointer flex items-center justify-center transition-all duration-300 ease-in-out shadow-sm w-[130px] h-[60px] sm:w-[140px] sm:h-[65px] md:w-[160px] md:h-[75px] lg:w-[180px] lg:h-[85px]` +
+          (isActive ? " scale-105" : "")
         }
       >
-        <span className="px-2 text-base md:text-lg text-center break-words hyphens-auto">
+        <span className="px-2 text-sm sm:text-base lg:text-lg text-center break-words hyphens-auto">
           {category.name}
         </span>
       </div>
