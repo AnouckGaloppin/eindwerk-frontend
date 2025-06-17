@@ -47,7 +47,8 @@ export function FavouriteItem({
   });
 
   const handleToggle = () => {
-    toggleFavourite.mutate({ product_id: productId });
+    const stringProductId = getStringId(productId);
+    toggleFavourite.mutate({ product_id: stringProductId });
   };
 
   return (

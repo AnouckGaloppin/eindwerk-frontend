@@ -4,10 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "react-toastify";
-import api from "@/lib/axios";
+import { useAuth } from "@/lib/auth-context";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -20,18 +21,11 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.get("/sanctum/csrf-cookie");
-      const response = await api.post("/login", formData);
-
-      if (response.status !== 200) {
-        throw new Error("Login failed");
-      }
-
+      await login(formData.email, formData.password);
       setToastMessage({
         message: "Login successful",
         type: "success"
       });
-      router.push("/");
     } catch (error) {
       setToastMessage({
         message: "Login failed. Please check your credentials.",

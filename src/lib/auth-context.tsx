@@ -115,7 +115,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userResponse = await api.get("/api/user");
       console.log("User data after login:", userResponse.data);
       setUser(userResponse.data);
-      router.push("/");
+      
+      // Redirect based on user role
+      if (userResponse.data.role === "admin") {
+        router.push("/admin/users");
+      } else {
+        router.push("/");
+      }
     } catch (err) {
       console.error("Login error:", err);
       throw err;
