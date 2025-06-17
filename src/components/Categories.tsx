@@ -133,7 +133,9 @@ export default function Categories({ className }: CategoriesProps) {
             loop={false}
             slidesPerView={2}
             centeredSlides={false}
-            className="w-[300px] sm:w-[420px] md:w-[720px] lg:w-[1000px]"
+            className="w-[380px] sm:w-[480px] md:w-[800px] lg:w-[1100px]"
+            slidesOffsetBefore={24}
+            slidesOffsetAfter={16}
             breakpoints={{
               0: { 
                 slidesPerView: 2,
@@ -153,11 +155,22 @@ export default function Categories({ className }: CategoriesProps) {
               }
             }}
           >
-            {categories.map((category) => (
-              <SwiperSlide key={category._id} className="flex justify-center">
-                <CategoryBox category={category} isActive={category.slug === currentCategory} />
-              </SwiperSlide>
-            ))}
+            {(() => {
+              // If currentCategory is not set, no category should be active
+              const activeIndex = currentCategory ? categories.findIndex(cat => cat.slug === currentCategory) : -1;
+              return categories.map((category, idx) => (
+                <SwiperSlide
+                  key={category._id}
+                  className={
+                    `flex justify-center` +
+                    (category.slug === currentCategory ? ' z-20' : '') +
+                    (activeIndex !== -1 && idx === activeIndex + 1 ? ' ml-4' : ' mr-1')
+                  }
+                >
+                  <CategoryBox category={category} isActive={!!currentCategory && category.slug === currentCategory} />
+                </SwiperSlide>
+              ));
+            })()}
           </Swiper>
         </div>
       )}
@@ -173,8 +186,10 @@ function CategoryBox({ category, isActive }: { category: Category, isActive: boo
     >
       <div
         className={
-          `${category.color} rounded-lg text-white font-semibold cursor-pointer flex items-center justify-center transition-all duration-300 ease-in-out shadow-sm w-[130px] h-[60px] sm:w-[140px] sm:h-[65px] md:w-[160px] md:h-[75px] lg:w-[180px] lg:h-[85px]` +
-          (isActive ? " scale-105" : "")
+          `${category.color} rounded-lg text-white font-semibold cursor-pointer flex items-center justify-center transition-all duration-300 ease-in-out shadow-sm ` +
+          (isActive
+            ? " w-[140px] h-[65px] sm:w-[150px] sm:h-[70px] md:w-[170px] md:h-[85px] lg:w-[200px] lg:h-[95px] ml-2 scale-104 z-10"
+            : " w-[130px] h-[60px] sm:w-[140px] sm:h-[65px] md:w-[160px] md:h-[75px] lg:w-[180px] lg:h-[85px] mx-1 scale-100")
         }
       >
         <span className="px-2 text-sm sm:text-base lg:text-lg text-center break-words hyphens-auto">
