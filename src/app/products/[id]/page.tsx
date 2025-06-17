@@ -117,52 +117,53 @@ export default function ProductDetailPage() {
   //   return `€${lowestPrice.toFixed(2)}`;
   // };
 
-  // const handleAddToShoppingList = async () => {
-  //   if (!product) return;
+  const handleAddToShoppingList = async () => {
+    if (!product) return;
 
-  //   const actualProductId = getStringId(product._id);
-  //   // Get the quantity from the database
-  //   const dbQuantity = typeof product.quantity === 'string' 
-  //     ? parseFloat(product.quantity)
-  //     : (typeof product.quantity === 'number' ? product.quantity : 0);
+    const actualProductId = getStringId(product._id);
+    // Get the quantity from the database
+    const dbQuantity = typeof product.quantity === 'string' 
+      ? parseFloat(product.quantity)
+      : (typeof product.quantity === 'number' ? product.quantity : 0);
     
-  //   console.log('Adding to shopping list:', {
-  //     productId: actualProductId,
-  //     dbQuantity,
-  //     rawQuantity: product.quantity,
-  //     unit: product.unit
-  //   });
+    console.log('Adding to shopping list:', {
+      productId: actualProductId,
+      dbQuantity,
+      rawQuantity: product.quantity,
+      unit: product.unit
+    });
 
-  //   try {
-  //     if (existingItem) {
-  //       // Update existing item
-  //       console.log('Updating existing item:', existingItem);
-  //       await updateItem({
-  //         id: getStringId(existingItem._id),
-  //         data: {
-  //           quantity: dbQuantity || (product.unit === 'piece' ? 1 : 0.1),
-  //           unit: product.unit || 'piece'
-  //         }
-  //       });
-  //     } else {
-  //       // Add new item
-  //       console.log('Adding new item with:', {
-  //         productId: actualProductId,
-  //         quantity: dbQuantity || (product.unit === 'piece' ? 1 : 0.1),
-  //         unit: product.unit || 'piece'
-  //       });
-  //       await addItem({
-  //         productId: actualProductId,
-  //         quantity: dbQuantity || (product.unit === 'piece' ? 1 : 0.1),
-  //         unit: product.unit || 'piece'
-  //       });
-  //     }
-  //   } catch (error: unknown) {
-  //     if (error instanceof AxiosError) {
-  //     console.error('Error in handleAddToShoppingList:', error);
-  //     toast.error(error.response?.data?.message || 'Failed to update shopping list');
-  //   }
-  // };
+    try {
+      if (existingItem) {
+        // Update existing item
+        console.log('Updating existing item:', existingItem);
+        await updateItem({
+          id: getStringId(existingItem._id),
+          data: {
+            quantity: dbQuantity || (product.unit === 'piece' ? 1 : 0.1),
+            unit: product.unit || 'piece'
+          }
+        });
+      } else {
+        // Add new item
+        console.log('Adding new item with:', {
+          productId: actualProductId,
+          quantity: dbQuantity || (product.unit === 'piece' ? 1 : 0.1),
+          unit: product.unit || 'piece'
+        });
+        await addItem({
+          productId: actualProductId,
+          quantity: dbQuantity || (product.unit === 'piece' ? 1 : 0.1),
+          unit: product.unit || 'piece'
+        });
+      }
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        console.error('Error in handleAddToShoppingList:', error);
+        toast.error(error.response?.data?.message || 'Failed to update shopping list');
+      }
+    }
+  };
 
   const handleQuantityChange = (value: number) => {
     if (isNaN(value)) {
@@ -267,7 +268,7 @@ export default function ProductDetailPage() {
                 <div className="flex items-center">
                   <span className="font-medium mr-2">Categories:</span>
                   <div className="flex gap-1">
-                    {product.categories?.map((cat) => (
+                    {product.categories?.map((cat, index) => (
                       <span key={cat.id} className="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-sm whitespace-nowrap">
                         {cat.name}
                       </span>
@@ -328,7 +329,7 @@ export default function ProductDetailPage() {
                   </div>
                 ) : (
                   <button
-                    // onClick={handleAddToShoppingList}
+                    onClick={handleAddToShoppingList}
                     className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                   >
                     <Plus className="w-5 h-5" />
@@ -343,3 +344,4 @@ export default function ProductDetailPage() {
     </div>
   );
 } 
+// }
