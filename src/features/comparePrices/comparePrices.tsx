@@ -3,6 +3,18 @@
 import { useState, useEffect } from "react";
 import { compareShoppingList } from "./compare"; // Importeer vanuit de feature-map
 import type { PriceComparison, StorePrice } from "@/types/productTypes";
+import { useShoppingList } from "../shoppingList/useShoppingList";
+
+interface ShoppingListItem {
+  _id: string;
+  product_id: string;
+  quantity: number;
+}
+
+// Helper function to get string ID
+const getStringId = (id: string | { $oid: string }): string => {
+  return typeof id === 'object' ? id.$oid : id;
+};
 
 export default function PriceComparison({
   productIds,
@@ -13,6 +25,7 @@ export default function PriceComparison({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const { items: shoppingListItems } = useShoppingList();
 
   const fetchComparison = async () => {
     setLoading(true);
@@ -32,6 +45,16 @@ export default function PriceComparison({
       setShowResults(false);
     }
   }, [productIds]);
+
+  const calculateTotalPrice = (price: string, productId: string) => {
+    const item = shoppingListItems.find((item: ShoppingListItem) => getStringId(item.product_id) === productId);
+    if (!item) return price;
+    const quantity = item.quantity;
+    const priceNum = parseFloat(price);
+    if (isNaN(priceNum)) return price;
+    const totalPrice = priceNum * quantity;
+    return totalPrice.toFixed(2);
+  };
 
   //   if (loading) return <p>Laden...</p>;
   //   if (error) return <p>{error}</p>;
@@ -72,7 +95,7 @@ export default function PriceComparison({
                       <span className="text-gray-600">Cheapest:</span>
                       <div className="text-right">
                         <span className="font-medium text-green-600">{item.cheapest_store}</span>
-                        <span className="ml-2">€{item.cheapest_price_per_item}</span>
+                        <span className="ml-2">€{calculateTotalPrice(item.cheapest_price_per_item, item.product_id)}</span>
                       </div>
                     </div>
                     {Object.keys(item.all_prices).length > 1 && (
@@ -81,7 +104,7 @@ export default function PriceComparison({
                           <div key={idx} className="flex justify-between items-center text-sm">
                             <span className="text-gray-600">{store}</span>
                             <div className="text-right">
-                              <span>€{price.price_per_item}</span>
+                              <span>€{calculateTotalPrice(price.price_per_item, item.product_id)}</span>
                               {price.price_per_unit && (
                                 <span className="text-gray-500 text-xs ml-1">
                                   ({price.price_per_unit})
