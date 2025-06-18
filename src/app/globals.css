@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* Base styles */
 html,
 body {
   height: 100%;
@@ -8,9 +9,6 @@ body {
 button {
   cursor: pointer;
 }
-
-/* @import "tailwindcss/preflight"; */
-/* @import "tailwindcss/utilities"; */
 
 /* Hide scrollbar when there's no overflow */
 html {
