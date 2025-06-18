@@ -12,7 +12,7 @@ export default function ShoppingListItem({ item, onUpdateQuantity, onDelete }: S
   }
 
   return (
-    <div className="border p-4 rounded-lg">
+    <div className="border p-4 rounded-lg hover:shadow-md transition-all duration-200 hover:scale-[1.02]">
       <h3 className="text-lg font-semibold">{item.product.name}</h3>
       <p className="text-gray-600">Quantity: {item.quantity}</p>
       <p className="text-gray-600">Price: €{item.product.price}</p>
