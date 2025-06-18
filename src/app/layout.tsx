@@ -12,6 +12,7 @@ import Link from "next/link";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Breadcrumbs from "@/components/Breadcrumbs";
+import CookieBanner from "@/components/CookieBanner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -126,6 +127,7 @@ export default function RootLayout({
     <html lang="nl">
       <body className={`${inter.className} flex flex-col min-h-screen bg-white text-gray-900 overflow-y-scrollbar-none`}>
         <Providers>
+          <CookieBanner />
           <div className="flex flex-col flex-grow">
             <div className="pt-16 pb-16">
               <Breadcrumbs />
