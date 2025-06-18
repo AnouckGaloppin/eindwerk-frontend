@@ -2,6 +2,7 @@
 
 // import { useState, useEffect } from "react";
 import { useFavourites, useToggleFavourite } from "./useFavourites";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 // import { useSwipeable } from "react-swipeable";
 // import { Heart } from "lucide-react";
 import type { Favourite } from "@/types/favouritesTypes";
@@ -26,11 +27,25 @@ const getStringId = (id: string | { $oid: string }): string => {
 };
 
 export default function Favourites() {
-  const { data: favourites = [], isLoading, error } = useFavourites();
+  const { 
+    data: favourites = [], 
+    isLoading, 
+    error,
+    fetchNextPage,
+    hasMore,
+    isFetchingNextPage
+  } = useFavourites();
+  
   // const addFavourite = useAddFavourite();
   const toggleFavourite = useToggleFavourite();
   const queryClient = useQueryClient();
   // const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  const { loadingRef } = useInfiniteScroll({
+    onLoadMore: fetchNextPage,
+    hasMore,
+    isLoading: isFetchingNextPage,
+  });
 
   const addAllFavouritesToShoppingList = async () => {
     try {
@@ -139,109 +154,45 @@ export default function Favourites() {
       </div> */}
 
       {/* Lijst met favorieten */}
-      <ul className="space-y-2 p-4">
-        {!favourites || favourites.length === 0 ? (
-          <li className="text-gray-900 dark:text-white">You do not have favourites yet. Please add products.</li>
-        ) : (
-          favourites.map((fav: Favourite) => (
-            <FavouriteItem
-              key={getStringId(fav.id)}
-              favourite={fav}
-              toggleFavourite={toggleFavourite}
-              // onDelete={(id) => deleteFavourite.mutate(id)}
-            />
-          ))
+      <div className="space-y-2">
+        <ul className="space-y-2 p-4">
+          {!favourites || favourites.length === 0 ? (
+            <li className="text-gray-900 dark:text-white">You do not have favourites yet. Please add products.</li>
+          ) : (
+            favourites.map((fav: Favourite) => (
+              <FavouriteItem
+                key={getStringId(fav.id)}
+                favourite={fav}
+                toggleFavourite={toggleFavourite}
+                // onDelete={(id) => deleteFavourite.mutate(id)}
+              />
+            ))
+          )}
+        </ul>
+        
+        {/* Infinite scroll loading indicator */}
+        {hasMore && (
+          <div ref={loadingRef} className="flex justify-center py-4">
+            {isFetchingNextPage ? (
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                <span className="text-gray-600">Loading more favourites...</span>
+              </div>
+            ) : (
+              <div className="h-4"></div> // Invisible element for intersection observer
+            )}
+          </div>
         )}
-      </ul>
+        
+        {/* No more favourites message */}
+        {!hasMore && favourites.length > 0 && (
+          <div className="flex justify-center py-4">
+            <span className="text-gray-500 text-sm">No more favourites to load</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 //   ))}
-//   <li
-//     key={favourite.id}
-//     className="border p-3 rounded flex justify-between items-center text-sm"
-//     {...(isMobile ? swipeHandlers : {})}
-//   >
-//     <span>{favourite.name}</span>
-
-//     {!isMobile && (
-//       <button
-//         onClick={() => deleteFavourite.mutate(favourite.id)}
-//         className="text-red-600"
-//         aria-label="Verwijder favoriet"
-//       >
-//         <Trash className="w-4 h-4" />
-//       </button>
-//     )}
-//   </li>
-// </ul>
-
-{
-  /* List of items */
-}
-{
-  /* <ul className="space-y-2"> */
-}
-{
-  /* {data?.map((item) => ( */
-}
-{
-  /* <li */
-}
-{
-  /* key={item.id} */
-}
-{
-  /* className="border p-3 rounded flex justify-between items-center text-sm" */
-}
-{
-  /* > */
-}
-{
-  /* {editingId === item.id ? (
-              <div className="flex items-center w-full gap-2">
-                <input
-                  value={editedName}
-                  onChange={(e) => setEditedName(e.target.value)}
-                  className="border rounded p-1 flex-grow"
-                />
-                <button
-                  onClick={() => {
-                    updateItem.mutate({ ...item, name: editedName });
-                    setEditingId(null);
-                  }}
-                  className="text-green-600 ml-2"
-                >
-                  Opslaan
-                </button>
-              </div>
-            ) : (
-              <>
-                <span className="break-words max-w-[60%]">{item.name}</span>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => {
-                      setEditingId(item.id);
-                      setEditedName(item.name);
-                    }}
-                    className="text-yellow-600"
-                  >
-                    Wijzig
-                  </button>
-                  <button
-                    onClick={() => deleteItem.mutate(item.id)}
-                    className="text-red-600"
-                  >
-                    <Trash />
-                  </button>
-                </div>
-              </>
-            )}
-          </li>
-        ))}
-      </ul> */
-}
-// </div>
-// );
-// }
 

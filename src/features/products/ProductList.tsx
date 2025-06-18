@@ -4,6 +4,7 @@ import { Product } from '@/types/productTypes';
 import { ShoppingListItem } from '@/types/shoppingTypes';
 import { Favourite } from "@/types/favouritesTypes";
 import { useShoppingList } from '@/features/shoppingList/useShoppingList';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import Link from "next/link";
 import { formatPrice, formatQuantity } from '@/lib/utils';
 import { toast } from 'react-toastify';
@@ -22,6 +23,9 @@ interface ProductListProps {
   onQuantityChange: (itemId: string, quantity: number) => void;
   isLoading?: boolean;
   error?: string | null;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  isFetchingNextPage?: boolean;
 }
 
 const ProductList: React.FC<ProductListProps> = ({
@@ -30,8 +34,17 @@ const ProductList: React.FC<ProductListProps> = ({
   isLoading,
   error,
   onToggleFavourite,
+  onLoadMore,
+  hasMore = false,
+  isFetchingNextPage = false,
 }) => {
   const { items: shoppingListItems, updateItem, addItem, deleteItem } = useShoppingList();
+
+  const { loadingRef } = useInfiniteScroll({
+    onLoadMore: onLoadMore || (() => {}),
+    hasMore,
+    isLoading: isFetchingNextPage,
+  });
 
   const getLowestPrice = (product: Product) => {
     if (!product.price_per_store || typeof product.price_per_store !== 'object') return 0;
@@ -180,127 +193,151 @@ const ProductList: React.FC<ProductListProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {products.map((product) => {
-        const productId = getStringId(product._id);
-        const isFavourite = favourites.some(fav => {
-          if (!fav.product_id) return false;
-          return getStringId(fav.product_id) === productId;
-        });
-        const shoppingListItem = shoppingListItems.find(item => {
-          if (!item.product_id) return false;
-          return getStringId(item.product_id) === productId;
-        });
-        const quantity = shoppingListItem?.quantity || 0;
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {products.map((product) => {
+          const productId = getStringId(product._id);
+          const isFavourite = favourites.some(fav => {
+            if (!fav.product_id) return false;
+            return getStringId(fav.product_id) === productId;
+          });
+          
+          const shoppingListItem = shoppingListItems.find(item => {
+            if (!item.product_id) return false;
+            return getStringId(item.product_id) === productId;
+          });
+          const quantity = shoppingListItem?.quantity || 0;
 
-        return (
-          <Link href={`/products/${productId}`} key={productId}>
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-              <div className="relative">
-                <img
-                  src={product.img}
-                  alt={product.name}
-                  className="w-full h-48 object-cover"
-                />
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onToggleFavourite(productId);
-                  }}
-                  className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white"
-                >
-                  <Heart 
-                    className={`w-6 h-6 ${isFavourite ? 'text-red-500 fill-current' : 'text-gray-400'}`}
+          return (
+            <Link href={`/products/${productId}`} key={productId}>
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                <div className="relative">
+                  <img
+                    src={product.img}
+                    alt={product.name}
+                    className="w-full h-48 object-cover"
                   />
-                </button>
-              </div>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onToggleFavourite(productId);
+                    }}
+                    className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white"
+                  >
+                    <Heart 
+                      className={`w-6 h-6 ${isFavourite ? 'text-red-500 fill-current' : 'text-gray-400'}`}
+                    />
+                  </button>
+                </div>
 
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
-                <p className="text-sm text-gray-600">{product.brand}</p>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
+                  <p className="text-sm text-gray-600">{product.brand}</p>
 
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    {shoppingListItem && shoppingListItem.quantity > 0 ? (
-                      <>
+                  <div className="mt-4 flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      {shoppingListItem && shoppingListItem.quantity > 0 ? (
+                        <>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleDecrement(product);
+                            }}
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            -
+                          </button>
+                          
+                          <input
+                            type="number"
+                            value={formatQuantity(quantity)}
+                            onChange={(e) => {
+                              e.preventDefault();
+                              const value = parseFloat(e.target.value);
+                              if (!isNaN(value)) {
+                                handleQuantityChange(productId, value);
+                              }
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                            }}
+                            className="w-16 text-center px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            min="0"
+                            step={product.unit === 'piece' ? 1 : 0.1}
+                          />
+                          
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleIncrement(product);
+                            }}
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            +
+                          </button>
+                          
+                          <span className="text-sm text-gray-500">
+                            {product.unit}
+                          </span>
+                        </>
+                      ) : (
                         <button
                           onClick={(e) => {
                             e.preventDefault();
-                            handleDecrement(product);
+                            // Use the product's quantity from the database
+                            const dbQuantity = typeof product.quantity === 'string' 
+                              ? parseFloat(product.quantity)
+                              : (typeof product.quantity === 'number' ? product.quantity : 0);
+                            console.log('Adding item with database quantity:', {
+                              productId,
+                              dbQuantity,
+                              rawQuantity: product.quantity
+                            });
+                            handleQuantityChange(productId, dbQuantity || (product.unit === 'piece' ? 1 : 0.1));
                           }}
-                          className="p-1 hover:bg-gray-100 rounded"
+                          className="flex items-center space-x-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                         >
-                          -
+                          <Plus className="w-4 h-4" />
+                          <span>Add</span>
                         </button>
-                        
-                        <input
-                          type="number"
-                          value={formatQuantity(quantity)}
-                          onChange={(e) => {
-                            e.preventDefault();
-                            const value = parseFloat(e.target.value);
-                            if (!isNaN(value)) {
-                              handleQuantityChange(productId, value);
-                            }
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                          }}
-                          className="w-16 text-center px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          min="0"
-                          step={product.unit === 'piece' ? 1 : 0.1}
-                        />
-                        
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleIncrement(product);
-                          }}
-                          className="p-1 hover:bg-gray-100 rounded"
-                        >
-                          +
-                        </button>
-                        
-                        <span className="text-sm text-gray-500">
-                          {product.unit}
-                        </span>
-                      </>
-                    ) : (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          // Use the product's quantity from the database
-                          const dbQuantity = typeof product.quantity === 'string' 
-                            ? parseFloat(product.quantity)
-                            : (typeof product.quantity === 'number' ? product.quantity : 0);
-                          console.log('Adding item with database quantity:', {
-                            productId,
-                            dbQuantity,
-                            rawQuantity: product.quantity
-                          });
-                          handleQuantityChange(productId, dbQuantity || (product.unit === 'piece' ? 1 : 0.1));
-                        }}
-                        className="flex items-center space-x-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>Add</span>
-                      </button>
-                    )}
-                  </div>
-                  
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500">Prijs per {product.unit}</p>
-                    <p className="text-lg font-semibold text-gray-900">
-                      €{formatPrice(getLowestPrice(product))}
-                    </p>
+                      )}
+                    </div>
+                    
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">Prijs per {product.unit}</p>
+                      <p className="text-lg font-semibold text-gray-900">
+                        €{formatPrice(getLowestPrice(product))}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
+            </Link>
+          );
+        })}
+      </div>
+      
+      {/* Infinite scroll loading indicator */}
+      {hasMore && (
+        <div ref={loadingRef} className="flex justify-center py-4">
+          {isFetchingNextPage ? (
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+              <span className="text-gray-600">Loading more products...</span>
             </div>
-          </Link>
-        );
-      })}
+          ) : (
+            <div className="h-4"></div> // Invisible element for intersection observer
+          )}
+        </div>
+      )}
+      
+      {/* No more products message */}
+      {!hasMore && products.length > 0 && (
+        <div className="flex justify-center py-4">
+          <span className="text-gray-500 text-sm">No more products to load</span>
+        </div>
+      )}
     </div>
   );
 };

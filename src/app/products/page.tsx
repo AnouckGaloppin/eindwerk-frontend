@@ -16,7 +16,14 @@ function ProductsContent() {
   const search = searchParams.get("search") ?? undefined;
   const [error] = useState<string | null>(null);
 
-  const { data: products = [], isLoading: isProductsLoading } = useProducts({ category, search });
+  const { 
+    data: products = [], 
+    isLoading: isProductsLoading, 
+    hasMore, 
+    isFetchingNextPage, 
+    fetchNextPage 
+  } = useProducts({ category, search });
+  
   const { data: favourites = [] } = useFavourites();
   const { items: shoppingList = [], addItem, updateItem } = useShoppingList();
   const toggleFavouriteMutation = useToggleFavourite();
@@ -72,6 +79,9 @@ function ProductsContent() {
             }}
             isLoading={isProductsLoading}
             error={error}
+            onLoadMore={fetchNextPage}
+            hasMore={hasMore}
+            isFetchingNextPage={isFetchingNextPage}
           />
         )}
       </div>

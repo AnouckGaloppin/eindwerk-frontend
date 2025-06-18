@@ -1,7 +1,8 @@
 "use client";
 
 import api from "@/lib/axios";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { Favourite } from "@/types/favouritesTypes";
 // import { data } from "framer-motion/client";
 
@@ -12,18 +13,47 @@ import { Favourite } from "@/types/favouritesTypes";
 //   name: string;
 // };
 
+interface FavouritesResponse {
+  data: Favourite[];
+  pagination: {
+    total: number;
+    per_page: number;
+    current_page: number;
+    last_page: number;
+    has_more: boolean;
+  };
+}
+
 export function useFavourites() {
-  return useQuery<Favourite[]>({
+  const query = useInfiniteQuery({
     queryKey: ["favourites"],
-    queryFn: async () => {
-      console.log("Fetching favourites");
-      const response = await api.get("/api/favourites");
-      console.log("Fetched favourites:", response.data);
-      return response.data;
+    queryFn: async ({ pageParam = 1 }) => {
+      const params = new URLSearchParams();
+      params.append('page', pageParam.toString());
+      params.append('per_page', '20');
+      
+      const response = await api.get(`/api/favourites?${params.toString()}`);
+      return response.data as FavouritesResponse;
     },
+    getNextPageParam: (lastPage) => {
+      return lastPage.pagination.has_more ? lastPage.pagination.current_page + 1 : undefined;
+    },
+    initialPageParam: 1,
   });
 
-  // const productIds = data.map((fav) => fav.productId);
+  // Memoize the flattened array to prevent infinite loops
+  const allFavourites = useMemo(() => {
+    return query.data?.pages.flatMap((page: FavouritesResponse) => page.data) ?? [];
+  }, [query.data?.pages]);
+
+  return {
+    ...query,
+    data: allFavourites,
+    favourites: allFavourites,
+    hasMore: query.hasNextPage,
+    isFetchingNextPage: query.isFetchingNextPage,
+    fetchNextPage: query.fetchNextPage,
+  };
 }
 
 export const useToggleFavourite = () => {

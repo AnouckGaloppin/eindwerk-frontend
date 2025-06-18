@@ -1,4 +1,5 @@
 import { useShoppingList } from "./useShoppingList";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 // import { useSwipeable } from "react-swipeable";
 // import { motion, AnimatePresence } from "framer-motion";
 import type { ShoppingListItem as ShoppingListItemType } from "@/types/shoppingTypes";
@@ -58,7 +59,22 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
 }
 
 export default function ShoppingList() {
-  const { items, isLoading, error, deleteItem, updateItem } = useShoppingList();
+  const { 
+    items, 
+    isLoading, 
+    error, 
+    deleteItem, 
+    updateItem,
+    fetchNextPage,
+    hasMore,
+    isFetchingNextPage
+  } = useShoppingList();
+
+  const { loadingRef } = useInfiniteScroll({
+    onLoadMore: fetchNextPage,
+    hasMore,
+    isLoading: isFetchingNextPage,
+  });
 
   const handleUpdateQuantity = (id: string, quantity: number) => {
     updateItem({ id, data: { quantity } });
@@ -73,16 +89,39 @@ export default function ShoppingList() {
       {items.length === 0 ? (
         <p className="text-gray-500">Your shopping list is empty</p>
       ) : (
-        <ul className="space-y-2">
-          {items.map((item) => (
-            <ShoppingListItem
-              key={item._id}
-              product={item}
-              onDelete={deleteItem}
-              onUpdateQuantity={handleUpdateQuantity}
-            />
-          ))}
-        </ul>
+        <div className="space-y-2">
+          <ul className="space-y-2">
+            {items.map((item) => (
+              <ShoppingListItem
+                key={item._id}
+                product={item}
+                onDelete={deleteItem}
+                onUpdateQuantity={handleUpdateQuantity}
+              />
+            ))}
+          </ul>
+          
+          {/* Infinite scroll loading indicator */}
+          {hasMore && (
+            <div ref={loadingRef} className="flex justify-center py-4">
+              {isFetchingNextPage ? (
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                  <span className="text-gray-600">Loading more items...</span>
+                </div>
+              ) : (
+                <div className="h-4"></div> // Invisible element for intersection observer
+              )}
+            </div>
+          )}
+          
+          {/* No more items message */}
+          {!hasMore && items.length > 0 && (
+            <div className="flex justify-center py-4">
+              <span className="text-gray-500 text-sm">No more items to load</span>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

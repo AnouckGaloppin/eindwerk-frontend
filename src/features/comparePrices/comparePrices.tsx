@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { compareShoppingList } from "./compare"; // Importeer vanuit de feature-map
 import type { PriceComparison, StorePrice } from "@/types/productTypes";
 import { useShoppingList } from "../shoppingList/useShoppingList";
@@ -25,9 +25,12 @@ export default function PriceComparison({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
-  const { items: shoppingListItems } = useShoppingList();
+  const { items: shoppingListItems = [] } = useShoppingList();
   const [totalComparisonResult, setTotalComparisonResult] = useState<null | { cheapestStore: string, totals: Record<string, number>, missingCounts: Record<string, number>, missingProducts: Record<string, string[]> }>(null);
   const [comparisonMode, setComparisonMode] = useState<'perProduct' | 'total' | null>(null);
+
+  // Create a stable productIds string for useEffect dependency
+  const productIdsString = useMemo(() => productIds.join(','), [productIds]);
 
   const fetchComparison = async () => {
     setLoading(true);
@@ -50,12 +53,12 @@ export default function PriceComparison({
   }, [productIds]);
 
   useEffect(() => {
-    // Reset comparison data and results when shopping list changes
+    // Reset comparison data and results when productIds change
     setComparisonData([]);
     setTotalComparisonResult(null);
     setShowResults(false);
     setComparisonMode(null);
-  }, [shoppingListItems]);
+  }, [productIdsString]); // Use the stable productIds string
 
   const calculateTotalPrice = (price: string, productId: string) => {
     const item = shoppingListItems.find((item: ShoppingListItem) => getStringId(item.product_id) === productId);
@@ -92,10 +95,14 @@ export default function PriceComparison({
     const totals: Record<string, number> = {};
     const missingCounts: Record<string, number> = {};
     const missingProducts: Record<string, string[]> = {};
+    
+    // Ensure shoppingListItems is an array
+    const safeShoppingListItems = Array.isArray(shoppingListItems) ? shoppingListItems : [];
+    
     // Get all unique product IDs and names in the shopping list
-    const allProductIds = shoppingListItems.map((i: ShoppingListItem) => getStringId(i.product_id));
+    const allProductIds = safeShoppingListItems.map((i: ShoppingListItem) => getStringId(i.product_id));
     const allProductNames: Record<string, string> = {};
-    shoppingListItems.forEach((i: ShoppingListItem) => {
+    safeShoppingListItems.forEach((i: ShoppingListItem) => {
       // Type guard for product
       let name: string | undefined = undefined;
       if ('product' in i && i.product && typeof i.product === 'object' && 'name' in i.product) {
@@ -115,7 +122,7 @@ export default function PriceComparison({
       if (Array.isArray(item.all_prices)) {
         item.all_prices.forEach((price: any) => {
           const store = price.store;
-          const shoppingItem = shoppingListItems.find((i: ShoppingListItem) => getStringId(i.product_id) === item.product_id);
+          const shoppingItem = safeShoppingListItems.find((i: ShoppingListItem) => getStringId(i.product_id) === item.product_id);
           const quantity = shoppingItem ? shoppingItem.quantity : 1;
           const priceNum = parseFloat(price.price_per_item);
           if (!isNaN(priceNum)) {
@@ -127,7 +134,7 @@ export default function PriceComparison({
         });
       } else {
         Object.entries(item.all_prices).forEach(([store, price]: [string, any]) => {
-          const shoppingItem = shoppingListItems.find((i: ShoppingListItem) => getStringId(i.product_id) === item.product_id);
+          const shoppingItem = safeShoppingListItems.find((i: ShoppingListItem) => getStringId(i.product_id) === item.product_id);
           const quantity = shoppingItem ? shoppingItem.quantity : 1;
           const priceNum = parseFloat(price.price_per_item);
           if (!isNaN(priceNum)) {
