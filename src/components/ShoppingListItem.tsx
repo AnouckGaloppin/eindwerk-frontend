@@ -39,11 +39,12 @@ export default function ShoppingListItem({ product }: Props) {
       setSwiping(false);
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
-      const errorMessage = error.response?.data?.message || error.message || "Failed to delete from shopping list";
-      toast.error(errorMessage);
-      setSwiping(false);
+        const errorMessage = error.response?.data?.message || error.message || "Failed to delete from shopping list";
+        toast.error(errorMessage);
+        setSwiping(false);
+      }
     }
-  };
+  }
 
   const handleQuantityChange = (newQuantity: string) => {
     const parsedQuantity = parseFloat(newQuantity);
@@ -92,7 +93,7 @@ export default function ShoppingListItem({ product }: Props) {
   return (
     <div
       {...swipeHandlers}
-      className={`relative bg-white rounded-lg shadow-sm p-4 transition-transform ${
+      className={`relative bg-white rounded-lg shadow-sm p-4 transition-all duration-300 ease-in-out transform hover:shadow-lg hover:scale-105 ${
         swiping ? "translate-x-[-100px]" : ""
       }`}
     >
@@ -136,5 +137,4 @@ export default function ShoppingListItem({ product }: Props) {
       </div>
     </div>
   );
-}
 }

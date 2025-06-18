@@ -77,7 +77,7 @@ export function useShoppingList() {
   const updateItemMutation = useMutation({
     mutationFn: async (data: { id: string; data: { quantity: number; unit?: string } }) => {
       const response = await api.put(`/api/shopping-list/${data.id}`, data.data);
-      return response.data;
+        return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shopping-list"] });
@@ -87,7 +87,7 @@ export function useShoppingList() {
   const deleteItemMutation = useMutation({
     mutationFn: async (id: string) => {
       const response = await api.delete(`/api/shopping-list/${id}`);
-      return response.data;
+        return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shopping-list"] });
