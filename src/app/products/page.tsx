@@ -59,38 +59,74 @@ function ProductsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <main 
+      className="min-h-screen bg-gray-50"
+      role="main"
+      aria-labelledby="products-title"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Producten</h1>
+          <h1 
+            id="products-title"
+            className="text-3xl font-bold text-gray-900"
+          >
+            Producten
+          </h1>
         </div>
 
-        <Categories className="mb-8" />
+        <section 
+          className="mb-8"
+          aria-labelledby="categories-title"
+        >
+          <h2 
+            id="categories-title"
+            className="sr-only"
+          >
+            Product Categories
+          </h2>
+          <Categories className="mb-8" />
+        </section>
 
         {error ? (
-          <div className="text-red-500 text-center py-8">{error}</div>
+          <div 
+            className="text-red-500 text-center py-8"
+            role="alert"
+            aria-live="polite"
+          >
+            {error}
+          </div>
         ) : (
-          <ProductList
-            products={products}
-            shoppingList={shoppingList}
-            favourites={favourites}
-            onAddOrUpdate={handleAddOrUpdate}
-            onToggleFavourite={(productId) => toggleFavouriteMutation.mutate({ product_id: productId })}
-            onQuantityChange={(itemId, quantity) => {
-              updateItem({
-                id: itemId,
-                data: { quantity }
-              });
-            }}
-            isLoading={isProductsLoading}
-            error={error}
-            onLoadMore={fetchNextPage}
-            hasMore={hasMore}
-            isFetchingNextPage={isFetchingNextPage}
-          />
+          <section 
+            aria-labelledby="products-list-title"
+          >
+            <h2 
+              id="products-list-title"
+              className="sr-only"
+            >
+              Products List
+            </h2>
+            <ProductList
+              products={products}
+              shoppingList={shoppingList}
+              favourites={favourites}
+              onAddOrUpdate={handleAddOrUpdate}
+              onToggleFavourite={(productId) => toggleFavouriteMutation.mutate({ product_id: productId })}
+              onQuantityChange={(itemId, quantity) => {
+                updateItem({
+                  id: itemId,
+                  data: { quantity }
+                });
+              }}
+              isLoading={isProductsLoading}
+              error={error}
+              onLoadMore={fetchNextPage}
+              hasMore={hasMore}
+              isFetchingNextPage={isFetchingNextPage}
+            />
+          </section>
         )}
       </div>
-    </div>
+    </main>
   );
 }
 

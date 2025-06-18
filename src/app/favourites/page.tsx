@@ -60,23 +60,41 @@ export default function FavouritesPage() {
   };
   
   return (
-    <main className="min-h-screen flex justify-center bg-gray-100 pt-16 pb-24">
+    <main 
+      className="min-h-screen flex justify-center bg-gray-100 pt-16 pb-24"
+      role="main"
+      aria-labelledby="favourites-title"
+    >
       <div className="max-w-7xl mx-auto px-4 w-full">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Favourites</h1>
+          <h1 
+            id="favourites-title"
+            className="text-2xl font-bold text-gray-900"
+          >
+            Favourites
+          </h1>
           {favourites.length > 0 && (
             <button
               onClick={addAllFavouritesToShoppingList}
-              className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-colors"
+              className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+              aria-label={`Add all ${favourites.length} favourite items to shopping list`}
             >
               Add all favourites to shopping list
             </button>
           )}
         </div>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          {/* <h2 className="text-xl font-semibold mb-4 text-gray-900">Your Favourites</h2> */}
+        <section 
+          className="bg-white rounded-lg shadow-md p-6"
+          aria-labelledby="favourites-list-title"
+        >
+          <h2 
+            id="favourites-list-title"
+            className="sr-only"
+          >
+            Your Favourites
+          </h2>
           <Favourites />
-        </div>
+        </section>
       </div>
     </main>
   );
