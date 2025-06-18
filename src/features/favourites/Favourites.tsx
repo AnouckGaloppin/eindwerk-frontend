@@ -15,6 +15,7 @@ import { FavouriteItem } from "@/components/FavouriteItem";
 // import { AxiosError } from "axios";
 // import Image from "next/image";
 // import { toast } from 'react-toastify';
+import { CardLoader, InfiniteScrollLoader } from "@/components/ui/Loader";
 
 // const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
@@ -53,7 +54,7 @@ export default function Favourites() {
   //   }
   // }, []);
 
-  if (isLoading) return <div className="p-4 text-gray-900 dark:text-white">Loading...</div>;
+  if (isLoading) return <CardLoader text="Loading favourites..." />;
   if (error)
     return (
       <div className="p-4 text-red-500 dark:text-red-400">
@@ -82,15 +83,8 @@ export default function Favourites() {
         
         {/* Infinite scroll loading indicator */}
         {hasMore && (
-          <div ref={loadingRef} className="flex justify-center py-4">
-            {isFetchingNextPage ? (
-              <div className="flex items-center space-x-2">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                <span className="text-gray-600">Loading more favourites...</span>
-              </div>
-            ) : (
-              <div className="h-4"></div> // Invisible element for intersection observer
-            )}
+          <div ref={loadingRef}>
+            <InfiniteScrollLoader text="Loading more favourites..." />
           </div>
         )}
         

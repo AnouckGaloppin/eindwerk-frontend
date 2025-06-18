@@ -11,6 +11,7 @@ import { getStringId, formatQuantity } from "@/lib/utils";
 import { Minus, Plus } from "lucide-react";
 import { toast } from 'react-toastify';
 import { AxiosError } from "axios";
+import { CardLoader } from "@/components/ui/Loader";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -104,7 +105,7 @@ export default function ProductDetailPage() {
   //   return product.categories.map(cat => cat.name).join('\n');
   // };
 
-  if (isLoadingProduct) return <div className="p-4 text-center">Loading...</div>;
+  if (isLoadingProduct) return <CardLoader text="Loading product..." />;
   if (productError) return <div className="p-4 text-center text-red-500">Error loading product: {productError.message}</div>;
   if (!product) return <div className="p-4 text-center">Product not found</div>;
 

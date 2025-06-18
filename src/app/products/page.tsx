@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useProducts } from "@/features/products/useProducts";
 import { useFavourites, useToggleFavourite } from "@/features/favourites/useFavourites";
 import { useShoppingList } from "@/features/shoppingList/useShoppingList";
+import { PageLoader } from "@/components/ui/Loader";
 
 function ProductsContent() {
   const searchParams = useSearchParams();
@@ -18,12 +19,12 @@ function ProductsContent() {
 
   const { 
     data: products = [], 
-    isLoading: isProductsLoading, 
+    isLoading: isProductsLoading,
     hasMore, 
     isFetchingNextPage, 
     fetchNextPage 
   } = useProducts({ category, search });
-  
+
   const { data: favourites = [] } = useFavourites();
   const { items: shoppingList = [], addItem, updateItem } = useShoppingList();
   const toggleFavouriteMutation = useToggleFavourite();
@@ -52,6 +53,10 @@ function ProductsContent() {
       console.error('Error in handleAddOrUpdate:', error);
     }
   };
+
+  if (isProductsLoading) {
+    return <PageLoader text="Loading products..." />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -91,7 +96,7 @@ function ProductsContent() {
 
 export default function ProductsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<PageLoader text="Loading..." />}>
       <ProductsContent />
     </Suspense>
   );

@@ -6,6 +6,7 @@ import api from "@/lib/axios";
 import { useAuth } from "@/lib/auth-context";
 import { div } from "framer-motion/client";
 import { toast } from 'react-toastify';
+import { CardLoader } from "@/components/ui/Loader";
 
 export default function ProfilePage() {
   const { user, refreshUser } = useAuth();
@@ -24,6 +25,7 @@ export default function ProfilePage() {
   const [FAQRCodeImg, setFAQRCodeImg] = useState<string>("");
   const [FACodesList, setFACodesList] = useState<Record<number, string>>({});
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     refreshUser();
@@ -164,6 +166,10 @@ export default function ProfilePage() {
       return () => clearTimeout(timer);
     }
   }, [toast]);
+
+  if (isLoading) {
+    return <CardLoader text="Loading profile..." />;
+  }
 
   if (!user) {
     return <div>Loading...</div>;

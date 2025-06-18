@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { compareShoppingList } from "./compare"; // Importeer vanuit de feature-map
 import type { PriceComparison, StorePrice } from "@/types/productTypes";
 import { useShoppingList } from "../shoppingList/useShoppingList";
+import Loader from "@/components/ui/Loader";
 
 interface ShoppingListItem {
   _id: string;
@@ -187,7 +188,7 @@ export default function PriceComparison({
       {/* Always show loading spinner if loading */}
       {loading && (
         <div className="flex justify-center items-center py-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <Loader size="md" color="teal" />
         </div>
       )}
       {/* Always show error if error */}

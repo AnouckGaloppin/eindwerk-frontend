@@ -12,6 +12,7 @@ import { Loader } from "lucide-react";
 import './Categories.css';
 // import { div } from "framer-motion/client";
 import { AxiosError } from "axios";
+import { CardLoader } from "@/components/ui/Loader";
 
 // const staticCategories: Category[] = [
 //   { _id: "1", name: "Fruit", slug: "fruit", color: "bg-amber-500" },
@@ -109,8 +110,8 @@ export default function Categories({ className }: CategoriesProps) {
 
   if (!hasMounted || isLoading) {
     return (
-      <div className="flex items-center justify-center h-44">
-        <Loader className="animate-spin text-gray-900" />
+      <div className="flex justify-center items-center py-8">
+        <CardLoader text="Loading categories..." />
       </div>
     );
   }

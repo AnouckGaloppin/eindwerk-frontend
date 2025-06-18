@@ -5,6 +5,7 @@ import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import type { ShoppingListItem as ShoppingListItemType } from "@/types/shoppingTypes";
 import { Trash, Plus, Minus } from "lucide-react";
 import Image from "next/image";
+import { CardLoader, InfiniteScrollLoader } from "@/components/ui/Loader";
 
 interface ShoppingListItemProps {
   product: ShoppingListItemType;
@@ -80,7 +81,7 @@ export default function ShoppingList() {
     updateItem({ id, data: { quantity } });
   };
 
-  if (isLoading) return <div className="p-4">Loading...</div>;
+  if (isLoading) return <CardLoader text="Loading shopping list..." />;
   if (error) return <div className="p-4 text-red-500">Error: {error.message}</div>;
 
   return (
@@ -103,15 +104,8 @@ export default function ShoppingList() {
           
           {/* Infinite scroll loading indicator */}
           {hasMore && (
-            <div ref={loadingRef} className="flex justify-center py-4">
-              {isFetchingNextPage ? (
-                <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                  <span className="text-gray-600">Loading more items...</span>
-                </div>
-              ) : (
-                <div className="h-4"></div> // Invisible element for intersection observer
-              )}
+            <div ref={loadingRef}>
+              <InfiniteScrollLoader text="Loading more items..." />
             </div>
           )}
           

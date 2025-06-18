@@ -8,6 +8,11 @@ import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import Link from "next/link";
 import { formatPrice, formatQuantity } from '@/lib/utils';
 import { toast } from 'react-toastify';
+import { useProducts } from "./useProducts";
+import { useFavourites } from "../favourites/useFavourites";
+import { useToggleFavourite } from "../favourites/useFavourites";
+import { useAuth } from "@/lib/auth-context";
+import { CardLoader, InfiniteScrollLoader } from "@/components/ui/Loader";
 
 // Helper function to get string ID
 const getStringId = (id: string | { $oid: string }): string => {
@@ -39,11 +44,22 @@ const ProductList: React.FC<ProductListProps> = ({
   isFetchingNextPage = false,
 }) => {
   const { items: shoppingListItems, updateItem, addItem, deleteItem } = useShoppingList();
+  const { user } = useAuth();
+  const { 
+    products: productsFromAPI, 
+    isLoading: isProductsLoading,
+    fetchNextPage,
+    hasMore: hasMoreFromAPI,
+    isFetchingNextPage: isFetchingNextPageFromAPI
+  } = useProducts({ category: '', search: '' });
+  
+  const { data: favouritesFromAPI = [] } = useFavourites();
+  const toggleFavourite = useToggleFavourite();
 
   const { loadingRef } = useInfiniteScroll({
-    onLoadMore: onLoadMore || (() => {}),
-    hasMore,
-    isLoading: isFetchingNextPage,
+    onLoadMore: fetchNextPage,
+    hasMore: hasMoreFromAPI,
+    isLoading: isFetchingNextPageFromAPI,
   });
 
   const getLowestPrice = (product: Product) => {
@@ -77,7 +93,7 @@ const ProductList: React.FC<ProductListProps> = ({
       if (!item.product_id) return false;
       return getStringId(item.product_id) === productId;
     });
-    const product = products.find(p => getStringId(p._id) === productId);
+    const product = productsFromAPI.find(p => getStringId(p._id) === productId);
 
     console.log('Found items:', {
       shoppingListItem,
@@ -163,28 +179,28 @@ const ProductList: React.FC<ProductListProps> = ({
     handleQuantityChange(productId, Math.max(0, currentQuantity - decrementAmount));
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (isLoading || isProductsLoading) {
+    return <CardLoader text="Loading products..." />;
   }
 
   if (error) {
     return <div className="text-red-500">Error: {error}</div>;
   }
 
-  console.log('ProductList received products:', products);
+  console.log('ProductList received products:', productsFromAPI);
   console.log('ProductList received shoppingList:', shoppingListItems);
-  console.log('ProductList received favourites:', favourites);
+  console.log('ProductList received favourites:', favouritesFromAPI);
 
   console.log('🔄 ProductList rendering with:', {
-    productsCount: products.length,
-    favouritesCount: favourites.length,
-    favourites: favourites.map(f => ({
+    productsCount: productsFromAPI.length,
+    favouritesCount: favouritesFromAPI.length,
+    favourites: favouritesFromAPI.map(f => ({
       id: f.product?._id ? getStringId(f.product._id) : f.product_id,
       name: f.product?.name
     }))
   });
 
-  if (!products || products.length === 0) {
+  if (!productsFromAPI || productsFromAPI.length === 0) {
     return (
       <div className="text-center py-8">
         <p className="text-gray-500">Geen producten gevonden</p>
@@ -195,9 +211,9 @@ const ProductList: React.FC<ProductListProps> = ({
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {products.map((product) => {
+        {productsFromAPI.map((product) => {
           const productId = getStringId(product._id);
-          const isFavourite = favourites.some(fav => {
+          const isFavourite = favouritesFromAPI.some(fav => {
             if (!fav.product_id) return false;
             return getStringId(fav.product_id) === productId;
           });
@@ -220,7 +236,7 @@ const ProductList: React.FC<ProductListProps> = ({
                   <button
                     onClick={(e) => {
                       e.preventDefault();
-                      onToggleFavourite(productId);
+                      toggleFavourite.mutate({ product_id: productId });
                     }}
                     className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white"
                   >
@@ -319,21 +335,14 @@ const ProductList: React.FC<ProductListProps> = ({
       </div>
       
       {/* Infinite scroll loading indicator */}
-      {hasMore && (
-        <div ref={loadingRef} className="flex justify-center py-4">
-          {isFetchingNextPage ? (
-            <div className="flex items-center space-x-2">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-              <span className="text-gray-600">Loading more products...</span>
-            </div>
-          ) : (
-            <div className="h-4"></div> // Invisible element for intersection observer
-          )}
+      {hasMoreFromAPI && (
+        <div ref={loadingRef}>
+          <InfiniteScrollLoader text="Loading more products..." />
         </div>
       )}
       
       {/* No more products message */}
-      {!hasMore && products.length > 0 && (
+      {!hasMoreFromAPI && productsFromAPI.length > 0 && (
         <div className="flex justify-center py-4">
           <span className="text-gray-500 text-sm">No more products to load</span>
         </div>
