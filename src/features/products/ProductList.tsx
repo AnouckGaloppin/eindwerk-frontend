@@ -202,7 +202,11 @@ const ProductList: React.FC<ProductListProps> = ({
 
   if (!productsFromAPI || productsFromAPI.length === 0) {
     return (
-      <div className="text-center py-8">
+      <div 
+        className="text-center py-8"
+        role="status"
+        aria-live="polite"
+      >
         <p className="text-gray-500">Geen producten gevonden</p>
       </div>
     );
@@ -210,8 +214,12 @@ const ProductList: React.FC<ProductListProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {productsFromAPI.map((product) => {
+      <div 
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        role="grid"
+        aria-label="Product grid"
+      >
+        {productsFromAPI.map((product, index) => {
           const productId = getStringId(product._id);
           const isFavourite = favouritesFromAPI.some(fav => {
             if (!fav.product_id) return false;
@@ -223,14 +231,24 @@ const ProductList: React.FC<ProductListProps> = ({
             return getStringId(item.product_id) === productId;
           });
           const quantity = shoppingListItem?.quantity || 0;
+          const lowestPrice = getLowestPrice(product);
 
           return (
-            <Link href={`/products/${productId}`} key={productId}>
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+            <article 
+              key={productId}
+              className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow focus-within:shadow-md"
+              role="gridcell"
+              aria-label={`Product: ${product.name} by ${product.brand}`}
+            >
+              <Link 
+                href={`/products/${productId}`}
+                className="block focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-inset rounded-lg"
+                aria-label={`View details for ${product.name}`}
+              >
                 <div className="relative">
                   <img
                     src={product.img}
-                    alt={product.name}
+                    alt={`${product.name} product image`}
                     className="w-full h-48 object-cover"
                   />
                   <button
@@ -238,10 +256,13 @@ const ProductList: React.FC<ProductListProps> = ({
                       e.preventDefault();
                       toggleFavourite.mutate({ product_id: productId });
                     }}
-                    className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white"
+                    className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    aria-label={`${isFavourite ? 'Remove' : 'Add'} ${product.name} to favourites`}
+                    aria-pressed={isFavourite}
                   >
                     <Heart 
                       className={`w-6 h-6 ${isFavourite ? 'text-red-500 fill-current' : 'text-gray-400'}`}
+                      aria-hidden="true"
                     />
                   </button>
                 </div>
@@ -253,18 +274,27 @@ const ProductList: React.FC<ProductListProps> = ({
                   <div className="mt-4 flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       {shoppingListItem && shoppingListItem.quantity > 0 ? (
-                        <>
+                        <div 
+                          className="flex items-center space-x-2"
+                          role="group"
+                          aria-label={`Quantity controls for ${product.name}`}
+                        >
                           <button
                             onClick={(e) => {
                               e.preventDefault();
                               handleDecrement(product);
                             }}
-                            className="p-1 hover:bg-gray-100 rounded"
+                            className="p-1 hover:bg-gray-100 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            aria-label={`Decrease quantity of ${product.name}`}
                           >
-                            -
+                            <span aria-hidden="true">-</span>
                           </button>
                           
+                          <label htmlFor={`quantity-${productId}`} className="sr-only">
+                            Quantity for {product.name}
+                          </label>
                           <input
+                            id={`quantity-${productId}`}
                             type="number"
                             value={formatQuantity(quantity)}
                             onChange={(e) => {
@@ -281,6 +311,7 @@ const ProductList: React.FC<ProductListProps> = ({
                             className="w-16 text-center px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             min="0"
                             step={product.unit === 'piece' ? 1 : 0.1}
+                            aria-label={`Current quantity: ${formatQuantity(quantity)} ${product.unit}`}
                           />
                           
                           <button
@@ -288,15 +319,16 @@ const ProductList: React.FC<ProductListProps> = ({
                               e.preventDefault();
                               handleIncrement(product);
                             }}
-                            className="p-1 hover:bg-gray-100 rounded"
+                            className="p-1 hover:bg-gray-100 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            aria-label={`Increase quantity of ${product.name}`}
                           >
-                            +
+                            <span aria-hidden="true">+</span>
                           </button>
                           
-                          <span className="text-sm text-gray-500">
+                          <span className="text-sm text-gray-500" aria-label="Unit of measurement">
                             {product.unit}
                           </span>
-                        </>
+                        </div>
                       ) : (
                         <button
                           onClick={(e) => {
@@ -312,38 +344,53 @@ const ProductList: React.FC<ProductListProps> = ({
                             });
                             handleQuantityChange(productId, dbQuantity || (product.unit === 'piece' ? 1 : 0.1));
                           }}
-                          className="flex items-center space-x-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                          className="flex items-center space-x-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                          aria-label={`Add ${product.name} to shopping list`}
                         >
-                          <Plus className="w-4 h-4" />
+                          <Plus className="w-4 h-4" aria-hidden="true" />
                           <span>Add</span>
                         </button>
                       )}
                     </div>
                     
                     <div className="text-right">
-                      <p className="text-sm text-gray-500">Prijs per {product.unit}</p>
-                      <p className="text-lg font-semibold text-gray-900">
-                        €{formatPrice(getLowestPrice(product))}
+                      <p className="text-sm text-gray-500" aria-label="Price per unit">
+                        Prijs per {product.unit}
+                      </p>
+                      <p 
+                        className="text-lg font-semibold text-gray-900"
+                        aria-label={`Price: €${formatPrice(lowestPrice)} per ${product.unit}`}
+                      >
+                        €{formatPrice(lowestPrice)}
                       </p>
                     </div>
                   </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </article>
           );
         })}
       </div>
       
       {/* Infinite scroll loading indicator */}
       {hasMoreFromAPI && (
-        <div ref={loadingRef}>
+        <div 
+          ref={loadingRef}
+          role="status"
+          aria-live="polite"
+          aria-label="Loading more products"
+        >
           <InfiniteScrollLoader text="Loading more products..." />
         </div>
       )}
       
       {/* No more products message */}
       {!hasMoreFromAPI && productsFromAPI.length > 0 && (
-        <div className="flex justify-center py-4">
+        <div 
+          className="flex justify-center py-4"
+          role="status"
+          aria-live="polite"
+        >
           <span className="text-gray-500 text-sm">No more products to load</span>
         </div>
       )}

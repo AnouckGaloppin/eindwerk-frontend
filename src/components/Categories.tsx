@@ -110,7 +110,12 @@ export default function Categories({ className }: CategoriesProps) {
 
   if (!hasMounted || isLoading) {
     return (
-      <div className="flex justify-center items-center py-8">
+      <div 
+        className="flex justify-center items-center py-8"
+        role="status"
+        aria-live="polite"
+        aria-label="Loading categories"
+      >
         <CardLoader text="Loading categories..." />
       </div>
     );
@@ -122,11 +127,29 @@ export default function Categories({ className }: CategoriesProps) {
   return (
     <div className={className}>
       {/* <div className="bg-yellow-100 text-yellow-800 p-2 mb-2 rounded text-center text-xs font-bold">[DEBUG] Categories component rendered</div> */}
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+      {error && (
+        <p 
+          className="text-red-500 mb-4"
+          role="alert"
+          aria-live="polite"
+        >
+          {error}
+        </p>
+      )}
       {categories.length === 0 ? (
-        <p className="text-gray-500">No categories available</p>
+        <p 
+          className="text-gray-500"
+          role="status"
+          aria-live="polite"
+        >
+          No categories available
+        </p>
       ) : (
-        <div className="w-full max-w-[1200px] mx-auto flex justify-center">
+        <div 
+          className="w-full max-w-[1200px] mx-auto flex justify-center"
+          role="region"
+          aria-label="Product categories"
+        >
           <Swiper
             ref={swiperRef}
             spaceBetween={8}
@@ -155,6 +178,7 @@ export default function Categories({ className }: CategoriesProps) {
                 spaceBetween: 8
               }
             }}
+            aria-label="Category carousel"
           >
             {(() => {
               // If currentCategory is not set, no category should be active
@@ -168,7 +192,10 @@ export default function Categories({ className }: CategoriesProps) {
                     (activeIndex !== -1 && idx === activeIndex + 1 ? ' ml-4' : ' mr-1')
                   }
                 >
-                  <CategoryBox category={category} isActive={!!currentCategory && category.slug === currentCategory} />
+                  <CategoryBox 
+                    category={category} 
+                    isActive={!!currentCategory && category.slug === currentCategory} 
+                  />
                 </SwiperSlide>
               ));
             })()}
@@ -183,7 +210,9 @@ function CategoryBox({ category, isActive }: { category: Category, isActive: boo
   return (
     <Link 
       href={`/products?category=${category.slug}`} 
-      className="block"
+      className="block focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-lg"
+      aria-label={`${category.name} category${isActive ? ' (currently selected)' : ''}`}
+      aria-current={isActive ? 'page' : undefined}
     >
       <div
         className={
@@ -192,6 +221,7 @@ function CategoryBox({ category, isActive }: { category: Category, isActive: boo
             ? " w-[140px] h-[65px] sm:w-[150px] sm:h-[70px] md:w-[170px] md:h-[85px] lg:w-[200px] lg:h-[95px] ml-2 scale-104 z-10"
             : " w-[130px] h-[60px] sm:w-[140px] sm:h-[65px] md:w-[160px] md:h-[75px] lg:w-[180px] lg:h-[85px] mx-1 scale-100")
         }
+        aria-hidden="true"
       >
         <span className="px-2 text-sm sm:text-base lg:text-lg text-center break-words hyphens-auto">
           {category.name}
