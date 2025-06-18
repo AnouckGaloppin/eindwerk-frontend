@@ -14,7 +14,7 @@ interface ShoppingListItemProps {
 
 function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListItemProps) {
   return (
-    <li className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm mb-2">
+    <li className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm mb-2 transition-all duration-300 ease-in-out transform hover:shadow-lg hover:scale-105">
       <div className="flex items-center space-x-4">
         {product.product?.img && (
           <div className="relative w-16 h-16">
@@ -85,7 +85,7 @@ export default function ShoppingList() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Shopping List</h1>
+      {/* <h1 className="text-2xl font-bold mb-4">Shopping List</h1> */}
       {items.length === 0 ? (
         <p className="text-gray-500">Your shopping list is empty</p>
       ) : (
