@@ -125,14 +125,31 @@ export default function RootLayout({
 }) {
   return (
     <html lang="nl">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="Volovan - Your smart shopping companion for finding the best prices and managing your shopping list" />
+      </head>
       <body className={`${inter.className} flex flex-col min-h-screen bg-white text-gray-900 overflow-y-scrollbar-none`}>
+        {/* Skip to main content link for screen readers */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-teal-500 focus:text-white focus:rounded focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+        >
+          Skip to main content
+        </a>
+
         <Providers>
           <CookieBanner />
           <div className="flex flex-col flex-grow">
-            <div className="pt-16 pb-16">
+            <main 
+              id="main-content"
+              className="pt-16 pb-16"
+              role="main"
+              tabIndex={-1}
+            >
               <Breadcrumbs />
               {children}
-            </div>
+            </main>
           </div>
           <ToastContainer
             position="top-center"
@@ -145,6 +162,9 @@ export default function RootLayout({
             draggable
             pauseOnHover
             theme="light"
+            toastClassName="focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+            role="alert"
+            aria-live="polite"
           />
         </Providers>
       </body>

@@ -63,30 +63,47 @@ export default function Breadcrumbs() {
   console.log('Error state:', error);
 
   return (
-    <nav className="flex items-center space-x-2 text-sm px-4 max-w-7xl mx-auto w-full mt-4">
-      <Link
-        href="/"
-        className="flex items-center p-1.5 text-indigo-600 hover:text-indigo-700 transition-colors duration-200"
-      >
-        <Home className="w-4 h-4" />
-      </Link>
-      {breadcrumbs.map((breadcrumb, index) => (
-        <div key={breadcrumb.path} className="flex items-center">
-          <ChevronRight className="w-4 h-4 mx-2 text-gray-300" />
-          {breadcrumb.isLast ? (
-            <span className="px-2.5 py-1 text-indigo-600 font-medium">
-              {product?.name || breadcrumb.label}
-            </span>
-          ) : (
-            <Link
-              href={breadcrumb.path}
-              className="px-2.5 py-1 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-            >
-              {breadcrumb.label}
-            </Link>
-          )}
-        </div>
-      ))}
+    <nav 
+      className="flex items-center space-x-2 text-sm px-4 max-w-7xl mx-auto w-full mt-4"
+      role="navigation"
+      aria-label="Breadcrumb navigation"
+    >
+      <ol className="flex items-center space-x-2">
+        <li>
+          <Link
+            href="/"
+            className="flex items-center p-1.5 text-indigo-600 hover:text-indigo-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded"
+            aria-label="Go to homepage"
+          >
+            <Home className="w-4 h-4" aria-hidden="true" />
+            <span className="sr-only">Home</span>
+          </Link>
+        </li>
+        {breadcrumbs.map((breadcrumb, index) => (
+          <li key={breadcrumb.path} className="flex items-center">
+            <ChevronRight 
+              className="w-4 h-4 mx-2 text-gray-300" 
+              aria-hidden="true"
+            />
+            {breadcrumb.isLast ? (
+              <span 
+                className="px-2.5 py-1 text-indigo-600 font-medium"
+                aria-current="page"
+              >
+                {product?.name || breadcrumb.label}
+              </span>
+            ) : (
+              <Link
+                href={breadcrumb.path}
+                className="px-2.5 py-1 text-gray-600 hover:text-gray-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded"
+                aria-label={`Go to ${breadcrumb.label}`}
+              >
+                {breadcrumb.label}
+              </Link>
+            )}
+          </li>
+        ))}
+      </ol>
     </nav>
   );
 } 
