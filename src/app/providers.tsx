@@ -14,7 +14,7 @@ export default function Providers({ children }: { children: ReactNode }) {
       <AuthProvider>
         <ShoppingCartProvider>
           <Header />
-          <main>{children}</main>
+          {children}
           <Footer />
         </ShoppingCartProvider>
       </AuthProvider>

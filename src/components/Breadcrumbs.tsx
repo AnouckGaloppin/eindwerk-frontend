@@ -64,7 +64,7 @@ export default function Breadcrumbs() {
 
   return (
     <nav 
-      className="flex items-center space-x-2 text-sm px-4 max-w-7xl mx-auto w-full mt-4"
+      className="flex items-center space-x-2 text-sm max-w-7xl mx-auto w-full px-4 mb-4 mt-4"
       role="navigation"
       aria-label="Breadcrumb navigation"
     >

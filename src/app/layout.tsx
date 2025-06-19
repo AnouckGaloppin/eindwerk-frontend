@@ -141,13 +141,15 @@ export default function RootLayout({
         <Providers>
           <CookieBanner />
           <div className="flex flex-col flex-grow">
+            <div className="">
+              <Breadcrumbs />
+            </div>
             <main 
               id="main-content"
-              className="pt-16 pb-16"
+              className=""
               role="main"
               tabIndex={-1}
             >
-              <Breadcrumbs />
               {children}
             </main>
           </div>

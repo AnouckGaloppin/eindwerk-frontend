@@ -22,7 +22,7 @@ export default function HomePage() {
   // }
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-[calc(100vh-128px)] px-4 sm:px-6 pt-8 sm:pt-16 pb-8 sm:pb-16 bg-gray-100">
+    <main className="flex flex-col items-center justify-center min-h-[calc(100vh-128px)] px-4 sm:px-6 pb-8 sm:pb-16 bg-gray-100">
       <section className="w-full max-w-2xl flex flex-col items-center justify-center space-y-6 sm:space-y-8">
         <h1 className="text-xl sm:text-2xl font-bold text-center text-gray-900">
           Welkom {user?.username || 'Gast'}!
