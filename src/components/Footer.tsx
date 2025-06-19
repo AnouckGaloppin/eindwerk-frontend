@@ -1,7 +1,7 @@
 "use client";
 
 import { NavItem } from "@/app/layout";
-import { Heart, House, Search, ShoppingCart, User } from "lucide-react";
+import { Heart, House, /* Search, */ ShoppingCart, User } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
@@ -17,12 +17,12 @@ const Footer = () => {
       label: "Home",
       description: "Go to homepage"
     },
-    { 
-      href: "/search", 
-      icon: Search, 
-      label: "Search",
-      description: "Search for products"
-    },
+    // { 
+    //   href: "/search", 
+    //   icon: Search, 
+    //   label: "Search",
+    //   description: "Search for products"
+    // },
     { 
       href: "/shoppinglist", 
       icon: ShoppingCart, 
