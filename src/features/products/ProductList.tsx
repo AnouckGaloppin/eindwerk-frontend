@@ -181,14 +181,12 @@ const ProductList: React.FC<ProductListProps> = ({
     return <div className="text-red-500">Error: {error}</div>;
   }
 
-  if (!products || products.length === 0) {
+  // Check if products is empty array
+  if (Array.isArray(products) && products.length === 0) {
     return (
-      <div 
-        className="text-center py-8"
-        role="status"
-        aria-live="polite"
-      >
-        <p className="text-gray-500">Geen producten gevonden</p>
+      <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-sm p-8 text-center">
+        <p className="text-gray-500 text-xl font-medium">Geen producten gevonden</p>
+        <p className="text-gray-400 mt-2">Probeer een andere categorie of pas je zoekopdracht aan</p>
       </div>
     );
   }

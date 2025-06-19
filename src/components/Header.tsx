@@ -32,7 +32,7 @@ const Header = () => {
           {/* Logo Section */}
           <Link
             href="/"
-            className="text-2xl font-extrabold tracking-tight hover:opacity-90 transition focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-500 rounded shrink-0"
+            className="text-2xl font-extrabold tracking-tight hover:opacity-90 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-indigo-500 rounded shrink-0"
             aria-label="Volovan - Go to homepage"
           >
             🛍️ Volovan
@@ -48,8 +48,9 @@ const Header = () => {
             {user ? (
               <button
                 onClick={handleLogout}
-                className="text-white hover:text-gray-200 transition"
+                className="text-white hover:text-gray-200 transition flex items-center gap-2"
               >
+                <LogOut className="w-5 h-5" />
                 Logout
               </button>
             ) : (

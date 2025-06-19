@@ -65,13 +65,13 @@ function ProductsContent() {
     ]);
   };
 
-  if (isProductsLoading) {
+  if (isProductsLoading && (!products || products.length === 0)) {
     return <PageLoader text="Loading products..." />;
   }
 
   return (
     <main 
-      className="min-h-screen bg-gray-50"
+      className="min-h-screen bg-gray-50 mb-12"
       role="main"
       aria-labelledby="products-title"
     >
