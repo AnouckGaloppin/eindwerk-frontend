@@ -1,6 +1,12 @@
-import { ReactNode, useState } from 'react';
-import PullToRefresh from 'react-pull-to-refresh';
+import { ReactNode, useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { CardLoader } from '@/components/ui/Loader';
+
+// Dynamically import PullToRefresh with no SSR
+const PullToRefresh = dynamic(() => import('react-pull-to-refresh'), {
+  ssr: false,
+  loading: () => null
+});
 
 interface RefreshableContentProps {
   children: ReactNode;
@@ -10,6 +16,11 @@ interface RefreshableContentProps {
 
 export default function RefreshableContent({ children, onRefresh, className = '' }: RefreshableContentProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleRefresh = async () => {
     try {
@@ -22,6 +33,11 @@ export default function RefreshableContent({ children, onRefresh, className = ''
       setIsRefreshing(false);
     }
   };
+
+  // Don't render PullToRefresh on server side
+  if (!isMounted) {
+    return <>{children}</>;
+  }
 
   return (
     <PullToRefresh
