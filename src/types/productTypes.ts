@@ -55,8 +55,5 @@ export interface ShoppingListItem {
   checked: boolean;
   updated_at: string;
   created_at: string;
-  product?: {
-    name: string;
-    price: number;
-  };
+  product?: Product;
 }
