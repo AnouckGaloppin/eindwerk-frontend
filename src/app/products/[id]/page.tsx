@@ -266,9 +266,9 @@ export default function ProductDetailPage() {
               
               <div className="space-y-4">
                 <p><span className="font-medium">Brand:</span> {product.brand || 'Unknown'}</p>
-                <div className="flex items-center">
-                  <span className="font-medium mr-2">Categories:</span>
-                  <div className="flex gap-1">
+                <div className="flex items-start">
+                  <span className="font-medium mr-2 flex-shrink-0">Categories:</span>
+                  <div className="flex flex-wrap gap-1">
                     {product.categories?.map((cat, index) => (
                       <span key={cat.id} className="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-sm whitespace-nowrap">
                         {cat.name}

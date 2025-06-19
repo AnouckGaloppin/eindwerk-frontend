@@ -9,6 +9,7 @@ import { CardLoader, InfiniteScrollLoader } from "@/components/ui/Loader";
 import { useState } from "react";
 import { useToggleFavourite, useFavourites } from "@/features/favourites/useFavourites";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 interface ShoppingListItemProps {
   product: ShoppingListItemType;
@@ -22,6 +23,15 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
   const [isSwipingRight, setIsSwipingRight] = useState(false);
   const toggleFavourite = useToggleFavourite();
   const { favourites } = useFavourites();
+  const router = useRouter();
+  
+  // Debug logging to see what's in the product object
+  console.log('Shopping list item product:', {
+    name: product.product?.name,
+    brand: product.product?.brand,
+    fullProduct: product.product,
+    allKeys: product.product ? Object.keys(product.product) : []
+  });
   
   // Check if this product is in favorites
   const isFavorite = favourites.some(fav => fav.product_id === product.product_id);
@@ -35,12 +45,40 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
     }
   };
 
+  const handleDelete = () => {
+    setIsDeleting(true);
+    // Instant list reflow - no delay
+    onDelete(product._id);
+  };
+
+  const handleProductClick = (e: React.MouseEvent) => {
+    console.log('Product clicked:', {
+      target: e.target,
+      isButton: (e.target as HTMLElement).closest('button'),
+      isSwipingLeft,
+      isSwipingRight,
+      productId: product.product_id
+    });
+    
+    // Prevent click if user is clicking on buttons or if swiping
+    if (
+      (e.target as HTMLElement).closest('button') ||
+      isSwipingLeft ||
+      isSwipingRight
+    ) {
+      console.log('Click prevented - button or swiping');
+      return;
+    }
+    
+    console.log('Navigating to product:', product.product_id);
+    // Navigate to product detail page
+    router.push(`/products/${product.product_id}`);
+  };
+
+  // Only enable swipe gestures on mobile (touch devices)
   const handlers = useSwipeable({
     onSwipedLeft: () => {
-      setIsDeleting(true);
-      setTimeout(() => {
-        onDelete(product._id);
-      }, 300);
+      handleDelete();
     },
     onSwipedRight: async () => {
       if (!isFavorite) {
@@ -60,20 +98,21 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
       setIsSwipingLeft(false);
       setIsSwipingRight(false);
     },
-    trackMouse: true,
-    trackTouch: true,
+    trackMouse: false, // Disable mouse tracking for desktop
+    trackTouch: true,  // Keep touch tracking for mobile
   });
 
   return (
     <li 
       {...handlers}
-      className={`flex items-center justify-between p-4 bg-white rounded-lg shadow-sm mb-2 transition-all duration-300 ease-in-out transform hover:shadow-lg hover:scale-105 relative ${
-        isDeleting ? 'translate-x-[-100%] opacity-0' : ''
+      onClick={handleProductClick}
+      className={`flex items-center justify-between p-3 sm:p-4 bg-white rounded-lg shadow-sm mb-2 transition-all duration-300 ease-out transform hover:shadow-lg hover:scale-105 relative overflow-hidden cursor-pointer ${
+        isDeleting ? 'translate-x-[-100%] opacity-0 scale-95 rotate-1' : ''
       }`}
     >
-      {/* Delete indicator (left swipe) */}
+      {/* Delete indicator (left swipe) - only visible on mobile */}
       <div 
-        className="absolute inset-y-0 right-0 bg-red-500 rounded-r-lg flex items-center justify-center px-4 text-white opacity-0 transition-opacity duration-200"
+        className="absolute inset-y-0 right-0 bg-red-500 rounded-r-lg flex items-center justify-center px-4 text-white opacity-0 transition-opacity duration-200 sm:hidden"
         style={{
           opacity: isSwipingLeft ? '1' : '0',
           width: '4rem'
@@ -82,9 +121,9 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
         <Trash className="w-5 h-5" />
       </div>
 
-      {/* Favorite indicator (right swipe) */}
+      {/* Favorite indicator (right swipe) - only visible on mobile */}
       <div 
-        className="absolute inset-y-0 left-0 bg-pink-500 rounded-l-lg flex items-center justify-center px-4 text-white opacity-0 transition-opacity duration-200"
+        className="absolute inset-y-0 left-0 bg-pink-500 rounded-l-lg flex items-center justify-center px-4 text-white opacity-0 transition-opacity duration-200 sm:hidden"
         style={{
           opacity: isSwipingRight ? '1' : '0',
           width: '4rem'
@@ -93,9 +132,9 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
         <Heart className="w-5 h-5" />
       </div>
 
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
         {product.product?.img && (
-          <div className="relative w-16 h-16">
+          <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
             <Image
               src={product.product.img}
               alt={product.product.name}
@@ -104,28 +143,31 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
             />
           </div>
         )}
-        <div>
-          <h3 className="font-medium text-gray-900">{product.product?.name}</h3>
-          <p className="text-sm text-gray-500">{product.unit}</p>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-medium text-gray-900 text-sm sm:text-base truncate">{product.product?.name}</h3>
+          <p className="text-xs sm:text-sm text-gray-500">
+            {product.product?.brand || product.product?.name?.split(' ')[0] || 'Unknown brand'}
+          </p>
         </div>
       </div>
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+        <div className="flex items-center space-x-1 sm:space-x-2">
           <button
             onClick={() => onUpdateQuantity(product._id, Math.max(0, product.quantity - (product.product?.quantity || 1)))}
             className="p-1 rounded-full hover:bg-gray-100"
           >
-            <Minus className="w-4 h-4" />
+            <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
           </button>
-          <span className="w-8 text-center">{product.quantity.toFixed(2)}</span>
+          <span className="w-6 sm:w-8 text-center text-xs sm:text-sm">{product.quantity.toFixed(2)}</span>
           <button
             onClick={() => onUpdateQuantity(product._id, product.quantity + (product.product?.quantity || 1))}
             className="p-1 rounded-full hover:bg-gray-100"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
           </button>
+          <span className="text-xs sm:text-sm text-gray-500">{product.unit}</span>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1 sm:space-x-2">
           <button
             onClick={handleToggleFavorite}
             className="hidden sm:block p-2 text-pink-600 hover:bg-pink-50 rounded-full transition-colors"
@@ -134,8 +176,9 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
             <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
           </button>
           <button
-            onClick={() => onDelete(product._id)}
-            className="hidden sm:block p-2 text-red-600 hover:bg-red-50 rounded-full"
+            onClick={handleDelete}
+            className="hidden sm:block p-2 text-red-600 hover:bg-red-50 rounded-full transition-all duration-200 hover:scale-110"
+            aria-label="Remove from shopping list"
           >
             <Trash className="w-5 h-5" />
           </button>
@@ -177,7 +220,7 @@ export default function ShoppingList() {
         <p className="text-gray-500">Your shopping list is empty</p>
       ) : (
         <div className="space-y-2">
-          <ul className="space-y-2">
+          <ul className="space-y-2 transition-all duration-100 ease-out">
             {items.map((item) => (
               <ShoppingListItem
                 key={item._id}
