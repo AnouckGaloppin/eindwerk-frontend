@@ -112,14 +112,14 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           <button
-            onClick={() => onUpdateQuantity(product._id, Math.max(0, product.quantity - 1))}
+            onClick={() => onUpdateQuantity(product._id, Math.max(0, product.quantity - (product.product?.quantity || 1)))}
             className="p-1 rounded-full hover:bg-gray-100"
           >
             <Minus className="w-4 h-4" />
           </button>
           <span className="w-8 text-center">{product.quantity.toFixed(2)}</span>
           <button
-            onClick={() => onUpdateQuantity(product._id, product.quantity + 1)}
+            onClick={() => onUpdateQuantity(product._id, product.quantity + (product.product?.quantity || 1))}
             className="p-1 rounded-full hover:bg-gray-100"
           >
             <Plus className="w-4 h-4" />
