@@ -137,9 +137,9 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
   };
 
   return (
-    <div ref={searchRef} className={`relative ${className}`}>
+    <div ref={searchRef} className={`relative flex justify-center ${className}`}>
       {/* Regular Search Bar */}
-      <div className={`relative ${isMobileExpanded ? 'hidden sm:block' : ''}`}>
+      <div className={`relative w-full sm:w-1/2 ${isMobileExpanded ? 'hidden sm:block' : ''}`}>
         <input
           ref={inputRef}
           type="text"
@@ -186,8 +186,8 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
       {isDropdownVisible && (
         <div 
           className={`
-            absolute w-full mt-1 bg-white rounded-lg shadow-xl overflow-hidden z-50 border border-gray-200
-            ${isMobileExpanded ? 'fixed left-2 right-2 sm:static sm:left-0 sm:right-0' : ''}
+            absolute w-full sm:w-1/2 mt-2 bg-white rounded-lg shadow-xl overflow-hidden z-50 top-full left-1/2 sm:-translate-x-1/2
+            ${isMobileExpanded ? 'fixed left-2 right-2 sm:static sm:left-1/2 sm:-translate-x-1/2' : ''}
           `}
           role="listbox"
         >
