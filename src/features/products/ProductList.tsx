@@ -12,6 +12,7 @@ import { useFavourites } from "../favourites/useFavourites";
 import { useToggleFavourite } from "../favourites/useFavourites";
 import { useAuth } from "@/lib/auth-context";
 import { CardLoader, InfiniteScrollLoader } from "@/components/ui/Loader";
+import RefreshableContent from '@/components/PullToRefresh';
 
 // Helper function to get string ID
 const getStringId = (id: string | { $oid: string }): string => {
@@ -30,6 +31,7 @@ interface ProductListProps {
   onLoadMore?: () => void;
   hasMore?: boolean;
   isFetchingNextPage?: boolean;
+  onRefresh?: () => Promise<any>;
 }
 
 const ProductList: React.FC<ProductListProps> = ({
@@ -41,6 +43,7 @@ const ProductList: React.FC<ProductListProps> = ({
   onLoadMore,
   hasMore = false,
   isFetchingNextPage = false,
+  onRefresh,
 }) => {
   const { items: shoppingListItems, updateItem, addItem, deleteItem } = useShoppingList();
   const { user } = useAuth();
@@ -190,7 +193,7 @@ const ProductList: React.FC<ProductListProps> = ({
     );
   }
 
-  return (
+  const productList = (
     <div className="space-y-6">
       <div 
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
@@ -344,13 +347,26 @@ const ProductList: React.FC<ProductListProps> = ({
           );
         })}
       </div>
+      
+      {/* Infinite scroll loading indicator */}
       {hasMore && (
-        <div ref={loadingRef} className="py-4">
-          <InfiniteScrollLoader />
+        <div ref={loadingRef}>
+          <InfiniteScrollLoader text="Loading more products..." />
         </div>
       )}
     </div>
   );
+
+  // Wrap with pull-to-refresh only if onRefresh is provided
+  if (onRefresh) {
+    return (
+      <RefreshableContent onRefresh={onRefresh}>
+        {productList}
+      </RefreshableContent>
+    );
+  }
+
+  return productList;
 };
 
 export default ProductList;

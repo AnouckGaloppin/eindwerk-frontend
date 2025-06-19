@@ -10,12 +10,14 @@ import { useProducts } from "@/features/products/useProducts";
 import { useFavourites, useToggleFavourite } from "@/features/favourites/useFavourites";
 import { useShoppingList } from "@/features/shoppingList/useShoppingList";
 import { PageLoader } from "@/components/ui/Loader";
+import { useQueryClient } from '@tanstack/react-query';
 
 function ProductsContent() {
   const searchParams = useSearchParams();
   const category = searchParams.get("category") ?? undefined;
   const search = searchParams.get("search") ?? undefined;
   const [error] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const { 
     data: products = [], 
@@ -52,6 +54,15 @@ function ProductsContent() {
     } catch (error) {
       console.error('Error in handleAddOrUpdate:', error);
     }
+  };
+
+  const handleRefresh = async () => {
+    // Invalidate and refetch products and favourites
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['products', { category, search }] }),
+      queryClient.invalidateQueries({ queryKey: ['favourites'] }),
+      queryClient.invalidateQueries({ queryKey: ['shopping-list'] })
+    ]);
   };
 
   if (isProductsLoading) {
@@ -122,6 +133,7 @@ function ProductsContent() {
               onLoadMore={fetchNextPage}
               hasMore={hasMore}
               isFetchingNextPage={isFetchingNextPage}
+              onRefresh={handleRefresh}
             />
           </section>
         )}
