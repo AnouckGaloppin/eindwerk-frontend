@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import "swiper/css";
 import api from "@/lib/axios";
 import type { Category } from "@/types/productTypes";
 import { Loader } from "lucide-react";
-import './Categories.css';
 import { AxiosError } from "axios";
 import { CardLoader } from "@/components/ui/Loader";
 
@@ -48,8 +47,18 @@ export default function Categories({ className }: CategoriesProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [currentCategory, setCurrentCategory] = useState<string | null>(null);
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const currentCategory = searchParams.get('category');
+  const swiperRef = useRef<any>(null);
+
+  // Get current category from URL without causing re-renders
+  useEffect(() => {
+    const category = searchParams.get('category');
+    if (category !== currentCategory) {
+      setCurrentCategory(category);
+    }
+  }, [searchParams, currentCategory]);
 
   useEffect(() => {
     setHasMounted(true);
@@ -82,6 +91,30 @@ export default function Categories({ className }: CategoriesProps) {
 
     fetchCategories();
   }, []);
+
+  // Center active category when it changes
+  useEffect(() => {
+    if (currentCategory && categories.length > 0) {
+      const activeIndex = categories.findIndex(cat => cat.slug === currentCategory);
+      if (activeIndex !== -1) {
+        setTimeout(() => {
+          const activeElement = document.querySelector(`[data-category="${currentCategory}"]`);
+          if (activeElement) {
+            activeElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'nearest',
+              inline: 'center'
+            });
+          }
+        }, 100);
+      }
+    }
+  }, [currentCategory, categories]);
+
+  const handleCategoryClick = (categorySlug: string) => {
+    setCurrentCategory(categorySlug);
+    router.push(`/products?category=${categorySlug}`);
+  };
 
   if (!hasMounted || isLoading) {
     return (
@@ -124,6 +157,7 @@ export default function Categories({ className }: CategoriesProps) {
         >
           <div className="w-[380px] sm:w-[480px] md:w-[800px] lg:w-[1100px]">
             <Swiper
+              ref={swiperRef}
               spaceBetween={8}
               slidesPerView={2}
               breakpoints={{
@@ -151,7 +185,8 @@ export default function Categories({ className }: CategoriesProps) {
                   <SwiperSlide key={category._id}>
                     <CategoryBox 
                       category={category} 
-                      isActive={isActive} 
+                      isActive={isActive}
+                      onClick={() => handleCategoryClick(category.slug)}
                     />
                   </SwiperSlide>
                 );
@@ -164,14 +199,15 @@ export default function Categories({ className }: CategoriesProps) {
   );
 }
 
-function CategoryBox({ category, isActive }: { category: Category, isActive: boolean }) {
+function CategoryBox({ category, isActive, onClick }: { category: Category, isActive: boolean, onClick: () => void }) {
   return (
-    <Link
-      href={`/products?category=${category.slug}`}
+    <button
+      onClick={onClick}
+      data-category={category.slug}
       className={`
-        relative block w-full max-w-[200px] aspect-[2/1] rounded-lg overflow-hidden
-        transition-all duration-300 ease-in-out transform
-        ${isActive ? 'scale-105 shadow-lg' : 'hover:scale-105'}
+        relative block w-full max-w-[200px] rounded-lg overflow-hidden
+        transition-all duration-300 ease-in-out transform hover:shadow-lg hover:scale-105
+        ${isActive ? 'h-20' : 'h-12'}
       `}
       aria-label={`Filter by ${category.name}`}
       aria-current={isActive ? 'page' : undefined}
@@ -182,13 +218,10 @@ function CategoryBox({ category, isActive }: { category: Category, isActive: boo
         transition-opacity duration-300
         ${isActive ? 'opacity-100' : 'opacity-80 hover:opacity-100'}
       `}>
-        <span className={`
-          text-white text-center font-semibold px-2
-          ${isActive ? 'text-lg' : 'text-base'}
-        `}>
+        <span className="text-white text-center font-semibold px-2 text-base">
           {category.name}
         </span>
       </div>
-    </Link>
+    </button>
   );
 }
