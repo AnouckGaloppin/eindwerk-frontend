@@ -8,7 +8,6 @@ import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import Link from "next/link";
 import { formatPrice, formatQuantity } from '@/lib/utils';
 import { toast } from 'react-toastify';
-import { useProducts } from "./useProducts";
 import { useFavourites } from "../favourites/useFavourites";
 import { useToggleFavourite } from "../favourites/useFavourites";
 import { useAuth } from "@/lib/auth-context";
@@ -45,21 +44,13 @@ const ProductList: React.FC<ProductListProps> = ({
 }) => {
   const { items: shoppingListItems, updateItem, addItem, deleteItem } = useShoppingList();
   const { user } = useAuth();
-  const { 
-    products: productsFromAPI, 
-    isLoading: isProductsLoading,
-    fetchNextPage,
-    hasMore: hasMoreFromAPI,
-    isFetchingNextPage: isFetchingNextPageFromAPI
-  } = useProducts({ category: '', search: '' });
-  
   const { data: favouritesFromAPI = [] } = useFavourites();
   const toggleFavourite = useToggleFavourite();
 
   const { loadingRef } = useInfiniteScroll({
-    onLoadMore: fetchNextPage,
-    hasMore: hasMoreFromAPI,
-    isLoading: isFetchingNextPageFromAPI,
+    onLoadMore: onLoadMore || (() => {}),
+    hasMore: hasMore,
+    isLoading: isFetchingNextPage,
   });
 
   const getLowestPrice = (product: Product) => {
@@ -93,7 +84,7 @@ const ProductList: React.FC<ProductListProps> = ({
       if (!item.product_id) return false;
       return getStringId(item.product_id) === productId;
     });
-    const product = productsFromAPI.find(p => getStringId(p._id) === productId);
+    const product = products.find(p => getStringId(p._id) === productId);
 
     console.log('Found items:', {
       shoppingListItem,
@@ -179,7 +170,7 @@ const ProductList: React.FC<ProductListProps> = ({
     handleQuantityChange(productId, Math.max(0, currentQuantity - decrementAmount));
   };
 
-  if (isLoading || isProductsLoading) {
+  if (isLoading) {
     return <CardLoader text="Loading products..." />;
   }
 
@@ -187,20 +178,7 @@ const ProductList: React.FC<ProductListProps> = ({
     return <div className="text-red-500">Error: {error}</div>;
   }
 
-  console.log('ProductList received products:', productsFromAPI);
-  console.log('ProductList received shoppingList:', shoppingListItems);
-  console.log('ProductList received favourites:', favouritesFromAPI);
-
-  console.log('🔄 ProductList rendering with:', {
-    productsCount: productsFromAPI.length,
-    favouritesCount: favouritesFromAPI.length,
-    favourites: favouritesFromAPI.map(f => ({
-      id: f.product?._id ? getStringId(f.product._id) : f.product_id,
-      name: f.product?.name
-    }))
-  });
-
-  if (!productsFromAPI || productsFromAPI.length === 0) {
+  if (!products || products.length === 0) {
     return (
       <div 
         className="text-center py-8"
@@ -219,7 +197,7 @@ const ProductList: React.FC<ProductListProps> = ({
         role="grid"
         aria-label="Product grid"
       >
-        {productsFromAPI.map((product, index) => {
+        {products.map((product) => {
           const productId = getStringId(product._id);
           const isFavourite = favouritesFromAPI.some(fav => {
             if (!fav.product_id) return false;
@@ -246,11 +224,13 @@ const ProductList: React.FC<ProductListProps> = ({
                 aria-label={`View details for ${product.name}`}
               >
                 <div className="relative">
-                  <img
-                    src={product.img}
-                    alt={`${product.name} product image`}
-                    className="w-full h-48 object-cover"
-                  />
+                  {product.img && (
+                    <img
+                      src={product.img}
+                      alt={`${product.name} product image`}
+                      className="w-full h-48 object-cover"
+                    />
+                  )}
                   <button
                     onClick={(e) => {
                       e.preventDefault();
@@ -352,15 +332,8 @@ const ProductList: React.FC<ProductListProps> = ({
                         </button>
                       )}
                     </div>
-                    
                     <div className="text-right">
-                      <p className="text-sm text-gray-500" aria-label="Price per unit">
-                        Prijs per {product.unit}
-                      </p>
-                      <p 
-                        className="text-lg font-semibold text-gray-900"
-                        aria-label={`Price: €${formatPrice(lowestPrice)} per ${product.unit}`}
-                      >
+                      <p className="font-medium text-indigo-600">
                         €{formatPrice(lowestPrice)}
                       </p>
                     </div>
@@ -371,27 +344,9 @@ const ProductList: React.FC<ProductListProps> = ({
           );
         })}
       </div>
-      
-      {/* Infinite scroll loading indicator */}
-      {hasMoreFromAPI && (
-        <div 
-          ref={loadingRef}
-          role="status"
-          aria-live="polite"
-          aria-label="Loading more products"
-        >
-          <InfiniteScrollLoader text="Loading more products..." />
-        </div>
-      )}
-      
-      {/* No more products message */}
-      {!hasMoreFromAPI && productsFromAPI.length > 0 && (
-        <div 
-          className="flex justify-center py-4"
-          role="status"
-          aria-live="polite"
-        >
-          <span className="text-gray-500 text-sm">No more products to load</span>
+      {hasMore && (
+        <div ref={loadingRef} className="py-4">
+          <InfiniteScrollLoader />
         </div>
       )}
     </div>
