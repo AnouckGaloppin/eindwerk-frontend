@@ -23,7 +23,7 @@ const Header = () => {
 
   return (
     <header 
-      className="sticky top-0 z-40 bg-gradient-to-r from-indigo-500 to-teal-500 shadow-lg text-white"
+      className="sticky top-0 z-40 bg-gradient-to-r from-indigo-500 to-blue-500 shadow-lg text-white"
       role="banner"
       aria-label="Main navigation"
     >

@@ -4,9 +4,10 @@ import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Categories from "@/components/Categories";
 import ProductList from "@/features/products/ProductList";
+import Pagination from "@/components/Pagination";
 import type { Product, Category } from "@/types/productTypes";
 import { useState } from "react";
-import { useProducts } from "@/features/products/useProducts";
+import { useProductsPagination } from "@/features/products/useProductsPagination";
 import { useFavourites, useToggleFavourite } from "@/features/favourites/useFavourites";
 import { useShoppingList } from "@/features/shoppingList/useShoppingList";
 import { PageLoader } from "@/components/ui/Loader";
@@ -21,16 +22,22 @@ function ProductsContent({ initialCategories, initialProducts }: ProductsContent
   const searchParams = useSearchParams();
   const category = searchParams.get("category") ?? undefined;
   const search = searchParams.get("search") ?? undefined;
+  const page = parseInt(searchParams.get("page") ?? "1");
   const [error] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const { 
-    data: products = [], 
+    products, 
+    pagination,
     isLoading: isProductsLoading,
-    hasMore, 
-    isFetchingNextPage, 
-    fetchNextPage 
-  } = useProducts({ category, search, initialData: initialProducts });
+    error: productsError
+  } = useProductsPagination({ 
+    category, 
+    search, 
+    page, 
+    perPage: 12,
+    initialData: page === 1 ? initialProducts : undefined // Only use initialData for page 1
+  });
 
   const { data: favourites = [] } = useFavourites();
   const { items: shoppingList = [], addItem, updateItem } = useShoppingList();
@@ -64,7 +71,7 @@ function ProductsContent({ initialCategories, initialProducts }: ProductsContent
   const handleRefresh = async () => {
     // Invalidate and refetch products and favourites
     await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['products', { category, search }] }),
+      queryClient.invalidateQueries({ queryKey: ['products', category, search, page, 12] }),
       queryClient.invalidateQueries({ queryKey: ['favourites'] }),
       queryClient.invalidateQueries({ queryKey: ['shopping-list'] })
     ]);
@@ -103,44 +110,58 @@ function ProductsContent({ initialCategories, initialProducts }: ProductsContent
           <Categories className="mb-8" initialCategories={initialCategories} />
         </section>
 
-        {error ? (
+        {error || productsError ? (
           <div 
             className="text-red-500 text-center py-8"
             role="alert"
             aria-live="polite"
           >
-            {error}
+            {error || (productsError as Error)?.message || "An error occurred"}
           </div>
         ) : (
-          <section 
-            aria-labelledby="products-list-title"
-          >
-            <h2 
-              id="products-list-title"
-              className="sr-only"
+          <>
+            <section 
+              aria-labelledby="products-list-title"
             >
-              Products List
-            </h2>
-            <ProductList
-              products={products}
-              shoppingList={shoppingList}
-              favourites={favourites}
-              onAddOrUpdate={handleAddOrUpdate}
-              onToggleFavourite={(productId) => toggleFavouriteMutation.mutate({ product_id: productId })}
-              onQuantityChange={(itemId, quantity) => {
-                updateItem({
-                  id: itemId,
-                  data: { quantity }
-                });
-              }}
-              isLoading={isProductsLoading}
-              error={error}
-              onLoadMore={fetchNextPage}
-              hasMore={hasMore}
-              isFetchingNextPage={isFetchingNextPage}
-              onRefresh={handleRefresh}
-            />
-          </section>
+              <h2 
+                id="products-list-title"
+                className="sr-only"
+              >
+                Products List
+              </h2>
+              <ProductList
+                products={products}
+                shoppingList={shoppingList}
+                favourites={favourites}
+                onAddOrUpdate={handleAddOrUpdate}
+                onToggleFavourite={(productId) => toggleFavouriteMutation.mutate({ product_id: productId })}
+                onQuantityChange={(itemId, quantity) => {
+                  updateItem({
+                    id: itemId,
+                    data: { quantity }
+                  });
+                }}
+                isLoading={isProductsLoading}
+                error={error}
+                onRefresh={handleRefresh}
+              />
+            </section>
+
+            {/* Pagination */}
+            {pagination && pagination.total > 0 && (
+              <section 
+                aria-label="Pagination"
+                className="mt-8"
+              >
+                <Pagination
+                  currentPage={pagination.current_page}
+                  totalPages={pagination.last_page}
+                  totalItems={pagination.total}
+                  perPage={pagination.per_page}
+                />
+              </section>
+            )}
+          </>
         )}
       </div>
     </main>

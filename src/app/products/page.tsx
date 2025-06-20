@@ -19,7 +19,10 @@ async function fetchInitialProducts(searchParams: { [key: string]: string | stri
     const params = new URLSearchParams();
     if (searchParams.category) params.append('category', searchParams.category as string);
     if (searchParams.search) params.append('search', searchParams.search as string);
-    params.append('page', '1');
+    
+    // Get page from searchParams, default to 1
+    const page = searchParams.page ? parseInt(searchParams.page as string) : 1;
+    params.append('page', page.toString());
     params.append('per_page', '12');
 
     const response = await api.get(`/api/products?${params.toString()}`);

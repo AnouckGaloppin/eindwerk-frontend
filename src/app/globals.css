@@ -134,6 +134,15 @@ select:focus {
   color: #6b7280; /* Ensure good contrast */
 }
 
+/* Remove focus outline from main element to prevent green line */
+main:focus {
+  outline: none;
+}
+
+main:focus-visible {
+  outline: none;
+}
+
 /* Improved focus for interactive elements */
 .interactive:focus {
   outline: 2px solid #14b8a6;

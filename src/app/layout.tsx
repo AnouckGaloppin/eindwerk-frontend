@@ -131,7 +131,7 @@ export default function RootLayout({
         {/* Skip to main content link for screen readers */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-teal-500 focus:text-white focus:rounded focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           Skip to main content
         </a>
@@ -146,7 +146,6 @@ export default function RootLayout({
               id="main-content"
               className="pb-20"
               role="main"
-              tabIndex={-1}
             >
               {children}
             </main>

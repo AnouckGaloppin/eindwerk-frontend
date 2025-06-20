@@ -4,14 +4,13 @@ import { Product } from '@/types/productTypes';
 import { ShoppingListItem } from '@/types/shoppingTypes';
 import { Favourite } from "@/types/favouritesTypes";
 import { useShoppingList } from '@/features/shoppingList/useShoppingList';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import Link from "next/link";
 import { formatPrice, formatQuantity, generateSlug } from '@/lib/utils';
 import { toast } from 'react-toastify';
 import { useFavourites } from "../favourites/useFavourites";
 import { useToggleFavourite } from "../favourites/useFavourites";
 import { useAuth } from "@/lib/auth-context";
-import { CardLoader, InfiniteScrollLoader } from "@/components/ui/Loader";
+import { CardLoader } from "@/components/ui/Loader";
 
 // Helper function to get string ID
 const getStringId = (id: string | { $oid: string }): string => {
@@ -27,9 +26,6 @@ interface ProductListProps {
   onQuantityChange: (itemId: string, quantity: number) => void;
   isLoading?: boolean;
   error?: string | null;
-  onLoadMore?: () => void;
-  hasMore?: boolean;
-  isFetchingNextPage?: boolean;
   onRefresh: () => Promise<any>;
 }
 
@@ -39,21 +35,12 @@ const ProductList: React.FC<ProductListProps> = ({
   isLoading,
   error,
   onToggleFavourite,
-  onLoadMore,
-  hasMore = false,
-  isFetchingNextPage = false,
   onRefresh,
 }) => {
   const { items: shoppingListItems, updateItem, addItem, deleteItem } = useShoppingList();
   const { user } = useAuth();
   const { data: favouritesFromAPI = [] } = useFavourites();
   const toggleFavourite = useToggleFavourite();
-
-  const { loadingRef } = useInfiniteScroll({
-    onLoadMore: onLoadMore || (() => {}),
-    hasMore: hasMore,
-    isLoading: isFetchingNextPage,
-  });
 
   const getLowestPrice = (product: Product) => {
     if (!product.price_per_store || typeof product.price_per_store !== 'object') return 0;
@@ -69,106 +56,61 @@ const ProductList: React.FC<ProductListProps> = ({
   };
 
   const handleQuantityChange = async (productId: string, newQuantity: number) => {
-    console.log('handleQuantityChange called with:', { productId, newQuantity });
-    
-    // Ensure newQuantity is a valid number
-    const parsedQuantity = typeof newQuantity === 'number' && !isNaN(newQuantity) ? newQuantity : 0;
-    const formattedQuantity = formatQuantity(parsedQuantity);
-    
-    console.log('Quantity processing:', {
-      productId,
-      newQuantity,
-      parsedQuantity,
-      formattedQuantity
-    });
+    try {
+      const existingItem = shoppingListItems.find(item => {
+        if (!item.product_id) return false;
+        return getStringId(item.product_id) === productId;
+      });
 
-    const shoppingListItem = shoppingListItems.find(item => {
-      if (!item.product_id) return false;
-      return getStringId(item.product_id) === productId;
-    });
-    const product = products.find(p => getStringId(p._id) === productId);
-
-    console.log('Found items:', {
-      shoppingListItem,
-      product
-    });
-
-    if (!product) {
-      console.error('Product not found:', productId);
-      return;
-    }
-
-    // If quantity is zero, remove the item if it exists
-    if (parsedQuantity === 0) {
-      if (shoppingListItem) {
-        try {
-          console.log('Removing item from shopping list:', {
-            itemId: getStringId(shoppingListItem._id)
+      if (existingItem) {
+        if (newQuantity <= 0) {
+          // Remove item if quantity is 0 or negative
+          await deleteItem(getStringId(existingItem._id));
+        } else {
+          // Update existing item
+          await updateItem({
+            id: getStringId(existingItem._id),
+            data: { quantity: newQuantity }
           });
-          await deleteItem(getStringId(shoppingListItem._id));
-        } catch (error: unknown) {
-          console.error('Error removing item:', error);
-          toast.error('Failed to remove item from shopping list');
+        }
+      } else if (newQuantity > 0) {
+        // Add new item
+        const product = products.find(p => getStringId(p._id) === productId);
+        if (product) {
+          await addItem({
+            productId,
+            quantity: newQuantity,
+            unit: product.unit || 'piece'
+          });
         }
       }
-      return;
-    }
-
-    try {
-      if (shoppingListItem) {
-        console.log('Updating existing item:', {
-          itemId: getStringId(shoppingListItem._id),
-          newQuantity: parsedQuantity
-        });
-        await updateItem({ 
-          id: getStringId(shoppingListItem._id),
-          data: {
-            quantity: parsedQuantity,
-            unit: shoppingListItem.unit
-          }
-        });
-      } else {
-        // When adding a new item, use the exact quantity passed in
-        console.log('Adding new item with quantity:', {
-          productId,
-          quantity: parsedQuantity,
-          productUnit: product.unit
-        });
-        
-        await addItem({
-          productId,
-          quantity: parsedQuantity,
-          unit: product.unit
-        });
-      }
     } catch (error) {
-      console.error('Error updating shopping list:', error);
+      console.error('Error updating quantity:', error);
+      toast.error('Failed to update quantity');
     }
   };
 
   const handleIncrement = (product: Product) => {
     const productId = getStringId(product._id);
-    const shoppingListItem = shoppingListItems.find(item => {
+    const currentItem = shoppingListItems.find(item => {
       if (!item.product_id) return false;
       return getStringId(item.product_id) === productId;
     });
-    const currentQuantity = typeof shoppingListItem?.quantity === 'number' && !isNaN(shoppingListItem.quantity)
-      ? shoppingListItem.quantity
-      : 0;
-    const incrementAmount = typeof product.quantity === 'number' ? product.quantity : (product.unit === 'piece' ? 1 : 0.1);
+    
+    const currentQuantity = currentItem?.quantity || 0;
+    const incrementAmount = product.unit === 'piece' ? 1 : 0.1;
     handleQuantityChange(productId, currentQuantity + incrementAmount);
   };
 
   const handleDecrement = (product: Product) => {
     const productId = getStringId(product._id);
-    const shoppingListItem = shoppingListItems.find(item => {
+    const currentItem = shoppingListItems.find(item => {
       if (!item.product_id) return false;
       return getStringId(item.product_id) === productId;
     });
-    const currentQuantity = typeof shoppingListItem?.quantity === 'number' && !isNaN(shoppingListItem.quantity)
-      ? shoppingListItem.quantity
-      : 0;
-    const decrementAmount = typeof product.quantity === 'number' ? product.quantity : (product.unit === 'piece' ? 1 : 0.1);
+    
+    const currentQuantity = currentItem?.quantity || 0;
+    const decrementAmount = product.unit === 'piece' ? 1 : 0.1;
     handleQuantityChange(productId, Math.max(0, currentQuantity - decrementAmount));
   };
 
@@ -344,13 +286,6 @@ const ProductList: React.FC<ProductListProps> = ({
           );
         })}
       </div>
-      
-      {/* Infinite scroll loading indicator */}
-      {hasMore && (
-        <div ref={loadingRef}>
-          <InfiniteScrollLoader text="Loading more products..." />
-        </div>
-      )}
     </div>
   );
 
