@@ -5,6 +5,7 @@ import { compareShoppingList } from "./compare"; // Importeer vanuit de feature-
 import type { PriceComparison, StorePrice } from "@/types/productTypes";
 import { useShoppingList } from "../shoppingList/useShoppingList";
 import Loader from "@/components/ui/Loader";
+import { formatPrice } from "@/lib/utils";
 
 interface ShoppingListItem {
   _id: string;
@@ -247,35 +248,37 @@ export default function PriceComparison({
                     </div>
                     {Array.isArray(item.all_prices) ? (
                       <div className="space-y-1">
-                        {item.all_prices.map((price: any, idx: number) => (
-                          <div key={idx} className="flex justify-between items-center text-sm">
+                        {item.all_prices.map((price: any, idx: number) => {
+                          const shoppingItem = shoppingListItems.find(i => getStringId(i.product_id) === item.product_id);
+                          const unit = shoppingItem?.unit || 'item';
+                          return (
+                          <div key={idx} className="flex justify-between items-center bg-white p-2 rounded">
                             <span className="text-gray-600">{price.store}</span>
                             <div className="text-right">
-                              <span>€{calculateTotalPrice(price.price_per_item, item.product_id)}</span>
-                              {price.price_per_unit && (
-                                <span className="text-gray-500 text-xs ml-1">
-                                  ({price.price_per_unit})
-                                </span>
-                              )}
+                              <span className="font-medium">€{calculateTotalPrice(price.price_per_item, item.product_id)}</span>
+                              <span className="text-gray-500 text-sm">
+                                (€{formatPrice(parseFloat(price.price_per_item))} / {unit})
+                              </span>
                             </div>
                           </div>
-                        ))}
+                        )})}
                       </div>
                     ) : (
                       <div className="space-y-1">
-                        {Object.entries(item.all_prices).map(([store, price]: [string, StorePrice], idx: number) => (
-                          <div key={idx} className="flex justify-between items-center text-sm">
+                        {Object.entries(item.all_prices).map(([store, price]: [string, any], idx: number) => {
+                          const shoppingItem = shoppingListItems.find(i => getStringId(i.product_id) === item.product_id);
+                          const unit = shoppingItem?.unit || 'item';
+                          return (
+                          <div key={idx} className="flex justify-between items-center bg-white p-2 rounded">
                             <span className="text-gray-600">{store}</span>
                             <div className="text-right">
-                              <span>€{calculateTotalPrice(price.price_per_item, item.product_id)}</span>
-                              {price.price_per_unit && (
-                                <span className="text-gray-500 text-xs ml-1">
-                                  ({price.price_per_unit})
-                                </span>
-                              )}
+                              <span className="font-medium">€{calculateTotalPrice(price.price_per_item, item.product_id)}</span>
+                              <span className="text-gray-500 text-sm">
+                                (€{formatPrice(parseFloat(price.price_per_item))} / {unit})
+                              </span>
                             </div>
                           </div>
-                        ))}
+                        )})}
                       </div>
                     )}
                   </div>
