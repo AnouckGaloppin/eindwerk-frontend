@@ -33,6 +33,8 @@ export default function ProfilePage() {
 
   // Redirect if not authenticated
   useEffect(() => {
+    // Once we have a user object or know there isn't one, loading is finished. 
+    setIsLoading(false); 
     if (!user) {
       router.push("/login");
     } else {
@@ -176,7 +178,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-128px)] flex items-center justify-center p-4">
+    <div className="flex-grow flex items-center justify-center p-4">
       {/* Toast notification */}
       {toast && (
         <div
