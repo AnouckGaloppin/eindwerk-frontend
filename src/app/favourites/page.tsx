@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import api from "@/lib/axios";
 import { useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { toast } from 'react-toastify';
+import { useToast } from "@/context/ToastContext";
 import type { Favourite } from "@/types/favouritesTypes";
 
 // Helper function to get string ID
@@ -22,6 +22,7 @@ export default function FavouritesPage() {
   const { refreshUser } = useAuth();
   const { data: favourites = [] } = useFavourites();
   const queryClient = useQueryClient();
+  const { addToast } = useToast();
 
   useEffect(() => {
     refreshUser();
@@ -35,7 +36,7 @@ export default function FavouritesPage() {
       }).filter((id): id is string => id !== null);
       
       if (productIds.length === 0) {
-        toast.error("No favourites to add to shopping list");
+        addToast("No favourites to add to shopping list", "error");
         return;
       }
 
@@ -46,14 +47,15 @@ export default function FavouritesPage() {
       if (response.data.message) {
         // Invalidate the shopping list query to trigger a refetch
         queryClient.invalidateQueries({ queryKey: ["shopping-list"] });
-        toast.success(response.data.message);
+        addToast(response.data.message, "success");
       }
     } catch (error: unknown) {
       if(error instanceof AxiosError) {
         console.error("Error adding favourites to shopping list:", error);
-        toast.error(
+        addToast(
           error.response?.data?.message ||
-            "Error adding favourites to shopping list"
+            "Error adding favourites to shopping list",
+          "error"
         );
       }
     }
