@@ -79,13 +79,13 @@ export default function RegisterPage() {
       // useRouter().push("/login");
     } catch (err: unknown) {
       if (err instanceof AxiosError) {
-      // console.log(err);
-      const errors = err.response?.data?.errors;
-      setMessage(
-        errors
-          ? Object.values(errors).flat().join(", ")
-          : err.response?.data?.message || "Unknown error"
-      );
+        const errors = err.response?.data?.errors;
+        setError(
+          errors
+            ? Object.values(errors).flat().join(", ")
+            : err.response?.data?.message || "Unknown error"
+        );
+      }
     }
   };
 
@@ -157,4 +157,3 @@ export default function RegisterPage() {
     </div>
   );
 };
-}
