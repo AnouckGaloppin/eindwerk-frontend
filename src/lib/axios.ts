@@ -5,7 +5,8 @@ import axios from "axios";
 // const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.ddev.site";
 
 const api = axios.create({
-  baseURL: "http://localhost:61469",
+  // baseURL: "http://localhost:61469",
+  baseURL: process.env.API_URL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
