@@ -8,6 +8,7 @@ import useDebounce from "@/hooks/useDebounce";
 import api from "@/lib/axios";
 import type { Product } from "@/types/productTypes";
 import { generateSlug } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
 
 interface SearchBarProps {
   className?: string;
@@ -23,6 +24,7 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const { user } = useAuth();
   
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
@@ -40,12 +42,21 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Fetch search results
+  // Fetch search results only if user is authenticated
   useEffect(() => {
     const fetchSearchResults = async () => {
       if (debouncedSearchQuery.trim().length < 2) {
         setSearchResults([]);
         setIsLoading(false);
+        setIsDropdownVisible(false);
+        return;
+      }
+
+      // Show dropdown for non-authenticated users with login message
+      if (!user) {
+        setSearchResults([]);
+        setIsLoading(false);
+        setIsDropdownVisible(true);
         return;
       }
 
@@ -63,7 +74,7 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
     };
 
     fetchSearchResults();
-  }, [debouncedSearchQuery]);
+  }, [debouncedSearchQuery, user]);
 
   const handleFocus = () => {
     if (window.innerWidth < 640) {
@@ -82,6 +93,14 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
+      
+      // If user is not authenticated, redirect to login
+      if (!user) {
+        router.push("/login");
+        handleClose();
+        return;
+      }
+      
       if (isDropdownVisible && selectedIndex >= 0 && searchResults[selectedIndex]) {
         const product = searchResults[selectedIndex];
         handleProductSelect(product);
@@ -202,7 +221,20 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
           `}
           role="listbox"
         >
-          {isLoading ? (
+          {!user ? (
+            <div className="p-4 text-center text-gray-600">
+              <p className="font-medium mb-2">Create a profile or log in to view products</p>
+              <button
+                onClick={() => {
+                  router.push("/login");
+                  handleClose();
+                }}
+                className="text-indigo-600 hover:text-indigo-800 font-medium"
+              >
+                Go to Login
+              </button>
+            </div>
+          ) : isLoading ? (
             <div className="p-4 text-center text-gray-500">
               Searching...
             </div>
