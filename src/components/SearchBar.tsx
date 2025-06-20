@@ -239,7 +239,7 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-gray-900 truncate">
+                        <div className="font-medium text-gray-900 break-words leading-tight">
                           {product.name}
                         </div>
                         <div className="text-sm text-gray-500">

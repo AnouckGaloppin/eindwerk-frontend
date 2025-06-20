@@ -144,7 +144,7 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <h3 className="font-medium text-gray-900 text-sm sm:text-base truncate">{product.product?.name}</h3>
+          <h3 className="font-medium text-gray-900 text-sm sm:text-base break-words leading-tight">{product.product?.name}</h3>
           <p className="text-xs sm:text-sm text-gray-500">
             {product.product?.brand || product.product?.name?.split(' ')[0] || 'Unknown brand'}
           </p>

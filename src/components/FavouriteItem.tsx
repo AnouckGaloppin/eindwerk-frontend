@@ -53,7 +53,7 @@ export function FavouriteItem({
   return (
     <li
       {...(isMobile ? swipeHandlers : {})}
-      className="bg-white p-4 border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex justify-between items-center mb-4 max-w-2xl mx-auto hover:scale-[1.02]"
+      className="bg-white p-3 sm:p-4 border border-gray-100 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex justify-between items-center mb-2 hover:scale-[1.02]"
     >
       <div className="flex items-center gap-4">
         {product?.img && (
@@ -63,8 +63,13 @@ export function FavouriteItem({
             className="w-16 h-16 object-cover rounded-lg shadow-sm"
           />
         )}
+        {product && (
+          <div>
+            <h3 className="font-medium text-gray-900 text-sm sm:text-base break-words leading-tight">{product.name}</h3>
+            <p className="text-xs sm:text-sm text-gray-500">{product.brand || 'Unknown Brand'}</p>
+          </div>
+        )}
       </div>
-      <span className="text-gray-800 font-medium text-lg">{favourite.product?.name || "Onbekend product"}</span>
       {!isMobile && (
         <button
           onClick={() => handleToggle()}
