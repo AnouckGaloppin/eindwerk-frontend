@@ -8,9 +8,9 @@ import Image from "next/image";
 import { CardLoader, InfiniteScrollLoader } from "@/components/ui/Loader";
 import { useState } from "react";
 import { useToggleFavourite, useFavourites } from "@/features/favourites/useFavourites";
-import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { generateSlug } from "@/lib/utils";
+import { useToast } from "@/context/ToastContext";
 
 interface ShoppingListItemProps {
   product: ShoppingListItemType;
@@ -25,6 +25,7 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
   const toggleFavourite = useToggleFavourite();
   const { favourites } = useFavourites();
   const router = useRouter();
+  const { addToast } = useToast();
   
   // Debug logging to see what's in the product object
   console.log('Shopping list item product:', {
@@ -40,9 +41,9 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
   const handleToggleFavorite = async () => {
     try {
       await toggleFavourite.mutateAsync({ product_id: product.product_id });
-      toast.success(isFavorite ? "Removed from favorites" : "Added to favorites!");
+      addToast(isFavorite ? "Removed from favorites" : "Added to favorites!", "success");
     } catch (error) {
-      toast.error("Failed to update favorites");
+      addToast("Failed to update favorites", "error");
     }
   };
 
@@ -87,13 +88,11 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
       handleDelete();
     },
     onSwipedRight: async () => {
-      if (!isFavorite) {
-        try {
-          await toggleFavourite.mutateAsync({ product_id: product.product_id });
-          toast.success("Added to favorites!");
-        } catch (error) {
-          toast.error("Failed to add to favorites");
-        }
+      try {
+        await toggleFavourite.mutateAsync({ product_id: product.product_id });
+        addToast(isFavorite ? "Removed from favorites" : "Added to favorites!", "success");
+      } catch (error) {
+        addToast("Failed to update favorites", "error");
       }
     },
     onSwiping: (e) => {

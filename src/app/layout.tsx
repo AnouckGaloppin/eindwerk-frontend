@@ -9,8 +9,6 @@ import Link from "next/link";
 // import { ThemeToggle } from "@/components/ThemeToggle";
 // import { AuthProvider } from "@/lib/auth-context";
 // import ClientProvider from "./ClientProvider";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import Breadcrumbs from "@/components/Breadcrumbs";
 import CookieBanner from "@/components/CookieBanner";
 
@@ -153,21 +151,6 @@ export default function RootLayout({
               {children}
             </main>
           </div>
-          <ToastContainer
-            position="top-center"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="light"
-            toastClassName="focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
-            role="alert"
-            aria-live="polite"
-          />
         </Providers>
       </body>
     </html>

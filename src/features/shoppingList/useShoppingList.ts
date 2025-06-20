@@ -6,7 +6,7 @@ import type {
   // UpdateShoppingListItemInput,
 } from "@/types/shoppingTypes";
 import api from "@/lib/axios";
-import { toast } from 'react-toastify';
+import { useToast } from "@/context/ToastContext";
 import { AxiosError } from "axios";
 import { Product } from "@/types/productTypes";
 
@@ -38,6 +38,7 @@ interface ShoppingListResponse {
 
 export function useShoppingList() {
   const queryClient = useQueryClient();
+  const { addToast } = useToast();
 
   const query = useInfiniteQuery({
     queryKey: ["shopping-list"],
@@ -71,7 +72,15 @@ export function useShoppingList() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shopping-list"] });
+      addToast("Item added to shopping list!", "success");
     },
+    onError: (error: unknown) => {
+      if (error instanceof AxiosError) {
+        addToast(error.response?.data?.message || "Failed to add item.", "error");
+      } else {
+        addToast("An unexpected error occurred.", "error");
+      }
+    }
   });
 
   const updateItemMutation = useMutation({
@@ -81,7 +90,15 @@ export function useShoppingList() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shopping-list"] });
+      addToast("Shopping list updated!", "success");
     },
+    onError: (error: unknown) => {
+      if (error instanceof AxiosError) {
+        addToast(error.response?.data?.message || "Failed to update item.", "error");
+      } else {
+        addToast("An unexpected error occurred.", "error");
+      }
+    }
   });
 
   const deleteItemMutation = useMutation({
@@ -91,7 +108,15 @@ export function useShoppingList() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shopping-list"] });
+      addToast("Item removed from shopping list.", "success");
     },
+    onError: (error: unknown) => {
+      if (error instanceof AxiosError) {
+        addToast(error.response?.data?.message || "Failed to remove item.", "error");
+      } else {
+        addToast("An unexpected error occurred.", "error");
+      }
+    }
   });
 
   return {
@@ -112,6 +137,7 @@ export function useShoppingList() {
 
 export function useDeleteItem() {
   const queryClient = useQueryClient();
+  const { addToast } = useToast();
 
   return useMutation({
     mutationFn: async (itemId: string | { $oid: string }) => {
@@ -124,8 +150,8 @@ export function useDeleteItem() {
     },
     onError: (error: unknown) => {
       if(error instanceof AxiosError) {
-      console.error("Error deleting shopping list item:", error);
+        addToast(error.response?.data?.message || "Failed to remove item.", "error");
+      }
     }
-  }
-});
+  });
 }

@@ -4,21 +4,17 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import { useAuth } from "@/lib/auth-context";
-import { div } from "framer-motion/client";
-import { toast } from 'react-toastify';
+import { useToast } from "@/context/ToastContext";
 import { CardLoader } from "@/components/ui/Loader";
 
 export default function ProfilePage() {
   const { user, refreshUser } = useAuth();
+  const { addToast } = useToast();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [toast, setToast] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [qrModal, setQrModal] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -55,10 +51,7 @@ export default function ProfilePage() {
         password: password || undefined,
       });
       setSuccess(response.data.message || "Profile updated successfully");
-      setToast({
-        message: response.data.message || "Profiel succesvol bijgewerkt",
-        type: "success",
-      });
+      addToast(response.data.message || "Profiel succesvol bijgewerkt", "success");
       refreshUser(); // Refresh user data in context
       setPassword("");
     } catch (err: any) {
@@ -72,7 +65,7 @@ export default function ProfilePage() {
         : err.response?.data?.message ||
           "An error occurred while updating the profile";
       setError(errorMessage);
-      setToast({ message: errorMessage, type: "error" });
+      addToast(errorMessage, "error");
     }
   };
 
@@ -94,12 +87,12 @@ export default function ProfilePage() {
           setQrModal(true);
         }
         refreshUser();
-        setToast({
-          message: isEnabling
+        addToast(
+          isEnabling
             ? "2FA succesvol ingeschakeld"
             : "2FA succesvol uitgeschakeld",
-          type: "success",
-        });
+          "success"
+        );
       }
     } catch (err: any) {
       const errorMessage =
@@ -109,7 +102,7 @@ export default function ProfilePage() {
       if (errorMessage === "Password confirmation required.") {
         setShowModal(true);
       } else {
-        setToast({ message: errorMessage, type: "error" });
+        addToast(errorMessage, "error");
       }
     }
   };
@@ -138,7 +131,7 @@ export default function ProfilePage() {
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message || "Ongeldig wachtwoord of andere fout";
-      setToast({ message: errorMessage, type: "error" });
+      addToast(errorMessage, "error");
     }
   };
 
@@ -156,18 +149,10 @@ export default function ProfilePage() {
       const errorMessage =
         err.response?.data?.message ||
         "Er is een fout opgetreden bij het wijzigen van 2FA";
-      setToast({ message: errorMessage, type: "error" });
+      addToast(errorMessage, "error");
     }
     refreshUser();
   };
-
-  // Toast auto-dismiss effect
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
 
   if (isLoading) {
     return <CardLoader text="Loading profile..." />;
@@ -179,21 +164,6 @@ export default function ProfilePage() {
 
   return (
     <div className="flex-grow flex items-center justify-center p-4">
-      {/* Toast notification */}
-      {toast && (
-        <div
-          className={`fixed inset-0 z-[60] flex items-center justify-center pointer-events-none`}
-        >
-          <div
-            className={`px-6 py-3 rounded-lg shadow-lg text-white font-semibold transition-all duration-300 pointer-events-auto ${
-              toast.type === "success" ? "bg-teal-500" : "bg-red-500"
-            }`}
-          >
-            {toast.message}
-          </div>
-        </div>
-      )}
-
       {/* Modal for password confirmation */}
       {showModal && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-50">
