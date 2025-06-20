@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import useDebounce from "@/hooks/useDebounce";
 import api from "@/lib/axios";
 import type { Product } from "@/types/productTypes";
+import { generateSlug } from "@/lib/utils";
 
 interface SearchBarProps {
   className?: string;
@@ -83,12 +84,7 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
       e.preventDefault();
       if (isDropdownVisible && selectedIndex >= 0 && searchResults[selectedIndex]) {
         const product = searchResults[selectedIndex];
-        const productId = typeof product._id === 'object' && product._id !== null && '$oid' in product._id 
-          ? product._id.$oid 
-          : typeof product.id === 'string' 
-            ? product.id 
-            : String(product._id);
-        handleProductSelect(productId);
+        handleProductSelect(product);
       } else if (searchQuery.trim()) {
         router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
         handleClose();
@@ -114,8 +110,18 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
     }
   };
 
-  const handleProductSelect = (productId: string) => {
-    router.push(`/products/${productId}`);
+  const handleProductSelect = (product: any) => {
+    if (product.name) {
+      router.push(`/products/${generateSlug(product.name)}`);
+    } else {
+      // Fallback to product ID if name is not available
+      const productId = typeof product._id === 'object' && product._id !== null && '$oid' in product._id 
+        ? product._id.$oid 
+        : typeof product.id === 'string' 
+          ? product.id 
+          : String(product._id);
+      router.push(`/products/${productId}`);
+    }
     handleClose();
   };
 
@@ -204,15 +210,12 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
             <ul>
               {searchResults.map((product, index) => {
                 const lowestPrice = getLowestPrice(product.price_per_store);
-                const productId = typeof product._id === 'object' && product._id !== null && '$oid' in product._id 
-                  ? product._id.$oid 
-                  : typeof product.id === 'string' 
-                    ? product.id 
-                    : String(product._id);
                 
                 return (
                   <li 
-                    key={productId}
+                    key={typeof product._id === 'object' && product._id !== null && '$oid' in product._id 
+                      ? product._id.$oid 
+                      : String(product._id)}
                     className={`border-b border-gray-100 last:border-b-0 ${
                       index === selectedIndex ? 'bg-indigo-50' : ''
                     }`}
@@ -221,7 +224,7 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
                   >
                     <button
                       className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 focus:outline-none focus:bg-indigo-50"
-                      onClick={() => handleProductSelect(productId)}
+                      onClick={() => handleProductSelect(product)}
                     >
                       <div className="w-12 h-12 relative flex-shrink-0 bg-gray-100 rounded overflow-hidden">
                         {product.img ? (

@@ -6,7 +6,7 @@ import { Favourite } from "@/types/favouritesTypes";
 import { useShoppingList } from '@/features/shoppingList/useShoppingList';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import Link from "next/link";
-import { formatPrice, formatQuantity } from '@/lib/utils';
+import { formatPrice, formatQuantity, generateSlug } from '@/lib/utils';
 import { toast } from 'react-toastify';
 import { useFavourites } from "../favourites/useFavourites";
 import { useToggleFavourite } from "../favourites/useFavourites";
@@ -218,9 +218,9 @@ const ProductList: React.FC<ProductListProps> = ({
               role="gridcell"
               aria-label={`Product: ${product.name} by ${product.brand}`}
             >
-              <Link 
-                href={`/products/${productId}`}
-                className="block focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-inset rounded-lg"
+              <Link
+                href={`/products/${generateSlug(product.name)}`}
+                className="block focus:outline-none"
                 aria-label={`View details for ${product.name}`}
               >
                 <div className="relative">

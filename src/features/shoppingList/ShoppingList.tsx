@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useToggleFavourite, useFavourites } from "@/features/favourites/useFavourites";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { generateSlug } from "@/lib/utils";
 
 interface ShoppingListItemProps {
   product: ShoppingListItemType;
@@ -70,9 +71,14 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
       return;
     }
     
-    console.log('Navigating to product:', product.product_id);
-    // Navigate to product detail page
-    router.push(`/products/${product.product_id}`);
+    console.log('Navigating to product:', product.product?.name);
+    // Navigate to product detail page using product name slug
+    if (product.product?.name) {
+      router.push(`/products/${generateSlug(product.product.name)}`);
+    } else {
+      // Fallback to product ID if name is not available
+      router.push(`/products/${product.product_id}`);
+    }
   };
 
   // Only enable swipe gestures on mobile (touch devices)
