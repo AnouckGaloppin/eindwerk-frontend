@@ -137,21 +137,23 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
   };
 
   return (
-    <div ref={searchRef} className={`relative flex justify-center ${className}`}>
-      {/* Regular Search Bar */}
-      <div className={`relative w-full sm:w-1/2 ${isMobileExpanded ? 'hidden sm:block' : ''}`}>
-        <input
-          ref={inputRef}
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={handleFocus}
-          placeholder="Search for products..."
-          className="w-full pl-4 pr-12 py-2 rounded-lg bg-white/90 backdrop-blur-sm text-gray-900 placeholder-gray-500 border border-white/20 shadow-md transition-all duration-300 ease-in-out focus:ring-2 focus:ring-white/50 focus:outline-none"
-        />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-          <Search className="w-5 h-5" />
+    <div ref={searchRef} className={`relative flex-grow sm:flex-grow-0 ${className}`}>
+      {/* Regular Search Bar (Desktop / Mobile-Collapsed) */}
+      <div className={`relative ${isMobileExpanded ? 'hidden sm:flex' : 'flex'} justify-center`}>
+        <div className="relative w-full sm:w-1/2">
+          <input
+            ref={inputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={handleFocus}
+            placeholder="Search for products..."
+            className="w-full pl-4 pr-12 py-2 rounded-lg bg-white/90 backdrop-blur-sm text-gray-900 placeholder-gray-500 border border-white/20 shadow-md transition-all duration-300 ease-in-out focus:ring-2 focus:ring-white/50 focus:outline-none"
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <Search className="w-5 h-5" />
+          </div>
         </div>
       </div>
 
@@ -175,7 +177,7 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
               className="w-full pl-12 pr-12 py-4 text-lg rounded-lg bg-white/95 backdrop-blur-sm text-gray-900 placeholder-gray-500 border border-white/20 shadow-lg focus:ring-2 focus:ring-white/50 focus:outline-none"
               autoFocus
             />
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none">
               <Search className="w-6 h-6" />
             </div>
           </div>
@@ -186,8 +188,11 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
       {isDropdownVisible && (
         <div 
           className={`
-            absolute w-full sm:w-1/2 mt-2 bg-white rounded-lg shadow-xl overflow-hidden z-50 top-full left-1/2 sm:-translate-x-1/2
-            ${isMobileExpanded ? 'fixed left-2 right-2 sm:static sm:left-1/2 sm:-translate-x-1/2' : ''}
+            absolute mt-2 bg-white rounded-lg shadow-xl overflow-hidden z-40
+            ${isMobileExpanded 
+              ? 'fixed top-16 left-2 right-2' 
+              : 'w-full sm:w-1/2 top-full sm:left-1/2 sm:-translate-x-1/2'
+            }
           `}
           role="listbox"
         >
