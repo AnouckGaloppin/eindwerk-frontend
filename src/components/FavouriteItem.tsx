@@ -27,7 +27,6 @@ export function FavouriteItem({
 }: FavouriteItemProps) {
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => handleToggle(),
-    preventScrollOnSwipe: true,
     trackTouch: true,
   });
 

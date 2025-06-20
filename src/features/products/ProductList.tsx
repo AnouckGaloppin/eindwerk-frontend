@@ -12,7 +12,6 @@ import { useFavourites } from "../favourites/useFavourites";
 import { useToggleFavourite } from "../favourites/useFavourites";
 import { useAuth } from "@/lib/auth-context";
 import { CardLoader, InfiniteScrollLoader } from "@/components/ui/Loader";
-import RefreshableContent from '@/components/PullToRefresh';
 
 // Helper function to get string ID
 const getStringId = (id: string | { $oid: string }): string => {
@@ -31,7 +30,7 @@ interface ProductListProps {
   onLoadMore?: () => void;
   hasMore?: boolean;
   isFetchingNextPage?: boolean;
-  onRefresh?: () => Promise<any>;
+  onRefresh: () => Promise<any>;
 }
 
 const ProductList: React.FC<ProductListProps> = ({
@@ -355,16 +354,17 @@ const ProductList: React.FC<ProductListProps> = ({
     </div>
   );
 
-  // Wrap with pull-to-refresh only if onRefresh is provided
-  if (onRefresh) {
-    return (
-      <RefreshableContent onRefresh={onRefresh}>
-        {productList}
-      </RefreshableContent>
-    );
-  }
+  return (
+    <div>
+      {error && <p className="text-red-500">{error}</p>}
 
-  return productList;
+      {isLoading && products.length === 0 ? (
+        <CardLoader text="Loading products..." />
+      ) : (
+        productList
+      )}
+    </div>
+  );
 };
 
 export default ProductList;

@@ -75,7 +75,6 @@ export default function ShoppingListItem({ product }: Props) {
     onSwiped: () => {
       setSwiping(false);
     },
-    preventScrollOnSwipe: true,
     trackMouse: true,
   });
 

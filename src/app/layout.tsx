@@ -129,7 +129,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Volovan - Your smart shopping companion for finding the best prices and managing your shopping list" />
       </head>
-      <body className={`${inter.className} flex flex-col min-h-screen bg-white text-gray-900 overflow-y-scrollbar-none`}>
+      <body className={`${inter.className} flex flex-col min-h-screen bg-white text-gray-900`}>
         {/* Skip to main content link for screen readers */}
         <a
           href="#main-content"
@@ -146,7 +146,7 @@ export default function RootLayout({
             </div>
             <main 
               id="main-content"
-              className=""
+              className="pb-20"
               role="main"
               tabIndex={-1}
             >

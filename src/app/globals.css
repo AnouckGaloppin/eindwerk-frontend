@@ -4,6 +4,14 @@
 html,
 body {
   height: 100%;
+  touch-action: pan-y; /* Enable vertical touch scrolling */
+}
+
+/* Ensure main content areas allow touch scrolling */
+main,
+div,
+section {
+  touch-action: pan-y;
 }
 
 button {
