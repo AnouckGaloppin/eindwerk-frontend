@@ -1,151 +1,42 @@
-"use client";
-
+import api from '@/lib/axios';
 import { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Categories from "@/components/Categories";
-import ProductList from "@/features/products/ProductList";
-import type { Product } from "@/types/productTypes";
-import { useState } from "react";
-import { useProducts } from "@/features/products/useProducts";
-import { useFavourites, useToggleFavourite } from "@/features/favourites/useFavourites";
-import { useShoppingList } from "@/features/shoppingList/useShoppingList";
-import { PageLoader } from "@/components/ui/Loader";
-import { useQueryClient } from '@tanstack/react-query';
+import { cache } from 'react';
+import { PageLoader } from '@/components/ui/Loader';
+import ProductsClient from './ProductsClient';
 
-function ProductsContent() {
-  const searchParams = useSearchParams();
-  const category = searchParams.get("category") ?? undefined;
-  const search = searchParams.get("search") ?? undefined;
-  const [error] = useState<string | null>(null);
-  const queryClient = useQueryClient();
-
-  const { 
-    data: products = [], 
-    isLoading: isProductsLoading,
-    hasMore, 
-    isFetchingNextPage, 
-    fetchNextPage 
-  } = useProducts({ category, search });
-
-  const { data: favourites = [] } = useFavourites();
-  const { items: shoppingList = [], addItem, updateItem } = useShoppingList();
-  const toggleFavouriteMutation = useToggleFavourite();
-
-  const handleAddOrUpdate = async (product: Product, quantity: number) => {
-    try {
-      const productId = typeof product._id === 'object' ? product._id.$oid : product._id;
-      const existingItem = shoppingList.find(item => item.product_id === productId);
-
-      if (existingItem) {
-        await updateItem({
-          id: existingItem._id,
-          data: {
-            quantity: existingItem.quantity + quantity,
-            unit: product.unit || 'piece'
-          }
-        });
-      } else {
-        await addItem({
-          productId,
-          quantity,
-          unit: product.unit || 'piece'
-        });
-      }
-    } catch (error) {
-      console.error('Error in handleAddOrUpdate:', error);
-    }
-  };
-
-  const handleRefresh = async () => {
-    // Invalidate and refetch products and favourites
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['products', { category, search }] }),
-      queryClient.invalidateQueries({ queryKey: ['favourites'] }),
-      queryClient.invalidateQueries({ queryKey: ['shopping-list'] })
-    ]);
-  };
-
-  if (isProductsLoading && (!products || products.length === 0)) {
-    return <PageLoader text="Loading products..." />;
+const fetchCategories = cache(async () => {
+  try {
+    const response = await api.get("/api/categories");
+    return response.data.categories || [];
+  } catch (error) {
+    console.error("Failed to fetch categories on server:", error);
+    return [];
   }
+});
 
-  return (
-    <main 
-      className="min-h-screen bg-gray-50 mb-12"
-      role="main"
-      aria-labelledby="products-title"
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 
-            id="products-title"
-            className="text-3xl font-bold text-gray-900"
-          >
-            Producten
-          </h1>
-        </div>
+async function fetchInitialProducts(searchParams: { [key: string]: string | string[] | undefined }) {
+  try {
+    const params = new URLSearchParams();
+    if (searchParams.category) params.append('category', searchParams.category as string);
+    if (searchParams.search) params.append('search', searchParams.search as string);
+    params.append('page', '1');
+    params.append('per_page', '12');
 
-        <section 
-          className="mb-8"
-          aria-labelledby="categories-title"
-        >
-          <h2 
-            id="categories-title"
-            className="sr-only"
-          >
-            Product Categories
-          </h2>
-          <Categories className="mb-8" />
-        </section>
-
-        {error ? (
-          <div 
-            className="text-red-500 text-center py-8"
-            role="alert"
-            aria-live="polite"
-          >
-            {error}
-          </div>
-        ) : (
-          <section 
-            aria-labelledby="products-list-title"
-          >
-            <h2 
-              id="products-list-title"
-              className="sr-only"
-            >
-              Products List
-            </h2>
-            <ProductList
-              products={products}
-              shoppingList={shoppingList}
-              favourites={favourites}
-              onAddOrUpdate={handleAddOrUpdate}
-              onToggleFavourite={(productId) => toggleFavouriteMutation.mutate({ product_id: productId })}
-              onQuantityChange={(itemId, quantity) => {
-                updateItem({
-                  id: itemId,
-                  data: { quantity }
-                });
-              }}
-              isLoading={isProductsLoading}
-              error={error}
-              onLoadMore={fetchNextPage}
-              hasMore={hasMore}
-              isFetchingNextPage={isFetchingNextPage}
-              onRefresh={handleRefresh}
-            />
-          </section>
-        )}
-      </div>
-    </main>
-  );
+    const response = await api.get(`/api/products?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch initial products on server:", error);
+    return null;
+  }
 }
 
-export default function ProductsPage() {
+export default async function ProductsPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+  const categories = await fetchCategories();
+  const initialProducts = await fetchInitialProducts(searchParams);
+
   return (
     <Suspense fallback={<PageLoader text="Loading..." />}>
-      <ProductsContent />
+      <ProductsClient categories={categories} initialProducts={initialProducts} />
     </Suspense>
   );
 }

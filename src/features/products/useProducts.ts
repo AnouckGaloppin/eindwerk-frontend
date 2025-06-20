@@ -11,6 +11,7 @@ import api from "@/lib/axios";
 interface UseProductsOptions {
   category?: string;
   search?: string;
+  initialData?: ProductsResponse;
 }
 
 interface ProductsResponse {
@@ -25,7 +26,7 @@ interface ProductsResponse {
   };
 }
 
-export function useProducts({ category, search }: UseProductsOptions = {}) {
+export function useProducts({ category, search, initialData }: UseProductsOptions = {}) {
   const query = useInfiniteQuery({
     queryKey: ["products", category, search],
     queryFn: async ({ pageParam = 1 }) => {
@@ -42,6 +43,7 @@ export function useProducts({ category, search }: UseProductsOptions = {}) {
       return lastPage.pagination.has_more ? lastPage.pagination.current_page + 1 : undefined;
     },
     initialPageParam: 1,
+    initialData: initialData ? { pages: [initialData], pageParams: [1] } : undefined,
   });
 
   // Memoize the flattened array to prevent infinite loops

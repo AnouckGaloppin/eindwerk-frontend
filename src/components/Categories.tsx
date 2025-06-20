@@ -40,13 +40,14 @@ import { CardLoader } from "@/components/ui/Loader";
 
 interface CategoriesProps {
   className?: string;
+  initialCategories?: Category[];
 }
 
-export default function Categories({ className }: CategoriesProps) {
+export default function Categories({ className, initialCategories }: CategoriesProps) {
   const [hasMounted, setHasMounted] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>(initialCategories || []);
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!initialCategories);
   const [currentCategory, setCurrentCategory] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -61,8 +62,36 @@ export default function Categories({ className }: CategoriesProps) {
   }, [searchParams, currentCategory]);
 
   useEffect(() => {
+    if (currentCategory && categories.length > 0 && swiperRef.current) {
+      const swiper = swiperRef.current.swiper;
+      if (!swiper) return;
+
+      const activeIndex = categories.findIndex(
+        (cat) => cat.slug === currentCategory
+      );
+      if (activeIndex === -1) return;
+
+      const isEdge =
+        categories.length > 4 &&
+        (activeIndex <= 1 || activeIndex >= categories.length - 2);
+
+      if (swiper.params.centeredSlides !== !isEdge) {
+        swiper.params.centeredSlides = !isEdge;
+        swiper.update();
+      }
+
+      // Always scroll to make the active category visible
+      swiper.slideTo(activeIndex);
+    }
+  }, [currentCategory, categories]);
+
+  useEffect(() => {
     setHasMounted(true);
+
     const fetchCategories = async () => {
+      // Only fetch if categories were not provided
+      if (initialCategories) return;
+
       try {
         const response = await api.get("/api/categories");
         const fetchedCategories = response.data.categories;
@@ -90,26 +119,7 @@ export default function Categories({ className }: CategoriesProps) {
     };
 
     fetchCategories();
-  }, []);
-
-  // Center active category when it changes
-  useEffect(() => {
-    if (currentCategory && categories.length > 0) {
-      const activeIndex = categories.findIndex(cat => cat.slug === currentCategory);
-      if (activeIndex !== -1) {
-        setTimeout(() => {
-          const activeElement = document.querySelector(`[data-category="${currentCategory}"]`);
-          if (activeElement) {
-            activeElement.scrollIntoView({
-              behavior: 'smooth',
-              block: 'nearest',
-              inline: 'center'
-            });
-          }
-        }, 100);
-      }
-    }
-  }, [currentCategory, categories]);
+  }, [initialCategories]);
 
   const handleCategoryClick = (categorySlug: string) => {
     setCurrentCategory(categorySlug);
@@ -161,22 +171,22 @@ export default function Categories({ className }: CategoriesProps) {
               spaceBetween={8}
               slidesPerView={2}
               breakpoints={{
-                0: { 
+                0: {
                   slidesPerView: 2,
-                  spaceBetween: 8
+                  spaceBetween: 8,
                 },
-                640: { 
+                640: {
                   slidesPerView: 3,
-                  spaceBetween: 8
+                  spaceBetween: 8,
                 },
-                768: { 
+                768: {
                   slidesPerView: 4,
-                  spaceBetween: 8
+                  spaceBetween: 8,
                 },
-                1024: { 
+                1024: {
                   slidesPerView: 5,
-                  spaceBetween: 8
-                }
+                  spaceBetween: 8,
+                },
               }}
             >
               {categories.map((category) => {
