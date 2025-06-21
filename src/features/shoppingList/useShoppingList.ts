@@ -2,19 +2,10 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-q
 import { useMemo } from "react";
 import type {
   ShoppingListItem,
-  // AddToShoppingListInput,
-  // UpdateShoppingListItemInput,
 } from "@/types/shoppingTypes";
 import api from "@/lib/axios";
 import { useToast } from "@/context/ToastContext";
 import { AxiosError } from "axios";
-import { Product } from "@/types/productTypes";
-
-// export type ShoppingItem = {
-//   id: string;
-//   name: string;
-//   quantity: number;
-// };
 
 // Helper function to get string ID
 const getStringId = (id: string | { $oid: string }): string => {
@@ -72,13 +63,13 @@ export function useShoppingList() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shopping-list"] });
-      addToast("Item added to shopping list!", "success");
+      addToast("Item toegevoegd aan winkelmandje!", "success");
     },
     onError: (error: unknown) => {
       if (error instanceof AxiosError) {
-        addToast(error.response?.data?.message || "Failed to add item.", "error");
+        addToast(error.response?.data?.message || "Fout bij het toevoegen van het item.", "error");
       } else {
-        addToast("An unexpected error occurred.", "error");
+        addToast("Een onverwachte fout is opgetreden.", "error");
       }
     }
   });
@@ -90,13 +81,13 @@ export function useShoppingList() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shopping-list"] });
-      addToast("Shopping list updated!", "success");
+      addToast("Winkelmandje bijgewerkt!", "success");
     },
     onError: (error: unknown) => {
       if (error instanceof AxiosError) {
-        addToast(error.response?.data?.message || "Failed to update item.", "error");
+        addToast(error.response?.data?.message || "Fout bij het updaten van het item.", "error");
       } else {
-        addToast("An unexpected error occurred.", "error");
+        addToast("Een onverwachte fout is opgetreden.", "error");
       }
     }
   });
@@ -108,13 +99,13 @@ export function useShoppingList() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shopping-list"] });
-      addToast("Item removed from shopping list.", "success");
+      addToast("Item verwijderd uit winkelmandje.", "success");
     },
     onError: (error: unknown) => {
       if (error instanceof AxiosError) {
-        addToast(error.response?.data?.message || "Failed to remove item.", "error");
+        addToast(error.response?.data?.message || "Fout bij het verwijderen van het item.", "error");
       } else {
-        addToast("An unexpected error occurred.", "error");
+        addToast("Een onverwachte fout is opgetreden.", "error");
       }
     }
   });
@@ -150,7 +141,7 @@ export function useDeleteItem() {
     },
     onError: (error: unknown) => {
       if(error instanceof AxiosError) {
-        addToast(error.response?.data?.message || "Failed to remove item.", "error");
+        addToast(error.response?.data?.message || "Fout bij het verwijderen van het item.", "error");
       }
     }
   });

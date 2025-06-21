@@ -1,5 +1,3 @@
-// // src/context/FavoritesContext.tsx
-
 import { createContext, useContext, useState, ReactNode } from "react";
 import { Product } from "@/types/productTypes";
 
@@ -39,11 +37,7 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
 export function useFavouritesContext() {
   const context = useContext(FavouritesContext);
   if (context === undefined) {
-    throw new Error("useFavouritesContext must be used within a FavouritesProvider");
+    throw new Error("useFavouritesContext moet worden gebruikt binnen een FavouritesProvider");
   }
   return context;
 }
-
-// // function setError(arg0: any) {
-// //   throw new Error("Function not implemented.");
-// // }

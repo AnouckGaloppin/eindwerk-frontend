@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, Pencil, UserCog } from "lucide-react";
+import { LogOut, UserCog } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useState } from "react";
 import SearchBar from "./SearchBar";
-import Image from "next/image";
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -16,8 +15,8 @@ const Header = () => {
       setError("");
       await logout();
     } catch (err) {
-      console.error("Logout error:", err);
-      setError("Logout failed");
+      console.error("Fout bij uitloggen:", err);
+      setError("Uitloggen mislukt");
     }
   };
 
@@ -25,7 +24,7 @@ const Header = () => {
     <header 
       className="sticky top-0 z-40 bg-gradient-to-r from-indigo-500 to-blue-500 shadow-lg text-white"
       role="banner"
-      aria-label="Main navigation"
+      aria-label="Hoofdnavigatie"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex items-center justify-between">
@@ -33,7 +32,7 @@ const Header = () => {
           <Link
             href="/"
             className="text-2xl font-extrabold tracking-tight hover:opacity-90 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-indigo-500 rounded shrink-0"
-            aria-label="Volovan - Go to homepage"
+            aria-label="Volovan - Ga naar homepage"
           >
             🛍️ Volovan
           </Link>
@@ -49,7 +48,7 @@ const Header = () => {
               <Link
                 href="/admin/users"
                 className="text-white hover:text-gray-200 transition"
-                aria-label="Go to Admin Dashboard"
+                aria-label="Ga naar Admin Dashboard"
               >
                 <UserCog className="w-5 h-5" />
               </Link>
@@ -60,14 +59,14 @@ const Header = () => {
                 className="text-white hover:text-gray-200 transition flex items-center gap-2"
               >
                 <LogOut className="w-5 h-5" />
-                Logout
+                Uitloggen
               </button>
             ) : (
               <Link
                 href="/login"
                 className="text-white hover:text-gray-200 transition"
               >
-                Login
+                Inloggen
               </Link>
             )}
           </div>

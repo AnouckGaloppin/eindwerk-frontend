@@ -53,18 +53,18 @@ function ProductsContent({ initialCategories, initialProducts }: ProductsContent
           id: existingItem._id,
           data: {
             quantity: existingItem.quantity + quantity,
-            unit: product.unit || 'piece'
+            unit: product.unit || 'stuk'
           }
         });
       } else {
         await addItem({
           productId,
           quantity,
-          unit: product.unit || 'piece'
+          unit: product.unit || 'stuk'
         });
       }
     } catch (error) {
-      console.error('Error in handleAddOrUpdate:', error);
+      console.error('Fout bij handleAddOrUpdate:', error);
     }
   };
 
@@ -78,14 +78,14 @@ function ProductsContent({ initialCategories, initialProducts }: ProductsContent
   };
 
   if (isProductsLoading && (!products || products.length === 0)) {
-    return <PageLoader text="Loading products..." />;
+    return <PageLoader text="Producten laden..." />;
   }
 
   return (
     <main 
       className="min-h-screen bg-gray-50 mb-12"
       role="main"
-      aria-labelledby="products-title"
+      aria-labelledby="producten-titel"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
@@ -99,13 +99,13 @@ function ProductsContent({ initialCategories, initialProducts }: ProductsContent
 
         <section 
           className="mb-8"
-          aria-labelledby="categories-title"
+          aria-labelledby="categorieën-titel"
         >
           <h2 
             id="categories-title"
             className="sr-only"
           >
-            Product Categories
+            Productcategorieën
           </h2>
           <Categories className="mb-8" initialCategories={initialCategories} />
         </section>
@@ -121,13 +121,13 @@ function ProductsContent({ initialCategories, initialProducts }: ProductsContent
         ) : (
           <>
             <section 
-              aria-labelledby="products-list-title"
+              aria-labelledby="producten-lijst-titel"
             >
               <h2 
                 id="products-list-title"
                 className="sr-only"
               >
-                Products List
+                Productenlijst
               </h2>
               <ProductList
                 products={products}
@@ -147,10 +147,9 @@ function ProductsContent({ initialCategories, initialProducts }: ProductsContent
               />
             </section>
 
-            {/* Pagination */}
             {pagination && pagination.total > 0 && (
               <section 
-                aria-label="Pagination"
+                aria-label="Paginatie"
                 className="mt-8"
               >
                 <Pagination
@@ -175,7 +174,7 @@ interface ProductsClientProps {
 
 export default function ProductsClient({ categories, initialProducts }: ProductsClientProps) {
   return (
-    <Suspense fallback={<PageLoader text="Loading..." />}>
+    <Suspense fallback={<PageLoader text="Laden..." />}>
       <ProductsContent initialCategories={categories} initialProducts={initialProducts} />
     </Suspense>
   );

@@ -8,7 +8,6 @@ import { AxiosError } from "axios";
 
 export default function RegisterPage() {
   const router = useRouter();
-
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -30,32 +29,32 @@ export default function RegisterPage() {
     switch (name) {
       case "username":
         if (!value.trim()) {
-          error = "Username is required";
+          error = "Gebruikersnaam is verplicht";
         } else if (value.length < 3) {
-          error = "Username must be at least 3 characters long";
+          error = "Gebruikersnaam moet minimaal 3 tekens lang zijn";
         }
         break;
       case "email":
         if (!value.trim()) {
-          error = "Email is required";
+          error = "E-mailadres is verplicht";
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          error = "Please enter a valid email address";
+          error = "Voer een geldig e-mailadres in";
         }
         break;
       case "password":
         if (!value) {
-          error = "Password is required";
+          error = "Wachtwoord is verplicht";
         } else if (value.length < 8) {
-          error = "Password must be at least 8 characters long";
+          error = "Wachtwoord moet minimaal 8 tekens lang zijn";
         } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value)) {
-          error = "Password must contain at least one uppercase letter, one lowercase letter, and one number";
+          error = "Wachtwoord moet minimaal één hoofdletter, één kleine letter en één cijfer bevatten";
         }
         break;
       case "password_confirmation":
         if (!value) {
-          error = "Password confirmation is required";
+          error = "Wachtwoordbevestiging is verplicht";
         } else if (value !== form.password) {
-          error = "Passwords do not match";
+          error = "Wachtwoorden komen niet overeen";
         }
         break;
     }
@@ -106,53 +105,17 @@ export default function RegisterPage() {
     setError("");
     setMessage("");
     
-    // Validate all fields before submission
     if (!isFormValid()) {
-      setError("Please fix the errors above before submitting");
+      setError("Vul de fouten hierboven in voordat u verdergaat");
       return;
     }
     
     try {
       await api.get("/sanctum/csrf-cookie");
-      // console.log("Got csrf cookie register");
-      // console.log("CSRF response:", csrfResponse.status, csrfResponse.ok);
-      // console.log("Sending register:", form);
       const res = await api.post("/register", form);
-      // console.log("Register response: ", res);
-      // setMessage(res.data.message);
-      // if (!csrfResponse.ok) {
-      //   throw new Error(
-      //     `CSRF request failed with status ${csrfResponse.status}`
-      //   );
-      // }
-
-      // console.log("Sending register request to:", `${API_URL}/api/register`);
-      // const response = await fetch(`${API_URL}/api/register`, {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Accept: "application/json",
-      //   },
-      //   credentials: "include",
-      //   body: JSON.stringify({
-      //     name,
-      //     email,
-      //     password,
-      //     password_confirmation: passwordConfirmation,
-      //   }),
-      // });
-
-      // if (!response.ok) {
-      //   const data = await response.json();
-      //   throw new Error(
-      //     data.message || `Registratie mislukt (status ${response.status})`
-      //   );
-      // }
-
-      // console.log("Registration successful");
-      // go to login page
+     
       if (res.status === 200 || res.status === 201) {
-        setMessage("Registration successful! Please verify your email.");
+        setMessage("Registratie succesvol! Controleer uw e-mailadres.");
         router.push("/verify");
       }
       // useRouter().push("/login");
@@ -164,10 +127,10 @@ export default function RegisterPage() {
           const errorMessages = Object.values(errors).flat();
           setError(errorMessages.join(", "));
         } else {
-          setError(err.response?.data?.message || "Registration failed. Please try again.");
+          setError(err.response?.data?.message || "Registratie mislukt. Probeer het opnieuw.");
         }
       } else {
-        setError("An unexpected error occurred. Please try again.");
+        setError("Er is een onverwachte fout opgetreden. Probeer het opnieuw.");
       }
     }
   };
@@ -178,7 +141,7 @@ export default function RegisterPage() {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md"
       >
-        <h2 className="text-xl font-bold mb-4 text-center">Register</h2>
+        <h2 className="text-xl font-bold mb-4 text-center">Registreren</h2>
         {message && (
           <p className="text-green-500 mb-4 text-center">{message}</p>
         )}
@@ -187,7 +150,7 @@ export default function RegisterPage() {
           <input
             name="username"
             type="text"
-            placeholder="Username"
+            placeholder="Gebruikersnaam"
             value={form.username}
             onChange={handleChange}
             onBlur={handleBlur}
@@ -204,7 +167,7 @@ export default function RegisterPage() {
           <input
             name="email"
             type="email"
-            placeholder="E-mail"
+            placeholder="E-mailadres"
             value={form.email}
             onChange={handleChange}
             onBlur={handleBlur}
@@ -221,7 +184,7 @@ export default function RegisterPage() {
           <input
             name="password"
             type="password"
-            placeholder="Password"
+            placeholder="Wachtwoord"
             value={form.password}
             onChange={handleChange}
             onBlur={handleBlur}
@@ -239,7 +202,7 @@ export default function RegisterPage() {
           <input
             name="password_confirmation"
             type="password"
-            placeholder="Confirm password"
+            placeholder="Wachtwoordbevestiging"
             value={form.password_confirmation}
             onChange={handleChange}
             onBlur={handleBlur}
@@ -253,12 +216,12 @@ export default function RegisterPage() {
           )}
         </div>
         <button className="bg-gradient-to-r from-indigo-500 to-teal-500 text-white w-full py-2 rounded hover:bg-gradient-to-r hover:from-indigo-600 hover:to-teal-600 transition-colors">
-          Register
+          Registreren
         </button>
         <p className="mt-4 text-center text-sm text-gray-600">
-          Already have an account?{" "}
+          Heeft u al een account?
           <Link href="/login" className="text-blue-500 hover:underline">
-            Log in
+            Inloggen
           </Link>
         </p>
       </form>

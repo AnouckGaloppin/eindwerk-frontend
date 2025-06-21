@@ -4,7 +4,6 @@ import ShoppingList from "@/features/shoppingList/ShoppingList";
 import PriceComparison from "@/features/comparePrices/comparePrices";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useShoppingList } from "@/features/shoppingList/useShoppingList";
-// import { redirect } from "next/dist/server/api-utils";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -28,41 +27,41 @@ export default function ShoppingListPage() {
       <main 
         className="min-h-screen flex justify-center bg-gray-100 pt-16 pb-24"
         role="main"
-        aria-labelledby="shopping-list-title"
+        aria-labelledby="winkelmandje-titel"
       >
         <div className="max-w-7xl mx-auto px-4 w-full">
           <h1 
-            id="shopping-list-title"
+            id="winkelmandje-titel"
             className="text-2xl font-bold mb-6 text-gray-900"
           >
-            Shopping List
+            Winkelmandje
           </h1>
           <div 
             className="grid grid-cols-1 lg:grid-cols-5 gap-8"
             role="region"
-            aria-label="Shopping list and price comparison"
+            aria-label="Winkelmandje en prijsvergelijking"
           >
             <section 
               className="lg:col-span-3 bg-white rounded-lg shadow-md p-6"
-              aria-labelledby="shopping-list-section-title"
+              aria-labelledby="winkelmandje-sectie-titel"
             >
               <h2 
-                id="shopping-list-section-title"
+                id="winkelmandje-sectie-titel"
                 className="sr-only"
               >
-                Your Shopping List
+                Uw winkelmandje
               </h2>
               <ShoppingList />
             </section>
             <section 
               className="lg:col-span-2 bg-white rounded-lg shadow-md p-6"
-              aria-labelledby="price-comparison-title"
+              aria-labelledby="prijsvergelijking-titel"
             >
               <h2 
-                id="price-comparison-title"
+                id="prijsvergelijking-titel"
                 className="text-xl font-semibold mb-4 text-gray-900"
               >
-                Price Comparison
+                Prijsvergelijking
               </h2>
               <PriceComparison productIds={productIds} />
             </section>

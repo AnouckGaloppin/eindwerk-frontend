@@ -18,7 +18,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
       try {
         const response = await fetch(`/api/admin/users/${params.id}`);
         if (!response.ok) {
-          throw new Error("Failed to fetch user");
+          throw new Error("Gebruiker ophalen mislukt.");
         }
         const user = await response.json();
         setFormData({
@@ -27,8 +27,8 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
           role: user.role,
         });
       } catch (error) {
-        toast.error("Failed to fetch user");
-        console.error("Error fetching user:", error);
+        toast.error("Gebruiker ophalen mislukt.");
+        console.error("Gebruiker ophalen mislukt:", error);
       }
     };
 
@@ -47,14 +47,14 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update user");
+        throw new Error("Gebruiker bijwerken mislukt.");
       }
 
-      toast.success("User updated successfully");
+      toast.success("Gebruiker bijgewerkt.");
       router.push("/admin/users");
     } catch (error) {
-      toast.error("Failed to update user");
-      console.error("Error updating user:", error);
+      toast.error("Gebruiker bijwerken mislukt.");
+      console.error("Gebruiker bijwerken mislukt:", error);
     }
   };
 
@@ -68,12 +68,12 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Edit User</h1>
+      <h1 className="text-2xl font-bold mb-6">Gebruiker bijwerken</h1>
 
       <form onSubmit={handleSubmit} className="max-w-lg">
         <div className="mb-4">
           <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-            Username
+            Gebruikersnaam
           </label>
           <input
             type="text"
@@ -88,7 +88,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
 
         <div className="mb-4">
           <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Email
+            E-mailadres
           </label>
           <input
             type="email"
@@ -103,7 +103,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
 
         <div className="mb-4">
           <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-            Role
+            Rol
           </label>
           <select
             id="role"
@@ -112,7 +112,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           >
-            <option value="user">User</option>
+            <option value="user">Gebruiker</option>
             <option value="admin">Admin</option>
           </select>
         </div>
@@ -122,7 +122,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
             type="submit"
             className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
           >
-            Update User
+            Gebruiker bijwerken
           </button>
         </div>
       </form>

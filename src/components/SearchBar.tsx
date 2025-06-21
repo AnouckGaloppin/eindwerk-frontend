@@ -184,7 +184,7 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             onFocus={handleFocus}
-            placeholder="Search for products..."
+            placeholder="Zoek naar producten..."
             className="w-full pl-4 pr-12 py-2 rounded-lg bg-white/90 backdrop-blur-sm text-gray-900 placeholder-gray-500 border border-white/20 shadow-md transition-all duration-300 ease-in-out focus:ring-2 focus:ring-white/50 focus:outline-none"
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
@@ -200,7 +200,7 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
             <button
               onClick={handleClose}
               className="absolute left-4 top-1/2 -translate-y-1/2 text-white"
-              aria-label="Close search"
+              aria-label="Sluit zoekbalk"
             >
               <X className="w-6 h-6" />
             </button>
@@ -209,7 +209,7 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search for products..."
+              placeholder="Zoek naar producten..."
               className="w-full pl-12 pr-12 py-4 text-lg rounded-lg bg-white/95 backdrop-blur-sm text-gray-900 placeholder-gray-500 border border-white/20 shadow-lg focus:ring-2 focus:ring-white/50 focus:outline-none"
               autoFocus
             />
@@ -234,7 +234,7 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
         >
           {!user ? (
             <div className="p-4 text-center text-gray-600">
-              <p className="font-medium mb-2">Create a profile or log in to view products</p>
+              <p className="font-medium mb-2">Maak een profiel aan of log in om producten te bekijken</p>
               <button
                 onClick={() => {
                   router.push("/login");
@@ -242,12 +242,12 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
                 }}
                 className="text-indigo-600 hover:text-indigo-800 font-medium"
               >
-                Go to Login
+                Ga naar Login
               </button>
             </div>
           ) : isLoading ? (
             <div className="p-4 text-center text-gray-500">
-              Searching...
+              Zoeken...
             </div>
           ) : searchResults.length > 0 ? (
             <ul>
@@ -280,7 +280,7 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            No img
+                            Geen afbeelding
                           </div>
                         )}
                       </div>
@@ -289,7 +289,7 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
                           {product.name}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {product.brand || 'Unknown brand'}
+                          {product.brand || 'Onbekend merk'}
                         </div>
                         {lowestPrice && (
                           <div className="text-sm text-indigo-600">
@@ -304,7 +304,7 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
             </ul>
           ) : searchQuery.trim().length >= 2 ? (
             <div className="p-4 text-center text-gray-500">
-              No results found
+              Geen resultaten gevonden
             </div>
           ) : null}
         </div>

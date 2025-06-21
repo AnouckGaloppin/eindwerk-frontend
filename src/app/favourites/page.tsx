@@ -36,7 +36,7 @@ export default function FavouritesPage() {
       }).filter((id): id is string => id !== null);
       
       if (productIds.length === 0) {
-        addToast("No favourites to add to shopping list", "error");
+        addToast("Geen favorieten om toe te voegen aan het winkelmandje.", "error");
         return;
       }
 
@@ -51,10 +51,10 @@ export default function FavouritesPage() {
       }
     } catch (error: unknown) {
       if(error instanceof AxiosError) {
-        console.error("Error adding favourites to shopping list:", error);
+        console.error("Favorieten toevoegen aan winkelmandje mislukt:", error);
         addToast(
           error.response?.data?.message ||
-            "Error adding favourites to shopping list",
+            "Favorieten toevoegen aan winkelmandje mislukt.",
           "error"
         );
       }
@@ -65,7 +65,7 @@ export default function FavouritesPage() {
     <main 
       className="min-h-screen flex justify-center bg-gray-100 pt-16 pb-24"
       role="main"
-      aria-labelledby="favourites-title"
+      aria-labelledby="favorieten-titel"
     >
       <div className="max-w-7xl mx-auto px-4 w-full">
         <div className="flex justify-between items-center mb-6">
@@ -73,27 +73,27 @@ export default function FavouritesPage() {
             id="favourites-title"
             className="text-2xl font-bold text-gray-900"
           >
-            Favourites
+            Favorieten
           </h1>
           {favourites.length > 0 && (
             <button
               onClick={addAllFavouritesToShoppingList}
               className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 md:w-auto sm:w-auto max-sm:w-48 max-sm:text-sm max-sm:whitespace-normal text-center"
-              aria-label={`Add all ${favourites.length} favourite items to shopping list`}
+              aria-label={`Voeg alle ${favourites.length} favorieten toe aan winkelmandje`}
             >
-              Add all favourites to my shopping list
+              Alle favorieten toevoegen aan winkelmandje
             </button>
           )}
         </div>
         <section 
           className="bg-white rounded-lg shadow-md p-6"
-          aria-labelledby="favourites-list-title"
+          aria-labelledby="favorieten-lijst-titel"
         >
           <h2 
             id="favourites-list-title"
             className="sr-only"
           >
-            Your Favourites
+            Mijn favorieten
           </h2>
           <Favourites />
         </section>

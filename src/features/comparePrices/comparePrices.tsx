@@ -166,9 +166,6 @@ export default function PriceComparison({
     setTotalComparisonResult({ cheapestStore, totals, missingCounts, missingProducts });
   };
 
-  //   if (loading) return <p>Laden...</p>;
-  //   if (error) return <p>{error}</p>;
-
   return (
     <div className="price-comparison">
       <button
@@ -176,9 +173,8 @@ export default function PriceComparison({
         disabled={loading || productIds.length === 0}
         className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 transition-colors mb-4"
       >
-        {loading ? "Loading..." : "Compare Prices"}
+        {loading ? "Laden..." : "Prijsvergelijking"}
       </button>
-      {/* New button for total comparison */}
       <button
         onClick={handleCompareTotal}
         disabled={loading || productIds.length === 0}
@@ -203,7 +199,6 @@ export default function PriceComparison({
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4 text-left">
           <div className="text-lg font-semibold text-green-700 mb-2">
             Totaalprijs per winkel: 
-            {/* {totalComparisonResult.cheapestStore} */}
           </div>
           <div className="text-gray-700">
             {Object.entries(totalComparisonResult.totals).map(([store, total]) => (
@@ -230,7 +225,7 @@ export default function PriceComparison({
         <div className="space-y-4">
           {!loading && !error && comparisonData.length === 0 && (
             <div className="text-gray-500 text-center py-4">
-              No prices available.
+              Geen prijzen beschikbaar.
             </div>
           )}
           {!loading && !error && comparisonData.length > 0 && (
@@ -240,7 +235,7 @@ export default function PriceComparison({
                   <h3 className="font-semibold text-lg mb-2">{item.product_name}</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center bg-white p-2 rounded">
-                      <span className="text-gray-600">Cheapest:</span>
+                      <span className="text-gray-600">Goedkoopste:</span>
                       <div className="text-right">
                         <span className="font-medium text-green-600">{item.cheapest_store}</span>
                         <span className="ml-2">€{calculateTotalPrice(item.cheapest_price_per_item, item.product_id)}</span>

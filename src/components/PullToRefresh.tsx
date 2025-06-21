@@ -49,7 +49,7 @@ export default function RefreshableContent({ children, onRefresh, className = ''
     >
       {isRefreshing && (
         <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center">
-          <CardLoader text="Refreshing..." />
+          <CardLoader text="Verversen..." />
         </div>
       )}
       {children}

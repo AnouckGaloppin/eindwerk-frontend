@@ -18,8 +18,6 @@ export default function ProductDetailPage() {
   const productId = params.id as string;
   const [quantity, setQuantity] = useState<number>(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
-  // const { data: favourites = [] } = useFavourites();
-  // const toggleFavourite = useToggleFavourite();
   const { items: shoppingList = [], addItem, updateItem, deleteItem } = useShoppingList();
 
   const { data: product, isLoading: isLoadingProduct, error: productError } = useQuery<Product>({
@@ -100,23 +98,10 @@ export default function ProductDetailPage() {
     enabled: !!product?.categories?.length
   });
 
-  // const getCategoryNames = () => {
-  //   if (!product?.categories?.length) return 'None';
-  //   return product.categories.map(cat => cat.name).join('\n');
-  // };
-
   if (isLoadingProduct) return <CardLoader text="Loading product..." />;
-  if (productError) return <div className="p-4 text-center text-red-500">Error loading product: {productError.message}</div>;
-  if (!product) return <div className="p-4 text-center">Product not found</div>;
+  if (productError) return <div className="p-4 text-center text-red-500">Product ophalen mislukt: {productError.message}</div>;
+  if (!product) return <div className="p-4 text-center">Product niet gevonden</div>;
 
-  // const isFavourite = favourites.some((fav) => getStringId(fav.product._id) === productId);
-
-  // const getLowestPrice = (product: Product): string => {
-  //   if (!product.price_per_store || Object.keys(product.price_per_store).length === 0) return "N/A";
-  //   const prices = Object.values(product.price_per_store).map(store => parseFloat(store.price_per_item));
-  //   const lowestPrice = Math.min(...prices);
-  //   return `€${lowestPrice.toFixed(2)}`;
-  // };
 
   const handleAddToShoppingList = async () => {
     if (!product) return;
@@ -160,8 +145,8 @@ export default function ProductDetailPage() {
       }
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
-        console.error('Error in handleAddToShoppingList:', error);
-        toast.error(error.response?.data?.message || 'Failed to update shopping list');
+        console.error('Fout in handleAddToShoppingList:', error);
+        toast.error(error.response?.data?.message || 'Winkelmandje bijwerken mislukt');
       }
     }
   };
@@ -184,8 +169,8 @@ export default function ProductDetailPage() {
           });
           deleteItem(getStringId(existingItem._id));
         } catch (error: unknown) {
-          console.error('Error removing item:', error);
-          toast.error('Failed to remove item from shopping list');
+          console.error('Fout bij verwijderen item:', error);
+          toast.error('Item uit winkelmandje verwijderen mislukt');
         }
       } else {
         // Update quantity if it's not 0
@@ -203,8 +188,8 @@ export default function ProductDetailPage() {
             }
           });
         } catch (error: unknown) {
-          console.error('Error updating quantity:', error);
-          toast.error('Failed to update quantity');
+          console.error('Fout bij bijwerken hoeveelheid:', error);
+          toast.error('Hoeveelheid bijwerken mislukt');
         }
       }
     }
@@ -265,19 +250,19 @@ export default function ProductDetailPage() {
               <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
               
               <div className="space-y-4">
-                <p><span className="font-medium">Brand:</span> {product.brand || 'Unknown'}</p>
+                <p><span className="font-medium">Merk:</span> {product.brand || 'Onbekend'}</p>
                 <div className="flex items-start">
-                  <span className="font-medium mr-2 flex-shrink-0">Categories:</span>
+                  <span className="font-medium mr-2 flex-shrink-0">Categorieën:</span>
                   <div className="flex flex-wrap gap-1">
                     {product.categories?.map((cat, index) => (
                       <span key={cat.id} className="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-sm whitespace-nowrap">
                         {cat.name}
                       </span>
-                    )) || 'None'}
+                    )) || 'Geen categorieën'}
                   </div>
                 </div>
-                <p><span className="font-medium">Unit:</span> {product.unit || 'piece'}</p>
-                <p><span className="font-medium">Price:</span> {Object.entries(product.price_per_store)[0]?.[1].price_per_item || 'N/A'}</p>
+                <p><span className="font-medium">Eenheid:</span> {product.unit || 'stuk'}</p>
+                <p><span className="font-medium">Prijs:</span> {Object.entries(product.price_per_store)[0]?.[1].price_per_item || 'N/A'}</p>
                 {product.nutriscore && (
                   <div className="flex items-center">
                     <span className="font-medium mr-2">Nutri-Score:</span>
@@ -334,7 +319,7 @@ export default function ProductDetailPage() {
                     className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                   >
                     <Plus className="w-5 h-5" />
-                    <span>Add to Shopping List</span>
+                    <span>Toevoegen aan winkelmandje</span>
                   </button>
                 )}
               </div>
@@ -345,4 +330,3 @@ export default function ProductDetailPage() {
     </div>
   );
 } 
-// }

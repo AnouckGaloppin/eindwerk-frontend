@@ -29,7 +29,7 @@ export function useProductsPagination({
   perPage = 12, 
   initialData 
 }: UseProductsPaginationOptions = {}) {
-  console.log('useProductsPagination called with:', { category, search, page, perPage });
+  console.log('useProductsPagination aangeroepen met:', { category, search, page, perPage });
   
   const query = useQuery({
     queryKey: ["products", category, search, page, perPage],

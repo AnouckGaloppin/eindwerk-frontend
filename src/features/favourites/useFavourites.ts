@@ -4,14 +4,6 @@ import api from "@/lib/axios";
 import { useInfiniteQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Favourite } from "@/types/favouritesTypes";
-// import { data } from "framer-motion/client";
-
-// const API_FAVOURITES_URL = `Baseurl/favourites";
-
-// export type Favourite = {
-//   id: string;
-//   name: string;
-// };
 
 interface FavouritesResponse {
   data: Favourite[];
@@ -61,42 +53,16 @@ export const useToggleFavourite = () => {
 
   return useMutation({
     mutationFn: async ({ product_id }: { product_id: string }) => {
-      console.log("Toggling favourite for product:", product_id);
+      console.log("Toggling favoriet voor product:", product_id);
       const res = await api.post("/api/favourites/toggle", {
         product_id,
       });
-      console.log("Toggled favourite for product:", res.data);
+      console.log("Toggled favoriet voor product:", res.data);
       return res.data;
     },
     onSuccess: () => {
-      console.log("Invalidating favourites");
+      console.log("Invalidate favorieten");
       queryClient.invalidateQueries({ queryKey: ["favourites"] });
     },
   });
 };
-
-// export const useDeleteFavourite = () => {
-//   const queryClient = useQueryClient();
-
-//   return useMutation({
-//     mutationFn: async (id: string) => {
-//       await api.delete(`/favourites/${id}`);
-//     },
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({ queryKey: ["favourites"] });
-//     },
-//   });
-// };
-
-// export const useAddFavourite = () => {
-//   const queryClient = useQueryClient();
-//   return useMutation({
-//     mutationFn: async (newItem: { name: string }) => {
-//       const res = await api.post("/favourites", newItem);
-//       return res.data;
-//     },
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({ queryKey: ["favourites"] });
-//     },
-//   });
-// };

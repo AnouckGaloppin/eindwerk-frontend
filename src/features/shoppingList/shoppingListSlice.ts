@@ -2,18 +2,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { ShoppingListItem, ShoppingListState } from "@/types/shoppingTypes";
 
-// type ShoppingItem = {
-//   id: string;
-//   name: string;
-//   quantity: number;
-// };
-
-// type ShoppingListState = {
-//   items: ShoppingItem[];
-//   loading: boolean;
-//   error: string | null;
-// };
-
 const initialState: ShoppingListState = {
   items: [],
   loading: false,
@@ -49,7 +37,6 @@ const shoppingListSlice = createSlice({
     builder
       .addCase(fetchShoppingList.pending, (state) => {
         state.loading = true;
-        // state.error = null;
       })
       .addCase(fetchShoppingList.fulfilled, (state, action) => {
         state.items = action.payload;

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-// import api from "@/lib/axios";
 import { useAuth } from "@/lib/auth-context";
 
 export default function Verify() {
@@ -25,18 +24,18 @@ export default function Verify() {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h1 className="text-3xl font-bold mb-4">
-        Please verify your email address
+        Controleer uw e-mailadres
       </h1>
       <p className="text-lg mb-8">
-        We sent an email with a verification link. Please click on that link to
-        verify your email address.
+        We hebben een e-mail verstuurd met een verificatie link. Klik op die link om
+        uw e-mailadres te verifiëren.
       </p>
       <button
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         onClick={handleClick}
         disabled={loading}
       >
-        {loading ? "Verifying..." : "I already verified"}
+        {loading ? "Verifiëren..." : "Ik heb mijn e-mail  al geverifieerd"}
       </button>
     </div>
   );

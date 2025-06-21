@@ -68,14 +68,13 @@ export default function Favourites() {
       <div className="space-y-2">
         <ul className="space-y-2 p-4">
           {!favourites || favourites.length === 0 ? (
-            <li className="text-gray-900 dark:text-white">You do not have favourites yet. Please add products.</li>
+            <li className="text-gray-900 dark:text-white">Je hebt nog geen favorieten. Voeg producten toe.</li>
           ) : (
             favourites.map((fav: Favourite) => (
               <FavouriteItem
                 key={getStringId(fav.id)}
                 favourite={fav}
                 toggleFavourite={toggleFavourite}
-                // onDelete={(id) => deleteFavourite.mutate(id)}
               />
             ))
           )}
@@ -84,14 +83,14 @@ export default function Favourites() {
         {/* Infinite scroll loading indicator */}
         {hasMore && (
           <div ref={loadingRef}>
-            <InfiniteScrollLoader text="Loading more favourites..." />
+            <InfiniteScrollLoader text="Meer favorieten laden..." />
           </div>
         )}
         
         {/* No more favourites message */}
         {!hasMore && favourites.length > 0 && (
           <div className="flex justify-center py-4">
-            <span className="text-gray-500 text-sm">No more favourites to load</span>
+            <span className="text-gray-500 text-sm">Geen favorieten meer te laden</span>
           </div>
         )}
       </div>

@@ -58,79 +58,6 @@ export default function AdminUsers() {
     }
   };
 
-  // useEffect(() => {
-  //   if (!user) {
-  //     router.push("/login");
-  //     return;
-  //   }
-  //   if (user.role !== "admin") {
-  //     router.push("/");
-  //     return;
-  //   }
-
-  //   fetchUsers();
-  // }, [user, router]);
-
-  // const handleInputChange = (
-  //   e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  // ) => {
-  //   setFormData({ ...formData, [e.target.name]: e.target.value });
-  // };
-
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   try {
-  //     if (editingUserId) {
-  //       await api.put(`/api/admin/users/${editingUserId}`, formData);
-  //       alert("Gebruiker bijgewerkt");
-  //     } else {
-  //       await api.post("/api/admin/users", formData);
-  //       alert("Gebruiker aangemaakt");
-  //     }
-  //     const response = await api.get("/api/admin/users");
-  //     setUsers(response.data);
-  //     setFormData({
-  //       username: "",
-  //       email: "",
-  //       password: "",
-  //       password_confirmation: "",
-  //       role: "user",
-  //     });
-  //     setEditingUserId(null);
-  //   } catch (error: any) {
-  //     setError(
-  //       "Failed to save user: " + error.response?.data?.message || error.message
-  //     );
-  //     // console.error("Error creating user:", error);
-  //     // alert(error.response?.data?.error || "Fout bij het aanmaken van de gebruiker");
-  //   }
-  // };
-
-  // const handleEdit = (user: User) => {
-  //   setEditingUserId(user.id);
-  //   setFormData({
-  //     username: user.username,
-  //     email: user.email,
-  //     password: "",
-  //     password_confirmation: "",
-  //     role: user.role,
-  //   });
-  // };
-
-  // useEffect(() => {
-  //   if (!user || user.role !== "admin") return;
-  //   api
-  //     .get("/admin/users")
-  //     .then((response) => {
-  //       setUsers(response.data);
-  //       setLoading(false);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching users:", error);
-  //       setLoading(false);
-  //     });
-  // }, [user]);
-
   const handleDelete = async (id: string) => {
     if (confirm("Weet je zeker dat je deze gebruiker wilt verwijderen?")) {
       try {
@@ -138,8 +65,6 @@ export default function AdminUsers() {
         await api.delete(`/api/admin/users/${id}`);
         alert("Gebruiker verwijderd");
         fetchUsers();
-        // const response = await api.get("/api/admin/users");
-        // setUsers(response.data);
       } catch (error: unknown) {
         if (error instanceof AxiosError) {
           console.log(error.response?.data);
@@ -150,7 +75,7 @@ export default function AdminUsers() {
 
   if (loading) return <p>Laden...</p>;
   if (!user || user.role !== "admin") {
-    return <p className="text-red-500">Alleen toegankelijk voor beheerders</p>;
+    return <p className="text-red-500">Alleen toegankelijk voor beheerders.</p>;
   }
 
   return (
@@ -172,7 +97,7 @@ export default function AdminUsers() {
             <thead>
               <tr className="bg-gray-50">
                 <th className="border-b p-3 text-left font-semibold text-gray-700">Gebruikersnaam</th>
-                <th className="border-b p-3 text-left font-semibold text-gray-700">Email</th>
+                <th className="border-b p-3 text-left font-semibold text-gray-700">E-mailadres</th>
                 <th className="border-b p-3 text-left font-semibold text-gray-700">Rol</th>
                 <th className="border-b p-3 text-left font-semibold text-gray-700">Acties</th>
               </tr>

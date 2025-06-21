@@ -50,12 +50,12 @@ export default function ProfilePage() {
         email,
         password: password || undefined,
       });
-      setSuccess(response.data.message || "Profile updated successfully");
+      setSuccess(response.data.message || "Profiel succesvol bijgewerkt");
       addToast(response.data.message || "Profiel succesvol bijgewerkt", "success");
       refreshUser(); // Refresh user data in context
       setPassword("");
     } catch (err: any) {
-      console.error("Update error:", {
+      console.error("Fout bij bijwerken profiel:", {
         message: err.message,
         status: err.response?.status,
         data: err.response?.data,
@@ -63,7 +63,7 @@ export default function ProfilePage() {
       const errorMessage = err.response?.data?.errors
         ? Object.values(err.response.data.errors).flat().join(", ")
         : err.response?.data?.message ||
-          "An error occurred while updating the profile";
+          "Er is een fout opgetreden bij het bijwerken van het profiel";
       setError(errorMessage);
       addToast(errorMessage, "error");
     }
@@ -98,7 +98,6 @@ export default function ProfilePage() {
       const errorMessage =
         err.response?.data?.message ||
         "Er is een fout opgetreden bij het wijzigen van 2FA";
-      // setToast({ message: errorMessage, type: "error" });
       if (errorMessage === "Password confirmation required.") {
         setShowModal(true);
       } else {
@@ -110,19 +109,10 @@ export default function ProfilePage() {
   const handleConfirmPassword = async () => {
     try {
       await api.get("/sanctum/csrf-cookie");
-      // const isEnabling = !user?.two_factor_confirmed_at;
-      // const endpoint = "/user/confirm-password";
       const response = await api.post("user/confirm-password", {
         password: confirmPassword,
       });
       if (response.status === 201) {
-        // setToast({
-        //   message: isEnabling
-        //     ? "2FA succesvol ingeschakeld"
-        //     : "2FA succesvol uitgeschakeld",
-        //   type: "success",
-        // });
-        // await refreshUser();
         await api.post("/user/two-factor-authentication");
         setShowModal(false);
         handleToggle2FA();
@@ -155,11 +145,11 @@ export default function ProfilePage() {
   };
 
   if (isLoading) {
-    return <CardLoader text="Loading profile..." />;
+    return <CardLoader text="Profiel laden..." />;
   }
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <div>Laden...</div>;
   }
 
   return (
@@ -215,12 +205,12 @@ export default function ProfilePage() {
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-2xl w-full max-w-sm">
             <h3 className="text-lg font-bold text-gray-800 mb-4">
-              Scan this QR code with your authenticator app
+              Scan deze QR code met uw authenticator app
             </h3>
 
             <div dangerouslySetInnerHTML={{ __html: FAQRCodeImg }} />
             <h3 className="text-lg font-bold text-gray-800 mb-2 mt-4">
-              Recovery codes:
+              Herstelcodes:
             </h3>
             <div>
               {Object.entries(FACodesList).map(([key, value]) => (
@@ -236,7 +226,7 @@ export default function ProfilePage() {
                 className="border border-black"
               />
               <button className="ml-4 px-4 py-2 bg-gradient-to-r from-indigo-500 to-teal-500 text-white font-semibold rounded-lg hover:from-indigo-600 hover:to-teal-600 transition">
-                Confirm 2FA
+                Bevestigen 2FA
               </button>
             </form>
           </div>
@@ -269,7 +259,7 @@ export default function ProfilePage() {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Email
+              E-mailadres
             </label>
             <input
               id="email"
@@ -285,7 +275,7 @@ export default function ProfilePage() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Nieuw wachtwoord{" "}
+              Nieuw wachtwoord
               <span className="text-gray-400">(optioneel)</span>
             </label>
             <input
@@ -305,9 +295,6 @@ export default function ProfilePage() {
           </button>
         </form>
         <div className="mt-6">
-          {/* <label className="block text-sm font-medium text-gray-700 mb-2">
-            Twee-factor authenticatie
-          </label> */}
           <button
             onClick={handleToggle2FA}
             className={`w-full bg-gradient-to-r ${

@@ -23,7 +23,6 @@ const getStringId = (id: string | { $oid: string }): string => {
 
 export function FavouriteItem({
   favourite,
-  // onDelete,
   isMobile,
 }: FavouriteItemProps) {
   const router = useRouter();
@@ -34,7 +33,6 @@ export function FavouriteItem({
 
   const { data: favourites = [] } = useFavourites();
   const toggleFavourite = useToggleFavourite();
-  // const { favourites, toggleFavourite } = useFavouritesContext();
   const product = favourite.product;
   const productId = product?.id ?? favourite.product_id;
 
@@ -73,7 +71,7 @@ export function FavouriteItem({
         }}
         tabIndex={0}
         role="button"
-        aria-label={`View details for ${product?.name || 'product'}`}
+        aria-label={`Bekijk details voor ${product?.name || 'product'}`}
       >
         {product?.img && (
           <img
@@ -85,7 +83,7 @@ export function FavouriteItem({
         {product && (
           <div>
             <h3 className="font-medium text-gray-900 text-sm sm:text-base break-words leading-tight">{product.name}</h3>
-            <p className="text-xs sm:text-sm text-gray-500">{product.brand || 'Unknown Brand'}</p>
+            <p className="text-xs sm:text-sm text-gray-500">{product.brand || 'Onbekend merk'}</p>
           </div>
         )}
       </div>
@@ -96,7 +94,7 @@ export function FavouriteItem({
             handleToggle();
           }}
           className="text-red-600 hover:text-red-700 transition-colors duration-200 p-2 hover:bg-red-50 rounded-full"
-          aria-label="Toggle favourite"
+          aria-label="Toggle favoriet"
         >
           {isFavourite ? (
             <Heart className="fill-red-500 w-6 h-6" />

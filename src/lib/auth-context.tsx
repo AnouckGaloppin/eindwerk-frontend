@@ -17,14 +17,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// TODO: Remove this mock user when re-enabling authentication
-// const mockUser: User = {
-//   id: "1",
-//   username: "test_user",
-//   email: "test@example.com",
-//   role: "user",
-// };
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,7 +43,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     };
-
     initAuth();
   }, []);
 
@@ -142,7 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error("useAuth moet worden gebruikt binnen een AuthProvider");
   }
   return context;
 };

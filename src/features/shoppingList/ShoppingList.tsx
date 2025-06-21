@@ -1,7 +1,6 @@
 import { useShoppingList } from "./useShoppingList";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { useSwipeable } from "react-swipeable";
-// import { motion, AnimatePresence } from "framer-motion";
 import type { ShoppingListItem as ShoppingListItemType } from "@/types/shoppingTypes";
 import { Trash, Plus, Minus, Heart } from "lucide-react";
 import Image from "next/image";
@@ -41,9 +40,9 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
   const handleToggleFavorite = async () => {
     try {
       await toggleFavourite.mutateAsync({ product_id: product.product_id });
-      addToast(isFavorite ? "Removed from favorites" : "Added to favorites!", "success");
+      addToast(isFavorite ? "Verwijderd uit favorieten" : "Toegevoegd aan favorieten!", "success");
     } catch (error) {
-      addToast("Failed to update favorites", "error");
+      addToast("Fout bij het updaten van favorieten", "error");
     }
   };
 
@@ -90,9 +89,9 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
     onSwipedRight: async () => {
       try {
         await toggleFavourite.mutateAsync({ product_id: product.product_id });
-        addToast(isFavorite ? "Removed from favorites" : "Added to favorites!", "success");
+        addToast(isFavorite ? "Verwijderd uit favorieten" : "Toegevoegd aan favorieten!", "success");
       } catch (error) {
-        addToast("Failed to update favorites", "error");
+        addToast("Fout bij het updaten van favorieten", "error");
       }
     },
     onSwiping: (e) => {
@@ -151,7 +150,7 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
         <div className="min-w-0 flex-1">
           <h3 className="font-medium text-gray-900 text-sm sm:text-base break-words leading-tight">{product.product?.name}</h3>
           <p className="text-xs sm:text-sm text-gray-500">
-            {product.product?.brand || product.product?.name?.split(' ')[0] || 'Unknown brand'}
+            {product.product?.brand || product.product?.name?.split(' ')[0] || 'Onbekend merk'}
           </p>
         </div>
       </div>
@@ -176,14 +175,14 @@ function ShoppingListItem({ product, onDelete, onUpdateQuantity }: ShoppingListI
           <button
             onClick={handleToggleFavorite}
             className="hidden sm:block p-2 text-pink-600 hover:bg-pink-50 rounded-full transition-colors"
-            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            aria-label={isFavorite ? "Verwijder van favorieten" : "Voeg toe aan favorieten"}
           >
             <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
           </button>
           <button
             onClick={handleDelete}
             className="hidden sm:block p-2 text-red-600 hover:bg-red-50 rounded-full transition-all duration-200 hover:scale-110"
-            aria-label="Remove from shopping list"
+            aria-label="Verwijder van winkelmandje"
           >
             <Trash className="w-5 h-5" />
           </button>

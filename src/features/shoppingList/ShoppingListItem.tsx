@@ -9,7 +9,7 @@ interface ShoppingListItemProps {
 export default function ShoppingListItem({ item, onUpdateQuantity, onDelete }: ShoppingListItemProps) {
   const product = item.product;
   if (!product) {
-    return <div>Loading product details...</div>;
+    return <div>Product details laden...</div>;
   }
 
   const handleQuantityChange = (increase: boolean) => {
@@ -22,10 +22,10 @@ export default function ShoppingListItem({ item, onUpdateQuantity, onDelete }: S
   return (
     <div className="border p-4 rounded-lg hover:shadow-md transition-all duration-200 hover:scale-[1.02]">
       <h3 className="text-lg font-semibold">{product.name}</h3>
-      <p className="text-gray-600">Quantity: {item.quantity}</p>
+      <p className="text-gray-600">Hoeveelheid: {item.quantity}</p>
       {product.price_per_store && Object.entries(product.price_per_store)[0] && (
         <p className="text-gray-600">
-          Price: €{Object.entries(product.price_per_store)[0][1].price_per_item}
+          Prijs: €{Object.entries(product.price_per_store)[0][1].price_per_item}
         </p>
       )}
       <div className="mt-2 flex gap-2">
@@ -45,7 +45,7 @@ export default function ShoppingListItem({ item, onUpdateQuantity, onDelete }: S
           onClick={() => onDelete(item._id)}
           className="px-2 py-1 bg-red-500 text-white rounded"
         >
-          Delete
+          Verwijder
         </button>
       </div>
     </div>

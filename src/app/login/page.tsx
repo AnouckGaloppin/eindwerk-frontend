@@ -23,15 +23,15 @@ export default function LoginPage() {
     try {
       await login(formData.email, formData.password);
       setToastMessage({
-        message: "Login successful",
+        message: "Login succesvol",
         type: "success"
       });
     } catch (error) {
       setToastMessage({
-        message: "Login failed. Please check your credentials.",
+        message: "Login mislukt. Controleer uw inloggegevens.",
         type: "error"
       });
-      console.error("Error logging in:", error);
+      console.error("Login mislukt:", error);
     }
   };
 
@@ -67,15 +67,15 @@ export default function LoginPage() {
         <div className="bg-white p-8 rounded-lg shadow-lg">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Sign in to your account
+              Inloggen
             </h2>
             <p className="text-gray-600">
-              Or{" "}
+              Of{" "}
               <Link
                 href="/register"
                 className="font-medium text-teal-600 hover:text-teal-500"
               >
-                create a new account
+                Maak een nieuw account aan
               </Link>
             </p>
           </div>
@@ -86,7 +86,7 @@ export default function LoginPage() {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Email address
+                E-mailadres
               </label>
               <input
                 id="email"
@@ -97,7 +97,7 @@ export default function LoginPage() {
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                placeholder="Enter your email"
+                placeholder="Voer uw e-mailadres in"
               />
             </div>
 
@@ -106,7 +106,7 @@ export default function LoginPage() {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Password
+                Wachtwoord
               </label>
               <input
                 id="password"
@@ -117,7 +117,7 @@ export default function LoginPage() {
                 value={formData.password}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                placeholder="Enter your password"
+                placeholder="Voer uw wachtwoord in"
               />
             </div>
 
@@ -126,7 +126,7 @@ export default function LoginPage() {
                 href="/forgot-password"
                 className="text-sm font-medium text-teal-600 hover:text-teal-500"
               >
-                Forgot your password?
+                Wachtwoord vergeten?
               </Link>
             </div>
 
@@ -134,7 +134,7 @@ export default function LoginPage() {
               type="submit"
               className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors duration-200"
             >
-              Sign in
+              Inloggen
             </button>
           </form>
         </div>

@@ -1,10 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-//axios gooit automatisch fouten wanneer er iets
-// misgaat (zoals een 404 of 500 error), fetch() zou
-// je zelf moeten controleren op fouten.
-//gemakkelijkere configuratie
-//makkelijker werken met JSON
 import { Product } from "@/types/productTypes";
 import api from "@/lib/axios";
 

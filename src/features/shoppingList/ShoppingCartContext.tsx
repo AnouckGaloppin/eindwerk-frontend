@@ -61,7 +61,7 @@ export function ShoppingCartProvider({ children }: { children: ReactNode }) {
 export function useShoppingCart() {
   const context = useContext(ShoppingCartContext);
   if (context === undefined) {
-    throw new Error("useShoppingCart must be used within a ShoppingCartProvider");
+    throw new Error("useShoppingCart moet worden gebruikt binnen een ShoppingCartProvider");
   }
   return context;
 }

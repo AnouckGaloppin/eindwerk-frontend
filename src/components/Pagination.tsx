@@ -103,7 +103,7 @@ export default function Pagination({
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
       {/* Results info */}
       <div className="text-sm text-gray-700">
-        Showing {startItem} to {endItem} of {totalItemsNum} results
+        {startItem} tot {endItem} van {totalItemsNum} resultaten weergegeven.
       </div>
 
       {/* Pagination controls */}
@@ -113,10 +113,10 @@ export default function Pagination({
           onClick={() => handlePageChange(currentPageNum - 1)}
           disabled={currentPageNum === 1}
           className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
-          aria-label="Go to previous page"
+          aria-label="Ga naar vorige pagina"
         >
           <ChevronLeft className="w-4 h-4" />
-          Previous
+          Vorige
         </button>
 
         {/* Page numbers */}
@@ -146,7 +146,7 @@ export default function Pagination({
                   ? "bg-teal-600 text-white border border-teal-600"
                   : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700"
               }`}
-              aria-label={`Go to page ${page}`}
+              aria-label={`Ga naar pagina ${page}`}
               aria-current={page === currentPageNum ? "page" : undefined}
             >
               {page}
@@ -182,9 +182,9 @@ export default function Pagination({
           }}
           disabled={currentPageNum === totalPagesNum}
           className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
-          aria-label="Go to next page"
+          aria-label="Ga naar volgende pagina"
         >
-          Next
+          Volgende
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>

@@ -25,14 +25,14 @@ export default function CreateUserPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create user");
+        throw new Error("Gebruiker aanmaken mislukt.");
       }
 
-      toast.success("User created successfully");
+      toast.success("Gebruiker aangemaakt.");
       router.push("/admin/users");
     } catch (error) {
-      toast.error("Failed to create user");
-      console.error("Error creating user:", error);
+      toast.error("Gebruiker aanmaken mislukt.");
+      console.error("Gebruiker aanmaken mislukt:", error);
     }
   };
 

@@ -28,10 +28,4 @@ export const getStringId = (id: string | { $oid: string }): string => {
 // Helper function to generate URL-friendly slug from product name
 export const generateSlug = (name: string): string => {
   return slugify(name, {lower:true})
-    // .toLowerCase()
-    // .trim()
-    // .replace(/[^\w\s-]/g, '') // Remove special characters except spaces and hyphens
-    // .replace(/\s+/g, '-') // Replace spaces with hyphens
-    // .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-    // .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
 }; 

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import Categories from "@/components/Categories";
 import Link from "next/link";
-import api from "@/lib/axios";
 
 export default function HomePage() {
   const { user, refreshUser } = useAuth();
@@ -16,19 +15,14 @@ export default function HomePage() {
     refreshUser();
   }, []);
 
-  // TODO: Re-enable loading state later
-  // if (!user) {
-    // return <div className="p-4 text-center text-gray-900">Loading...</div>;
-  // }
-
   return (
     <main className="flex flex-col items-center justify-center min-h-[calc(100vh-128px)] px-4 sm:px-6 pb-8 sm:pb-16 bg-gray-100">
       <section className="w-full max-w-2xl flex flex-col items-center justify-center space-y-6 sm:space-y-8">
         <h1 className="text-xl sm:text-2xl font-bold text-center text-gray-900">
-          Welkom {user?.username || 'Gast'}!
+          Welkom {user?.username || 'gastgebruiker'}!
         </h1>
         
-        <Suspense fallback={<div className="h-44 flex items-center justify-center">Loading categories...</div>}>
+        <Suspense fallback={<div className="h-44 flex items-center justify-center">Categorieën laden...</div>}>
           <Categories />
         </Suspense>
 

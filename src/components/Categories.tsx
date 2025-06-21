@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
+// import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import "swiper/css";
 import api from "@/lib/axios";
 import type { Category } from "@/types/productTypes";
-import { Loader } from "lucide-react";
-import { AxiosError } from "axios";
+// import { Loader } from "lucide-react";
+// import { AxiosError } from "axios";
 import { CardLoader } from "@/components/ui/Loader";
 
 // const staticCategories: Category[] = [
@@ -97,14 +97,14 @@ export default function Categories({ className, initialCategories }: CategoriesP
         const fetchedCategories = response.data.categories;
         
         if (!Array.isArray(fetchedCategories)) {
-          throw new Error("Expected categories to be an array");
+          throw new Error("Verwacht categorieën als een array");
         }
 
         const mappedCategories = fetchedCategories.map(
           (cat: Category, index: number) => ({
             _id: cat._id || `fallback-${index}`,
-            name: cat.name || "Unnamed Category",
-            slug: cat.slug || "unknown Slug",
+            name: cat.name || "Onbenoemde categorie",
+            slug: cat.slug || "Onbekende slug",
             color: cat.color || "bg-gray-500",
           })
         );
@@ -112,8 +112,8 @@ export default function Categories({ className, initialCategories }: CategoriesP
         setCategories(mappedCategories);
         setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching categories:", error);
-        setError("Failed to load categories");
+        console.error("Fout bij laden categorieën:", error);
+        setError("Fout bij laden categorieën");
         setIsLoading(false);
       }
     };
@@ -132,9 +132,9 @@ export default function Categories({ className, initialCategories }: CategoriesP
         className="flex justify-center items-center py-8"
         role="status"
         aria-live="polite"
-        aria-label="Loading categories"
+        aria-label="Categorieën laden"
       >
-        <CardLoader text="Loading categories..." />
+        <CardLoader text="Categorieën laden..." />
       </div>
     );
   }
@@ -157,13 +157,13 @@ export default function Categories({ className, initialCategories }: CategoriesP
           role="status"
           aria-live="polite"
         >
-          No categories available
+          Geen categorieën beschikbaar
         </p>
       ) : (
         <div 
           className="w-full max-w-[1200px] mx-auto flex justify-center"
           role="region"
-          aria-label="Product categories"
+          aria-label="Productcategorieën"
         >
           <div className="w-[380px] sm:w-[480px] md:w-[800px] lg:w-[1100px]">
             <Swiper
@@ -219,7 +219,7 @@ function CategoryBox({ category, isActive, onClick }: { category: Category, isAc
         transition-all duration-300 ease-in-out transform hover:shadow-lg hover:scale-105
         ${isActive ? 'h-20' : 'h-12'}
       `}
-      aria-label={`Filter by ${category.name}`}
+      aria-label={`Filter op ${category.name}`}
       aria-current={isActive ? 'page' : undefined}
     >
       <div className={`

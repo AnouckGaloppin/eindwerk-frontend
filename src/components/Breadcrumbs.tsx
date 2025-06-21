@@ -66,14 +66,14 @@ export default function Breadcrumbs() {
     <nav 
       className="flex items-center space-x-2 text-sm max-w-7xl mx-auto w-full px-4 mb-4 mt-4"
       role="navigation"
-      aria-label="Breadcrumb navigation"
+      aria-label="Breadcrumb navigatie"
     >
       <ol className="flex items-center space-x-2">
         <li>
           <Link
             href="/"
             className="flex items-center p-1.5 text-indigo-600 hover:text-indigo-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded"
-            aria-label="Go to homepage"
+            aria-label="Ga naar homepage"
           >
             <Home className="w-4 h-4" aria-hidden="true" />
             <span className="sr-only">Home</span>
@@ -96,7 +96,7 @@ export default function Breadcrumbs() {
               <Link
                 href={breadcrumb.path}
                 className="px-2.5 py-1 text-gray-600 hover:text-gray-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded"
-                aria-label={`Go to ${breadcrumb.label}`}
+                aria-label={`Ga naar ${breadcrumb.label}`}
               >
                 {breadcrumb.label}
               </Link>

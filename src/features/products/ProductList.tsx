@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Plus } from 'lucide-react';
+import { Heart, Plus, ShoppingCart } from 'lucide-react';
 import { Product } from '@/types/productTypes';
 import { ShoppingListItem } from '@/types/shoppingTypes';
 import { Favourite } from "@/types/favouritesTypes";
@@ -86,7 +86,7 @@ const ProductList: React.FC<ProductListProps> = ({
       }
     } catch (error) {
       console.error('Error updating quantity:', error);
-      toast.error('Failed to update quantity');
+      toast.error('Fout bij updaten hoeveelheid');
     }
   };
 
@@ -115,7 +115,7 @@ const ProductList: React.FC<ProductListProps> = ({
   };
 
   if (isLoading) {
-    return <CardLoader text="Loading products..." />;
+    return <CardLoader text="Producten laden..." />;
   }
 
   if (error) {
@@ -137,7 +137,7 @@ const ProductList: React.FC<ProductListProps> = ({
       <div 
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
         role="grid"
-        aria-label="Product grid"
+        aria-label="Producten grid"
       >
         {products.map((product) => {
           const productId = getStringId(product._id);
@@ -163,13 +163,13 @@ const ProductList: React.FC<ProductListProps> = ({
               <Link
                 href={`/products/${generateSlug(product.name)}`}
                 className="block focus:outline-none"
-                aria-label={`View details for ${product.name}`}
+                aria-label={`Bekijk details voor ${product.name}`}
               >
                 <div className="relative">
                   {product.img && (
                     <img
                       src={product.img}
-                      alt={`${product.name} product image`}
+                      alt={`${product.name} product afbeelding`}
                       className="w-full h-48 object-cover"
                     />
                   )}
@@ -179,7 +179,7 @@ const ProductList: React.FC<ProductListProps> = ({
                       toggleFavourite.mutate({ product_id: productId });
                     }}
                     className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                    aria-label={`${isFavourite ? 'Remove' : 'Add'} ${product.name} to favourites`}
+                    aria-label={`${isFavourite ? 'Verwijder van' : 'Voeg toe aan'} ${product.name} favorieten`}
                     aria-pressed={isFavourite}
                   >
                     <Heart 
@@ -199,7 +199,7 @@ const ProductList: React.FC<ProductListProps> = ({
                         <div 
                           className="flex items-center space-x-2"
                           role="group"
-                          aria-label={`Quantity controls for ${product.name}`}
+                          aria-label={`Hoeveelheid controls voor ${product.name}`}
                         >
                           <button
                             onClick={(e) => {
@@ -207,13 +207,13 @@ const ProductList: React.FC<ProductListProps> = ({
                               handleDecrement(product);
                             }}
                             className="p-1 hover:bg-gray-100 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
-                            aria-label={`Decrease quantity of ${product.name}`}
+                            aria-label={`Verlaag hoeveelheid van ${product.name}`}
                           >
                             <span aria-hidden="true">-</span>
                           </button>
                           
                           <label htmlFor={`quantity-${productId}`} className="sr-only">
-                            Quantity for {product.name}
+                            Hoeveelheid voor {product.name}
                           </label>
                           <input
                             id={`quantity-${productId}`}
@@ -233,7 +233,7 @@ const ProductList: React.FC<ProductListProps> = ({
                             className="w-16 text-center px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             min="0"
                             step={product.unit === 'piece' ? 1 : 0.1}
-                            aria-label={`Current quantity: ${formatQuantity(quantity)} ${product.unit}`}
+                            aria-label={`Huidige hoeveelheid: ${formatQuantity(quantity)} ${product.unit}`}
                           />
                           
                           <button
@@ -242,12 +242,12 @@ const ProductList: React.FC<ProductListProps> = ({
                               handleIncrement(product);
                             }}
                             className="p-1 hover:bg-gray-100 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
-                            aria-label={`Increase quantity of ${product.name}`}
+                            aria-label={`Verhoog hoeveelheid van ${product.name}`}
                           >
                             <span aria-hidden="true">+</span>
                           </button>
                           
-                          <span className="text-sm text-gray-500" aria-label="Unit of measurement">
+                          <span className="text-sm text-gray-500" aria-label="Meeteenheid">
                             {product.unit}
                           </span>
                         </div>
@@ -259,18 +259,18 @@ const ProductList: React.FC<ProductListProps> = ({
                             const dbQuantity = typeof product.quantity === 'string' 
                               ? parseFloat(product.quantity)
                               : (typeof product.quantity === 'number' ? product.quantity : 0);
-                            console.log('Adding item with database quantity:', {
+                            console.log('Voeg item toe met database hoeveelheid:', {
                               productId,
                               dbQuantity,
                               rawQuantity: product.quantity
                             });
-                            handleQuantityChange(productId, dbQuantity || (product.unit === 'piece' ? 1 : 0.1));
+                            handleQuantityChange(productId, dbQuantity || (product.unit === 'stuks' ? 1 : 0.1));
                           }}
                           className="flex items-center space-x-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
-                          aria-label={`Add ${product.name} to shopping list`}
+                          aria-label={`Voeg ${product.name} toe aan winkelmandje`}
                         >
                           <Plus className="w-4 h-4" aria-hidden="true" />
-                          <span>Add</span>
+                          <ShoppingCart/>
                         </button>
                       )}
                     </div>
@@ -294,7 +294,7 @@ const ProductList: React.FC<ProductListProps> = ({
       {error && <p className="text-red-500">{error}</p>}
 
       {isLoading && products.length === 0 ? (
-        <CardLoader text="Loading products..." />
+        <CardLoader text="Producten laden..." />
       ) : (
         productList
       )}

@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   } catch (error: unknown) {
     if (error instanceof AxiosError) {
       return NextResponse.json(
-        { message: 'Failed to fetch shopping list' },
+        { message: 'Winkelmandje ophalen mislukt.' },
         { status: 500 }
       );
     }
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   } catch (error: unknown) {
     if (error instanceof AxiosError) {
     return NextResponse.json(
-      { message: 'Failed to add item to shopping list' },
+      { message: 'Item toevoegen aan winkelmandje mislukt.' },
       { status: 500 }
     );
   }

@@ -39,7 +39,7 @@ export default function ShoppingListItem({ product }: Props) {
       setSwiping(false);
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
-        const errorMessage = error.response?.data?.message || error.message || "Failed to delete from shopping list";
+        const errorMessage = error.response?.data?.message || error.message || "Fout bij verwijderen uit winkelmandje";
         toast.error(errorMessage);
         setSwiping(false);
       }
@@ -49,7 +49,7 @@ export default function ShoppingListItem({ product }: Props) {
   const handleQuantityChange = (newQuantity: string) => {
     const parsedQuantity = parseFloat(newQuantity);
     if (isNaN(parsedQuantity) || parsedQuantity < 0.01) {
-      toast.error('Quantity must be at least 0.01');
+      toast.error('Hoeveelheid moet minimaal 0.01 zijn');
       return;
     }
 
@@ -79,11 +79,11 @@ export default function ShoppingListItem({ product }: Props) {
   });
 
   if (!product.product) {
-    console.warn('ShoppingListItem received item without product:', product);
+    console.warn('ShoppingListItem ontvangt item zonder product:', product);
     return null;
   }
 
-  console.log('ShoppingListItem product data:', {
+  console.log('ShoppingListItem productgegevens:', {
     name: product.product.name,
     img: product.product.img,
     fullProduct: product.product
