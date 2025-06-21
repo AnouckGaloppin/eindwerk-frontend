@@ -28,6 +28,17 @@ const SearchBar: FC<SearchBarProps> = ({ className = "" }) => {
   
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
+  // Clear search when user logs out
+  useEffect(() => {
+    if (!user) {
+      setSearchQuery("");
+      setSearchResults([]);
+      setIsDropdownVisible(false);
+      setSelectedIndex(-1);
+      setIsMobileExpanded(false);
+    }
+  }, [user]);
+
   // Handle clicks outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

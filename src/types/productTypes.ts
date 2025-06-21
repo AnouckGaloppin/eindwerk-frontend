@@ -17,6 +17,7 @@ export interface Product {
   _id: string | MongoDBObjectId;
   id: string;
   name: string;
+  slug: string;
   brand: string;
   img?: string;
   price_per_store: PriceData;

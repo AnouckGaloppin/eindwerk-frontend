@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import slugify from "slugify";
 
 export const formatPrice = (price: number): string => {
   return price.toFixed(2);
@@ -26,11 +27,11 @@ export const getStringId = (id: string | { $oid: string }): string => {
 
 // Helper function to generate URL-friendly slug from product name
 export const generateSlug = (name: string): string => {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, '') // Remove special characters except spaces and hyphens
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+  return slugify(name, {lower:true})
+    // .toLowerCase()
+    // .trim()
+    // .replace(/[^\w\s-]/g, '') // Remove special characters except spaces and hyphens
+    // .replace(/\s+/g, '-') // Replace spaces with hyphens
+    // .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    // .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
 }; 
