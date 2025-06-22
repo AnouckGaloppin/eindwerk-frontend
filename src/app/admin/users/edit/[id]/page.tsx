@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import api from "@/lib/axios";
 
 // @ts-nocheck
 export default function EditUserPage({ params }: { params: { id: string } }) {
@@ -16,15 +17,15 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch(`/api/admin/users/${params.id}`);
-        if (!response.ok) {
+        const response = await api.get(`/api/admin/users/${params.id}`);
+        if (!response.data) {
           throw new Error("Gebruiker ophalen mislukt.");
         }
-        const user = await response.json();
+        const user = response.data;
         setFormData({
           username: user.username,
           email: user.email,
-          role: user.role,
+          role: user.role ?? "user",
         });
       } catch (error) {
         toast.error("Gebruiker ophalen mislukt.");
@@ -33,20 +34,16 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
     };
 
     fetchUser();
-  }, [params.id]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`/api/admin/users/${params.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await api.put(`/api/admin/users/${params.id}`,
+        formData,
+      );
 
-      if (!response.ok) {
+      if (!response.data) {
         throw new Error("Gebruiker bijwerken mislukt.");
       }
 
